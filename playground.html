@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playground | Catálogo 2026 - Xalingo Brinquedos</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page-bg: #f5e5d6;
+    --educ-bg: #b49abf; --educ-bar: #4d359a; --educ-text: #3a2470;
+    --sidebar-w: 220px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Quicksand', sans-serif; background: #e8e0d0; display: flex; min-height: 100vh; }
+
+  .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--page-bg); position: fixed; top: 0; left: 0; bottom: 0; z-index: 40; display: flex; flex-direction: column; overflow-y: auto; border-right: 1px solid rgba(0,0,0,0.06); box-shadow: 2px 0 20px rgba(0,0,0,0.08); }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }
+  .sb-header { padding: 16px 14px 12px; border-bottom: 1px solid rgba(0,0,0,0.06); flex-shrink: 0; }
+  .sb-logo { display: block; height: 48px; width: auto; margin-bottom: 8px; }
+  .sb-back { display: inline-flex; align-items: center; gap: 5px; font-size: 0.7rem; font-weight: 700; color: #1B3A5C; text-decoration: none; opacity: 0.6; transition: opacity 0.2s; }
+  .sb-back:hover { opacity: 1; }
+  .sb-nav { flex: 1; padding: 10px 0; }
+  .sb-cat { margin: 0 10px 4px; border-radius: 12px; overflow: hidden; }
+  .sb-cat-head { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; cursor: pointer; }
+  .sb-cat-bar { width: 4px; height: 24px; border-radius: 3px; flex-shrink: 0; }
+  .sb-cat-num { font-family: 'Fredoka', sans-serif; font-size: 0.7rem; font-weight: 600; opacity: 0.35; min-width: 18px; }
+  .sb-cat-name { flex: 1; font-size: 0.76rem; font-weight: 700; line-height: 1.2; }
+  .sb-cat-arrow { font-size: 0.65rem; opacity: 0.4; transition: transform 0.25s; }
+  .sb-subs { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .sb-sub { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 32px; text-decoration: none; font-size: 0.72rem; font-weight: 600; border-radius: 8px; margin: 0 8px; transition: all 0.2s; }
+  .sb-sub-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .sb-sub-page { font-size: 0.62rem; font-weight: 700; opacity: 0.35; margin-left: auto; }
+  .sb-cat.open .sb-subs { max-height: 400px; }
+  .sb-cat.open .sb-cat-arrow { transform: rotate(90deg); }
+  .sb-sub:hover { background: rgba(255,255,255,0.3); }
+
+  /* Cores por categoria */
+  .sb-blocos .sb-cat-head { background: #a496b0; } .sb-blocos .sb-cat-bar { background: #293b7f; } .sb-blocos .sb-cat-num,.sb-blocos .sb-cat-name,.sb-blocos .sb-cat-arrow { color: #1e2a5a; } .sb-blocos .sb-sub { color: #1e2a5a; } .sb-blocos .sb-sub-dot { background: #293b7f; }
+  .sb-educ .sb-cat-head { background: #b49abf; } .sb-educ .sb-cat-bar { background: #4d359a; } .sb-educ .sb-cat-num,.sb-educ .sb-cat-name,.sb-educ .sb-cat-arrow { color: #3a2470; } .sb-educ .sb-sub { color: #3a2470; } .sb-educ .sb-sub-dot { background: #4d359a; }
+  .sb-jogos .sb-cat-head { background: #eda487; } .sb-jogos .sb-cat-bar { background: #ef3128; } .sb-jogos .sb-cat-num,.sb-jogos .sb-cat-name,.sb-jogos .sb-cat-arrow { color: #8b1a15; } .sb-jogos .sb-sub { color: #8b1a15; } .sb-jogos .sb-sub-dot { background: #ef3128; }
+  .sb-faz .sb-cat-head { background: #c1d7c8; } .sb-faz .sb-cat-bar { background: #5ec9c8; } .sb-faz .sb-cat-num,.sb-faz .sb-cat-name,.sb-faz .sb-cat-arrow { color: #2a7574; } .sb-faz .sb-sub { color: #2a7574; } .sb-faz .sb-sub-dot { background: #5ec9c8; }
+  .sb-rodados .sb-cat-head { background: #c1d597; } .sb-rodados .sb-cat-bar { background: #63c437; } .sb-rodados .sb-cat-num,.sb-rodados .sb-cat-name,.sb-rodados .sb-cat-arrow { color: #3a7520; } .sb-rodados .sb-sub { color: #3a7520; } .sb-rodados .sb-sub-dot { background: #63c437; }
+  .sb-esportes .sb-cat-head { background: #efc68f; } .sb-esportes .sb-cat-bar { background: #f89e1c; } .sb-esportes .sb-cat-num,.sb-esportes .sb-cat-name,.sb-esportes .sb-cat-arrow { color: #8a5a0e; } .sb-esportes .sb-sub { color: #8a5a0e; } .sb-esportes .sb-sub-dot { background: #f89e1c; }
+  .sb-playground .sb-cat-head { background: #c78c88; } .sb-playground .sb-cat-bar { background: #891434; } .sb-playground .sb-cat-num,.sb-playground .sb-cat-name,.sb-playground .sb-cat-arrow { color: #5e0e24; } .sb-playground .sb-sub { color: #5e0e24; } .sb-playground .sb-sub-dot { background: #891434; }
+
+  .main { margin-left: var(--sidebar-w); flex: 1; background: #e8e0d0; min-width: 0; zoom: 1.5; }
+  .pages-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; }
+  .page-img { display: block; width: 100%; height: auto; }
+  .section-anchor { display: block; position: relative; top: -10px; visibility: hidden; height: 0; }
+
+  .sb-toggle { display: none; position: fixed; top: 14px; left: 14px; z-index: 60; width: 42px; height: 42px; background: rgba(27,58,92,0.92); color: white; border: 2px solid rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+  .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 35; }
+  .back-to-top { position: fixed; bottom: 20px; right: 20px; width: 42px; height: 42px; background: rgba(27,58,92,0.9); color: white; border: 2px solid rgba(255,255,255,0.15); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.25); z-index: 30; opacity: 0; pointer-events: none; transition: all 0.3s; }
+  .back-to-top.visible { opacity: 1; pointer-events: auto; }
+
+  @media (max-width: 860px) {
+    .sidebar { transform: translateX(-100%); transition: transform 0.35s ease; }
+    .sidebar.open { transform: translateX(0); }
+    .sb-toggle { display: flex; }
+    .sb-overlay.open { display: block; }
+    .main { margin-left: 0; }
+    .pages-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+</button>
+<div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sb-header">
+    <img src="logo-xalingo.png" alt="Xalingo" class="sb-logo">
+    <a href="sumario.html" class="sb-back">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m0 0l7 7m-7-7l7-7"/></svg>
+      Voltar ao Sumário
+    </a>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-cat sb-blocos" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">01</div><div class="sb-cat-name">Blocos de Montar</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="blocos-de-montar.html#engenheiro"><span class="sb-sub-dot"></span>Brincando de Engenheiro<span class="sb-sub-page">07</span></a>
+        <a class="sb-sub" href="blocos-de-montar.html#blocos"><span class="sb-sub-dot"></span>Blocos de Montar<span class="sb-sub-page">16</span></a>
+        <a class="sb-sub" href="blocos-de-montar.html#grandes"><span class="sb-sub-dot"></span>Blocos Grandes<span class="sb-sub-page">61</span></a>
+        <a class="sb-sub" href="blocos-de-montar.html#soft"><span class="sb-sub-dot"></span>Blocos Soft<span class="sb-sub-page">70</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-educ">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">02</div><div class="sb-cat-name">Educativos</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="#desenvolvimento"><span class="sb-sub-dot"></span>Desenvolvimento<span class="sb-sub-page">75</span></a>
+        <a class="sb-sub" href="#steam"><span class="sb-sub-dot"></span>Steam<span class="sb-sub-page">86</span></a>
+        <a class="sb-sub" href="#playset"><span class="sb-sub-dot"></span>Playset<span class="sb-sub-page">89</span></a>
+        <a class="sb-sub" href="#colorir"><span class="sb-sub-dot"></span>Quadros para Colorir<span class="sb-sub-page">91</span></a>
+        <a class="sb-sub" href="#quebracabeca"><span class="sb-sub-dot"></span>Quebra-cabeça<span class="sb-sub-page">93</span></a>
+        <a class="sb-sub" href="#memoria"><span class="sb-sub-dot"></span>Memória<span class="sb-sub-page">99</span></a>
+        <a class="sb-sub" href="#domino"><span class="sb-sub-dot"></span>Dominó<span class="sb-sub-page">102</span></a>
+        <a class="sb-sub" href="#pedagogicos"><span class="sb-sub-dot"></span>Blocos Pedagógicos<span class="sb-sub-page">105</span></a>
+        <a class="sb-sub" href="#jogoseducativos"><span class="sb-sub-dot"></span>Jogos Educativos<span class="sb-sub-page">107</span></a>
+        <a class="sb-sub" href="#carimbos"><span class="sb-sub-dot"></span>Carimbos<span class="sb-sub-page">112</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-jogos" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">03</div><div class="sb-cat-name">Jogos</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="jogos.html#xadrez"><span class="sb-sub-dot"></span>Xadrez<span class="sb-sub-page">114</span></a>
+        <a class="sb-sub" href="jogos.html#classicos"><span class="sb-sub-dot"></span>Jogos Clássicos<span class="sb-sub-page">118</span></a>
+        <a class="sb-sub" href="jogos.html#boardgames"><span class="sb-sub-dot"></span>Board Games<span class="sb-sub-page">126</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-faz" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">04</div><div class="sb-cat-name">Faz de Conta</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="faz-de-conta.html#cozinhas"><span class="sb-sub-dot"></span>Cozinhas<span class="sb-sub-page">130</span></a>
+        <a class="sb-sub" href="faz-de-conta.html#fazdeconta"><span class="sb-sub-dot"></span>Faz de Conta<span class="sb-sub-page">131</span></a>
+        <a class="sb-sub" href="faz-de-conta.html#agua"><span class="sb-sub-dot"></span>Brinquedos de Água<span class="sb-sub-page">134</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-rodados" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">05</div><div class="sb-cat-name">Rodados</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="rodados.html#tric12"><span class="sb-sub-dot"></span>Triciclos 12 meses<span class="sb-sub-page">137</span></a>
+        <a class="sb-sub" href="rodados.html#tric24"><span class="sb-sub-dot"></span>Triciclos 24 meses<span class="sb-sub-page">138</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-esportes" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">06</div><div class="sb-cat-name">Esportes</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="esportes.html#basquete"><span class="sb-sub-dot"></span>Basquete<span class="sb-sub-page">144</span></a>
+        <a class="sb-sub" href="esportes.html#futebol"><span class="sb-sub-dot"></span>Futebol de Mesa<span class="sb-sub-page">146</span></a>
+        <a class="sb-sub" href="esportes.html#tenis"><span class="sb-sub-dot"></span>Tênis de Mesa<span class="sb-sub-page">147</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-playground active open" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">07</div><div class="sb-cat-name">Playground</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="playground.html#balancos"><span class="sb-sub-dot"></span>Balanços<span class="sb-sub-page">149</span></a>
+        <a class="sb-sub" href="playground.html#gangorras"><span class="sb-sub-dot"></span>Gangorras<span class="sb-sub-page">150</span></a>
+        <a class="sb-sub" href="playground.html#complementos"><span class="sb-sub-dot"></span>Complementos<span class="sb-sub-page">154</span></a>
+        <a class="sb-sub" href="playground.html#escorregadores"><span class="sb-sub-dot"></span>Escorregadores<span class="sb-sub-page">156</span></a>
+        <a class="sb-sub" href="playground.html#casinhas"><span class="sb-sub-dot"></span>Casinhas<span class="sb-sub-page">158</span></a>
+        <a class="sb-sub" href="playground.html#outdoormenor"><span class="sb-sub-dot"></span>Outdoor Menor<span class="sb-sub-page">161</span></a>
+        <a class="sb-sub" href="playground.html#outdoormaior"><span class="sb-sub-dot"></span>Outdoor Maior<span class="sb-sub-page">165</span></a>
+      </div>
+    </div>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="pages-grid">
+    <div style="position:relative"><span class="section-anchor" id="balancos"></span><img class="page-img" src="img-playground/playground-p0001.jpg" alt="Playground"></div>
+    <img class="page-img" src="img-playground/playground-p0002.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0003.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0004.jpg" alt="Playground">
+    <div style="position:relative"><span class="section-anchor" id="gangorras"></span><img class="page-img" src="img-playground/playground-p0005.jpg" alt="Playground"></div>
+    <img class="page-img" src="img-playground/playground-p0006.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0007.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0008.jpg" alt="Playground">
+    <div style="position:relative"><span class="section-anchor" id="complementos"></span><img class="page-img" src="img-playground/playground-p0009.jpg" alt="Playground"></div>
+    <img class="page-img" src="img-playground/playground-p0010.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0011.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0012.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0013.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0014.jpg" alt="Playground">
+    <div style="position:relative"><span class="section-anchor" id="escorregadores"></span><img class="page-img" src="img-playground/playground-p0015.jpg" alt="Playground"></div>
+    <img class="page-img" src="img-playground/playground-p0016.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0017.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0018.jpg" alt="Playground">
+    <div style="position:relative"><span class="section-anchor" id="casinhas"></span><img class="page-img" src="img-playground/playground-p0019.jpg" alt="Playground"></div>
+    <img class="page-img" src="img-playground/playground-p0020.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0021.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0022.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0023.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0024.jpg" alt="Playground">
+    <div style="position:relative"><span class="section-anchor" id="outdoormenor"></span><img class="page-img" src="img-playground/playground-p0025.jpg" alt="Playground"></div>
+    <img class="page-img" src="img-playground/playground-p0026.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0027.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0028.jpg" alt="Playground">
+    <div style="position:relative"><span class="section-anchor" id="outdoormaior"></span><img class="page-img" src="img-playground/playground-p0029.jpg" alt="Playground"></div>
+    <img class="page-img" src="img-playground/playground-p0030.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0031.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0032.jpg" alt="Playground">
+    <img class="page-img" src="img-playground/playground-p0033.jpg" alt="Playground">
+  </div>
+</main>
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+
+<script>
+  function toggleCat(el) { if (event && event.target.closest('.sb-sub')) return; el.classList.toggle('open'); }
+  function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sbOverlay').classList.toggle('open'); }
+  document.querySelectorAll('.sb-sub[href^="#"]').forEach(link => { link.addEventListener('click', () => { if (window.innerWidth <= 860) toggleSidebar(); }); });
+  const btnTop = document.getElementById('backToTop');
+  window.addEventListener('scroll', () => { btnTop.classList.toggle('visible', window.scrollY > 400); }, { passive: true });
+</script>
+</body>
+</html>

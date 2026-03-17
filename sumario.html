@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sumário | Catálogo 2026 - Xalingo Brinquedos</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page-bg: #f5e5d6;
+
+    --blocos-bg: #a496b0;
+    --blocos-bar: #293b7f;
+    --blocos-text: #1e2a5a;
+
+    --educ-bg: #b49abf;
+    --educ-bar: #4d359a;
+    --educ-text: #3a2470;
+
+    --jogos-bg: #eda487;
+    --jogos-bar: #ef3128;
+    --jogos-text: #8b1a15;
+
+    --faz-bg: #c1d7c8;
+    --faz-bar: #5ec9c8;
+    --faz-text: #2a7574;
+
+    --rodados-bg: #c1d597;
+    --rodados-bar: #63c437;
+    --rodados-text: #3a7520;
+
+    --esportes-bg: #efc68f;
+    --esportes-bar: #f89e1c;
+    --esportes-text: #8a5a0e;
+
+    --playground-bg: #c78c88;
+    --playground-bar: #891434;
+    --playground-text: #5e0e24;
+
+    --card-radius: 20px;
+    --texto: #1B3A5C;
+    --texto-muted: #7a7065;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Quicksand', sans-serif;
+    background: var(--page-bg);
+    color: var(--texto);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%23d4c4b0' fill-opacity='0.08'/%3E%3Crect x='0' y='0' width='1' height='1' fill='%23bfad98' fill-opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== FLOATING SHAPES ===== */
+  .bg-shapes {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .bg-shape { position: absolute; border-radius: 6px; opacity: 0.05; }
+  .bg-shape:nth-child(1) { width:150px;height:50px;background:var(--blocos-bar);top:5%;left:-25px;transform:rotate(10deg);animation:drift 20s ease-in-out infinite; }
+  .bg-shape:nth-child(2) { width:85px;height:85px;background:var(--rodados-bar);top:20%;right:-10px;border-radius:50%;animation:drift 24s ease-in-out infinite reverse; }
+  .bg-shape:nth-child(3) { width:120px;height:40px;background:var(--educ-bar);top:50%;left:3%;transform:rotate(-6deg);animation:drift 17s ease-in-out infinite reverse; }
+  .bg-shape:nth-child(4) { width:65px;height:65px;background:var(--esportes-bar);top:70%;right:5%;transform:rotate(18deg);animation:drift 22s ease-in-out infinite reverse; }
+
+  @keyframes drift {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-22px); }
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: 50px 20px 10px;
+  }
+
+  .header-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    animation: fadeDown 0.7s ease-out;
+  }
+
+  .header-logo img {
+    height: 130px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(27,58,92,0.1));
+  }
+
+  .header-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: clamp(2.1rem, 5vw, 3.2rem);
+    font-weight: 700;
+    color: var(--texto);
+    line-height: 1.15;
+    margin-bottom: 8px;
+    animation: fadeDown 0.7s ease-out 0.1s both;
+  }
+
+  .header-sub {
+    font-size: 1rem;
+    color: var(--texto-muted);
+    font-weight: 500;
+    animation: fadeDown 0.7s ease-out 0.2s both;
+    max-width: 430px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .block-divider {
+    display: flex; justify-content: center; gap: 5px;
+    margin: 22px auto 36px;
+    animation: fadeDown 0.7s ease-out 0.3s both;
+  }
+  .block-divider span { width: 26px; height: 9px; border-radius: 3px; }
+  .block-divider span:nth-child(1) { background: var(--blocos-bar); }
+  .block-divider span:nth-child(2) { background: var(--educ-bar); }
+  .block-divider span:nth-child(3) { background: var(--jogos-bar); }
+  .block-divider span:nth-child(4) { background: var(--faz-bar); }
+  .block-divider span:nth-child(5) { background: var(--rodados-bar); }
+  .block-divider span:nth-child(6) { background: var(--esportes-bar); }
+  .block-divider span:nth-child(7) { background: var(--playground-bar); }
+
+  /* ===== TWO-COLUMN LAYOUT ===== */
+  .columns {
+    position: relative; z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+    align-items: start;
+  }
+
+  .col { display: flex; flex-direction: column; gap: 20px; }
+
+  /* ===== CARD ===== */
+  .card {
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    box-shadow: 0 3px 16px rgba(27,58,92,0.07);
+    transition: transform 0.4s cubic-bezier(0.23,1,0.32,1), box-shadow 0.4s ease;
+    opacity: 0;
+    transform: translateY(30px);
+    display: flex;
+    flex-direction: row;
+  }
+
+  .card.visible {
+    animation: cardIn 0.6s cubic-bezier(0.23,1,0.32,1) forwards;
+  }
+
+  .card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 14px 40px rgba(27,58,92,0.12);
+  }
+
+  @keyframes cardIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Left color bar */
+  .card-bar {
+    width: 10px;
+    flex-shrink: 0;
+    border-radius: var(--card-radius) 0 0 var(--card-radius);
+    transition: width 0.3s ease;
+  }
+  .card:hover .card-bar { width: 13px; }
+
+  /* Card body */
+  .card-main {
+    flex: 1;
+    border-radius: 0 var(--card-radius) var(--card-radius) 0;
+    padding: 20px 22px 16px;
+  }
+
+  /* Header with number */
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  a.card-head {
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+
+  a.card-head:hover {
+    background: rgba(255,255,255,0.15);
+  }
+
+  .card-num {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.2;
+    flex-shrink: 0;
+    letter-spacing: -1px;
+  }
+
+  .card-head-info {
+    flex: 1;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .card-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .card-pages {
+    background: rgba(255,255,255,0.3);
+    padding: 3px 10px;
+    border-radius: 16px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    opacity: 0.6;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* Divider line */
+  .card-divider {
+    height: 1px;
+    background: rgba(0,0,0,0.08);
+    margin-bottom: 8px;
+  }
+
+  /* Items */
+  .card-body { display: flex; flex-direction: column; }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.22s ease;
+  }
+
+  .item:hover { transform: translateX(4px); }
+
+  .item-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: transform 0.22s ease;
+  }
+  .item:hover .item-dot { transform: scale(1.6); }
+
+  .item-name {
+    flex: 1;
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .item-page {
+    font-size: 0.7rem;
+    font-weight: 700;
+    opacity: 0.35;
+    min-width: 26px;
+    text-align: right;
+    transition: opacity 0.2s ease;
+  }
+
+  .item-arrow {
+    font-size: 0.78rem;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: all 0.22s ease;
+    flex-shrink: 0;
+  }
+
+  .item:hover .item-page { opacity: 0.7; }
+  .item:hover .item-arrow { opacity: 1; transform: translateX(0); }
+
+  /* ===== CATEGORY COLORS ===== */
+  .cat-blocos .card-bar { background: var(--blocos-bar); }
+  .cat-blocos .card-main { background: var(--blocos-bg); }
+  .cat-blocos .card-num,
+  .cat-blocos .card-title,
+  .cat-blocos .card-pages,
+  .cat-blocos .item { color: var(--blocos-text); }
+  .cat-blocos .item:hover { background: rgba(255,255,255,0.18); }
+  .cat-blocos .item-dot { background: var(--blocos-bar); }
+  .cat-blocos .item-arrow { color: var(--blocos-bar); }
+
+  .cat-educativos .card-bar { background: var(--educ-bar); }
+  .cat-educativos .card-main { background: var(--educ-bg); }
+  .cat-educativos .card-num,
+  .cat-educativos .card-title,
+  .cat-educativos .card-pages,
+  .cat-educativos .item { color: var(--educ-text); }
+  .cat-educativos .item:hover { background: rgba(255,255,255,0.18); }
+  .cat-educativos .item-dot { background: var(--educ-bar); }
+  .cat-educativos .item-arrow { color: var(--educ-bar); }
+
+  .cat-jogos .card-bar { background: var(--jogos-bar); }
+  .cat-jogos .card-main { background: var(--jogos-bg); }
+  .cat-jogos .card-num,
+  .cat-jogos .card-title,
+  .cat-jogos .card-pages,
+  .cat-jogos .item { color: var(--jogos-text); }
+  .cat-jogos .item:hover { background: rgba(255,255,255,0.2); }
+  .cat-jogos .item-dot { background: var(--jogos-bar); }
+  .cat-jogos .item-arrow { color: var(--jogos-bar); }
+
+  .cat-faz .card-bar { background: var(--faz-bar); }
+  .cat-faz .card-main { background: var(--faz-bg); }
+  .cat-faz .card-num,
+  .cat-faz .card-title,
+  .cat-faz .card-pages,
+  .cat-faz .item { color: var(--faz-text); }
+  .cat-faz .item:hover { background: rgba(255,255,255,0.2); }
+  .cat-faz .item-dot { background: var(--faz-bar); }
+  .cat-faz .item-arrow { color: var(--faz-bar); }
+
+  .cat-rodados .card-bar { background: var(--rodados-bar); }
+  .cat-rodados .card-main { background: var(--rodados-bg); }
+  .cat-rodados .card-num,
+  .cat-rodados .card-title,
+  .cat-rodados .card-pages,
+  .cat-rodados .item { color: var(--rodados-text); }
+  .cat-rodados .item:hover { background: rgba(255,255,255,0.2); }
+  .cat-rodados .item-dot { background: var(--rodados-bar); }
+  .cat-rodados .item-arrow { color: var(--rodados-bar); }
+
+  .cat-esportes .card-bar { background: var(--esportes-bar); }
+  .cat-esportes .card-main { background: var(--esportes-bg); }
+  .cat-esportes .card-num,
+  .cat-esportes .card-title,
+  .cat-esportes .card-pages,
+  .cat-esportes .item { color: var(--esportes-text); }
+  .cat-esportes .item:hover { background: rgba(255,255,255,0.2); }
+  .cat-esportes .item-dot { background: var(--esportes-bar); }
+  .cat-esportes .item-arrow { color: var(--esportes-bar); }
+
+  .cat-playground .card-bar { background: var(--playground-bar); }
+  .cat-playground .card-main { background: var(--playground-bg); }
+  .cat-playground .card-num,
+  .cat-playground .card-title,
+  .cat-playground .card-pages,
+  .cat-playground .item { color: var(--playground-text); }
+  .cat-playground .item:hover { background: rgba(255,255,255,0.18); }
+  .cat-playground .item-dot { background: var(--playground-bar); }
+  .cat-playground .item-arrow { color: var(--playground-bar); }
+
+  /* Stagger per column */
+  .col-left .card:nth-child(1).visible { animation-delay: 0.0s; }
+  .col-left .card:nth-child(2).visible { animation-delay: 0.12s; }
+  .col-left .card:nth-child(3).visible { animation-delay: 0.24s; }
+  .col-left .card:nth-child(4).visible { animation-delay: 0.36s; }
+
+  .col-right .card:nth-child(1).visible { animation-delay: 0.06s; }
+  .col-right .card:nth-child(2).visible { animation-delay: 0.18s; }
+  .col-right .card:nth-child(3).visible { animation-delay: 0.30s; }
+
+  /* ===== BACK LINK ===== */
+  .back-link {
+    position: fixed; top: 18px; left: 18px; z-index: 50;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 16px;
+    background: rgba(27,58,92,0.88);
+    backdrop-filter: blur(10px);
+    color: white; text-decoration: none;
+    border-radius: 28px;
+    font-size: 0.72rem; font-weight: 700;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    transition: all 0.3s ease;
+    border: 1.5px solid rgba(255,255,255,0.1);
+  }
+  .back-link:hover { background: rgba(27,58,92,1); transform: translateX(-2px); }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: 36px 20px;
+    color: var(--texto-muted);
+    font-size: 0.8rem; font-weight: 500;
+  }
+  .deco-house {
+    display: flex; justify-content: center;
+    margin-bottom: 16px; opacity: 0.15;
+  }
+  .deco-house img { height: 60px; width: auto; object-fit: contain; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 680px) {
+    .columns {
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 0 14px 48px;
+    }
+    .col-right { order: 0; }
+    .header { padding: 48px 14px 10px; }
+    .back-link { top: 12px; left: 12px; font-size: 0.65rem; padding: 5px 12px; }
+    .card-main { padding: 16px 16px 12px; }
+    .card-title { font-size: 1.1rem; }
+    .card-num { font-size: 2rem; }
+    .item { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-shapes">
+  <div class="bg-shape"></div>
+  <div class="bg-shape"></div>
+  <div class="bg-shape"></div>
+  <div class="bg-shape"></div>
+</div>
+
+<a href="index.html" class="back-link">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m0 0l7 7m-7-7l7-7"/></svg>
+  Voltar para capa
+</a>
+
+<header class="header">
+  <div class="header-logo">
+    <img src="logo-xalingo.png" alt="Xalingo - Since 1947">
+  </div>
+  <h1 class="header-title">Sumário</h1>
+  <p class="header-sub">Explore nossas categorias e descubra o brinquedo ideal</p>
+  <div class="block-divider">
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+</header>
+
+<div class="columns">
+
+  <!-- ===== COLUNA ESQUERDA ===== -->
+  <div class="col col-left">
+
+    <!-- 01 BLOCOS DE MONTAR -->
+    <div class="card cat-blocos" style="cursor:pointer" onclick="window.location.href='blocos-de-montar.html'">
+      <div class="card-bar"></div>
+      <div class="card-main">
+        <div class="card-head">
+          <div class="card-num">01</div>
+          <div class="card-head-info">
+            <div class="card-title">Blocos de Montar</div>
+            <div class="card-pages">p.07–70</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <a class="item" href="blocos-de-montar.html#engenheiro">
+            <span class="item-dot"></span><span class="item-name">Brincando de Engenheiro</span>
+            <span class="item-page">07</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="blocos-de-montar.html#blocos">
+            <span class="item-dot"></span><span class="item-name">Blocos de Montar</span>
+            <span class="item-page">16</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="blocos-de-montar.html#grandes">
+            <span class="item-dot"></span><span class="item-name">Blocos Grandes</span>
+            <span class="item-page">61</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="blocos-de-montar.html#soft">
+            <span class="item-dot"></span><span class="item-name">Blocos Soft</span>
+            <span class="item-page">70</span><span class="item-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 EDUCATIVOS -->
+    <div class="card cat-educativos" style="cursor:pointer" onclick="window.location.href='educativos.html'">
+      <div class="card-bar"></div>
+      <div class="card-main">
+        <div class="card-head">
+          <div class="card-num">02</div>
+          <div class="card-head-info">
+            <div class="card-title">Educativos</div>
+            <div class="card-pages">p.75–112</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <a class="item" href="educativos.html#desenvolvimento">
+            <span class="item-dot"></span><span class="item-name">Desenvolvimento</span>
+            <span class="item-page">75</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="educativos.html#steam">
+            <span class="item-dot"></span><span class="item-name">Steam</span>
+            <span class="item-page">86</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="educativos.html#playset">
+            <span class="item-dot"></span><span class="item-name">Playset</span>
+            <span class="item-page">89</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="educativos.html#colorir">
+            <span class="item-dot"></span><span class="item-name">Quadros para Colorir</span>
+            <span class="item-page">91</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="educativos.html#quebracabeca">
+            <span class="item-dot"></span><span class="item-name">Quebra-cabeça</span>
+            <span class="item-page">93</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="educativos.html#memoria">
+            <span class="item-dot"></span><span class="item-name">Memória</span>
+            <span class="item-page">99</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="educativos.html#domino">
+            <span class="item-dot"></span><span class="item-name">Dominó</span>
+            <span class="item-page">102</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="educativos.html#pedagogicos">
+            <span class="item-dot"></span><span class="item-name">Blocos Pedagógicos</span>
+            <span class="item-page">105</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="educativos.html#jogoseducativos">
+            <span class="item-dot"></span><span class="item-name">Jogos Educativos</span>
+            <span class="item-page">107</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="educativos.html#carimbos">
+            <span class="item-dot"></span><span class="item-name">Carimbos</span>
+            <span class="item-page">112</span><span class="item-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 JOGOS -->
+    <div class="card cat-jogos" style="cursor:pointer" onclick="window.location.href='jogos.html'">
+      <div class="card-bar"></div>
+      <div class="card-main">
+        <div class="card-head">
+          <div class="card-num">03</div>
+          <div class="card-head-info">
+            <div class="card-title">Jogos</div>
+            <div class="card-pages">p.114–126</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <a class="item" href="jogos.html#xadrez">
+            <span class="item-dot"></span><span class="item-name">Xadrez</span>
+            <span class="item-page">114</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="jogos.html#classicos">
+            <span class="item-dot"></span><span class="item-name">Jogos Clássicos</span>
+            <span class="item-page">118</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="jogos.html#boardgames">
+            <span class="item-dot"></span><span class="item-name">Board Games</span>
+            <span class="item-page">126</span><span class="item-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 FAZ DE CONTA -->
+    <div class="card cat-faz" style="cursor:pointer" onclick="window.location.href='faz-de-conta.html'">
+      <div class="card-bar"></div>
+      <div class="card-main">
+        <div class="card-head">
+          <div class="card-num">04</div>
+          <div class="card-head-info">
+            <div class="card-title">Faz de Conta</div>
+            <div class="card-pages">p.130–134</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <a class="item" href="faz-de-conta.html#cozinhas">
+            <span class="item-dot"></span><span class="item-name">Cozinhas</span>
+            <span class="item-page">130</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="faz-de-conta.html#fazdeconta">
+            <span class="item-dot"></span><span class="item-name">Faz de Conta</span>
+            <span class="item-page">131</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="faz-de-conta.html#agua">
+            <span class="item-dot"></span><span class="item-name">Brinquedos de Água</span>
+            <span class="item-page">134</span><span class="item-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== COLUNA DIREITA ===== -->
+  <div class="col col-right">
+
+    <!-- 05 RODADOS -->
+    <div class="card cat-rodados" style="cursor:pointer" onclick="window.location.href='rodados.html'">
+      <div class="card-bar"></div>
+      <div class="card-main">
+        <div class="card-head">
+          <div class="card-num">05</div>
+          <div class="card-head-info">
+            <div class="card-title">Rodados</div>
+            <div class="card-pages">p.137–138</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <a class="item" href="rodados.html#tric12">
+            <span class="item-dot"></span><span class="item-name">Triciclos 12 meses</span>
+            <span class="item-page">137</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="rodados.html#tric24">
+            <span class="item-dot"></span><span class="item-name">Triciclos 24 meses</span>
+            <span class="item-page">138</span><span class="item-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 ESPORTES -->
+    <div class="card cat-esportes">
+      <a href="esportes.html" class="card-bar" style="text-decoration:none"></a>
+      <div class="card-main">
+        <a href="esportes.html" class="card-head" style="text-decoration:none; display:flex;">
+          <div class="card-num">06</div>
+          <div class="card-head-info">
+            <div class="card-title">Esportes</div>
+            <div class="card-pages">p.144–147</div>
+          </div>
+        </a>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <a class="item" href="esportes.html#basquete">
+            <span class="item-dot"></span><span class="item-name">Basquete</span>
+            <span class="item-page">144</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="esportes.html#futebol">
+            <span class="item-dot"></span><span class="item-name">Futebol de Mesa</span>
+            <span class="item-page">146</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="esportes.html#tenis">
+            <span class="item-dot"></span><span class="item-name">Tênis de Mesa</span>
+            <span class="item-page">147</span><span class="item-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07 PLAYGROUND -->
+    <div class="card cat-playground" style="cursor:pointer" onclick="window.location.href='playground.html'">
+      <div class="card-bar"></div>
+      <div class="card-main">
+        <div class="card-head">
+          <div class="card-num">07</div>
+          <div class="card-head-info">
+            <div class="card-title">Playground</div>
+            <div class="card-pages">p.149–165</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <a class="item" href="playground.html#balancos">
+            <span class="item-dot"></span><span class="item-name">Balanços</span>
+            <span class="item-page">149</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="playground.html#gangorras">
+            <span class="item-dot"></span><span class="item-name">Gangorras</span>
+            <span class="item-page">150</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="playground.html#complementos">
+            <span class="item-dot"></span><span class="item-name">Complementos</span>
+            <span class="item-page">154</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="playground.html#escorregadores">
+            <span class="item-dot"></span><span class="item-name">Escorregadores</span>
+            <span class="item-page">156</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="playground.html#casinhas">
+            <span class="item-dot"></span><span class="item-name">Casinhas</span>
+            <span class="item-page">158</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="playground.html#outdoormenor">
+            <span class="item-dot"></span><span class="item-name">Outdoor Menor</span>
+            <span class="item-page">161</span><span class="item-arrow">→</span>
+          </a>
+          <a class="item" href="playground.html#outdoormaior">
+            <span class="item-dot"></span><span class="item-name">Outdoor Maior</span>
+            <span class="item-page">165</span><span class="item-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="deco-house">
+    <img src="logo-xalingo.png" alt="Xalingo - Since 1947">
+  </div>
+  Catálogo Digital 2026 · 78 Anos construindo histórias
+</footer>
+
+<script>
+  const cards = document.querySelectorAll('.card');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+  cards.forEach(c => obs.observe(c));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo 2026 | Xalingo Brinquedos - 78 Anos</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .capa {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    line-height: 0;
+  }
+
+  .capa img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .capa-overlay {
+    position: absolute;
+    bottom: 3.5%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  .btn-catalogo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 38px;
+    background: rgba(27, 58, 92, 0.93);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 2px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    transition: all 0.3s ease;
+    animation: pulseGlow 2.5s ease-in-out infinite;
+  }
+
+  .btn-catalogo:hover {
+    background: rgba(27, 58, 92, 1);
+    transform: scale(1.06);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+    50% { box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 24px rgba(255,255,255,0.12); }
+  }
+
+  .btn-catalogo svg {
+    animation: bounceDown 2s ease-in-out infinite;
+  }
+
+  @keyframes bounceDown {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="capa">
+  <img src="capa.jpg" alt="Capa - Catálogo 2026 Xalingo Brinquedos 78 Anos">
+  <div class="capa-overlay">
+    <a href="sumario.html" class="btn-catalogo">
+      Ver Catálogo
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m0 0l-7-7m7 7l-7 7"/></svg>
+    </a>
+  </div>
+</div>
+
+</body>
+</html>
