@@ -18,7 +18,7 @@
   .camp-badge { display: inline-block; background: #f8c400; color: #1B3A5C; font-size: 11px; font-weight: 800; padding: 5px 16px; border-radius: 20px; }
 
   /* BANNER */
-  .camp-body { padding: 20px 16px; max-width: 1100px; margin: 0 auto; }
+  
   .banner { background: #ef3128; border-radius: 16px; padding: 22px 24px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
   .banner-info { flex: 1; }
   .banner-tag { background: rgba(255,255,255,0.2); color: white; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 10px; display: inline-block; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
@@ -187,7 +187,15 @@
     .camp-body, .camp-header { margin-left: 0 !important; }
   }
   .camp-header { margin-left: var(--sidebar-w); }
-  .camp-body { margin-left: var(--sidebar-w); padding: 28px 32px; }
+  .camp-body {
+    margin-left: var(--sidebar-w);
+    padding: 28px 40px;
+  }
+  .camp-inner-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
 </style>
 </head>
 <body>
