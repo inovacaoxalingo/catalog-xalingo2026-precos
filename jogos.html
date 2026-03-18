@@ -106,6 +106,11 @@
     transform: translateY(-1px);
   }
   .btn-print:active { transform: scale(0.98); }
+  .sb-ofertas .sb-cat-head { background: #f8c400; }
+  .sb-ofertas .sb-cat-bar { background: #c8960a; }
+  .sb-ofertas .sb-cat-num,.sb-ofertas .sb-cat-name,.sb-ofertas .sb-cat-arrow { color: #5a3d00; }
+  .sb-ofertas .sb-sub { color: #5a3d00; }
+  .sb-ofertas .sb-sub-dot { background: #c8960a; }
 </style>
 </head>
 <body>
@@ -189,6 +194,12 @@
         <a class="sb-sub" href="playground.html#casinhas"><span class="sb-sub-dot"></span>Casinhas<span class="sb-sub-page">158</span></a>
         <a class="sb-sub" href="playground.html#outdoormenor"><span class="sb-sub-dot"></span>Outdoor Menor<span class="sb-sub-page">161</span></a>
         <a class="sb-sub" href="playground.html#outdoormaior"><span class="sb-sub-dot"></span>Outdoor Maior<span class="sb-sub-page">165</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-ofertas" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">08</div><div class="sb-cat-name">Ofertas</div><div class="sb-cat-arrow">&#9658;</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="ofertas.html"><span class="sb-sub-dot"></span>Vem Brincar 2026</a>
       </div>
     </div>
   </nav>

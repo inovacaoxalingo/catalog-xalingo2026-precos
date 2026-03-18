@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xalingo — Vem Brincar com a Xalingo 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", sans-serif; background: #1a2a4a; min-height: 100vh; padding-bottom: 20px; transition: padding-right 0.35s ease; }
+
+  /* HEADER */
+  .camp-header { background: linear-gradient(135deg, #1B3A5C 0%, #293b7f 100%); padding: 28px 24px 24px; text-align: center; }
+  .camp-logo { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.45); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+  .camp-title { font-size: clamp(22px,5vw,36px); font-weight: 900; color: white; margin-bottom: 6px; }
+  .camp-title span { color: #f8c400; }
+  .camp-subtitle { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 16px; }
+  .camp-badge { display: inline-block; background: #f8c400; color: #1B3A5C; font-size: 11px; font-weight: 800; padding: 5px 16px; border-radius: 20px; }
+
+  /* BANNER */
+  .camp-body { padding: 20px 16px; max-width: 1100px; margin: 0 auto; }
+  .banner { background: #ef3128; border-radius: 16px; padding: 22px 24px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .banner-info { flex: 1; }
+  .banner-tag { background: rgba(255,255,255,0.2); color: white; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 10px; display: inline-block; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
+  .banner-title { font-size: 20px; font-weight: 900; color: white; margin-bottom: 6px; }
+  .banner-desc { font-size: 12px; color: rgba(255,255,255,0.78); line-height: 1.6; margin-bottom: 10px; }
+  .banner-validade { font-size: 11px; color: rgba(255,255,255,0.6); }
+  .banner-validade strong { color: white; }
+  .banner-num { text-align: center; flex-shrink: 0; }
+  .banner-pct { font-size: 54px; font-weight: 900; color: white; line-height: 1; }
+  .banner-pct-label { font-size: 10px; color: rgba(255,255,255,0.65); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+  .stat { background: #1e3359; border-radius: 12px; padding: 12px 14px; text-align: center; border: 1px solid rgba(255,255,255,0.06); }
+  .stat-num { font-size: 22px; font-weight: 900; color: #f8c400; }
+  .stat-label { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 600; margin-top: 2px; }
+
+  /* FILTROS */
+  .filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .f-btn { background: #1e3359; color: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .f-btn:hover { background: #293b7f; color: white; }
+  .f-btn.active { background: #f8c400; color: #1B3A5C; border-color: #f8c400; }
+
+  /* GRID */
+  .secao-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 12px; }
+
+  /* CARD */
+  .card { background: #1e3359; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; }
+  .card:hover { transform: translateY(-3px); }
+  .card.no-carrinho { border-color: #f8c400; }
+  .card.hidden { display: none; }
+  .card-img { height: 130px; background: #fff; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .card-desconto-badge { position: absolute; top: 8px; right: 8px; background: #ef3128; color: white; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px; }
+  .card-body { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; }
+  .card-cod { font-size: 10px; color: rgba(255,255,255,0.3); font-weight: 600; margin-bottom: 3px; }
+  .card-nome { font-size: 12px; font-weight: 700; color: white; margin-bottom: 8px; line-height: 1.35; flex: 1; }
+  .card-precos { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .card-preco-de { font-size: 11px; color: rgba(255,255,255,0.35); text-decoration: line-through; }
+  .card-preco-por { font-size: 18px; font-weight: 900; color: #f8c400; }
+  .card-qt { font-size: 10px; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
+  .card-add-area { display: flex; align-items: center; gap: 6px; }
+  .qty-input { width: 52px; padding: 5px 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07); color: white; font-size: 13px; font-weight: 700; text-align: center; outline: none; font-family: inherit; }
+  .qty-input:focus { border-color: #f8c400; }
+  .btn-add { flex: 1; background: #f8c400; color: #1B3A5C; border: none; border-radius: 8px; padding: 6px 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: background 0.15s, transform 0.1s; font-family: inherit; }
+  .btn-add:hover { background: #ffe033; }
+  .btn-add:active { transform: scale(0.97); }
+  .btn-add.adicionado { background: #2ecc71; color: white; }
+
+  /* FOOTER INFO */
+  .camp-footer { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-top: 24px; }
+  .camp-footer-text { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.6; }
+  .camp-footer-text strong { color: white; }
+
+  /* FAB LISTA */
+  .lista-fab { position: fixed; bottom: 24px; right: 24px; z-index: 99;
+    background: #f8c400; color: #1B3A5C; border: none; border-radius: 50px;
+    padding: 12px 20px; font-family: inherit; font-size: 13px; font-weight: 800;
+    cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.35); transition: all 0.2s; }
+  .lista-fab:hover { transform: scale(1.05); }
+  .lista-fab-badge { background: #ef3128; color: white; font-size: 11px; font-weight: 900;
+    width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+  /* OVERLAY */
+  .lista-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 199; display: none; }
+  .lista-overlay.open { display: block; }
+
+  /* SIDEBAR LISTA */
+  .lista-panel { position: fixed; top: 0; right: -420px; width: 400px; height: 100vh;
+    background: #0d1e38; border-left: 2px solid #f8c400; z-index: 200;
+    display: flex; flex-direction: column;
+    transition: right 0.35s ease;
+    box-shadow: -4px 0 30px rgba(0,0,0,0.4); }
+  .lista-panel.open { right: 0; }
+
+  .lista-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 18px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+  .lista-header-left { display: flex; align-items: center; gap: 10px; }
+  .lista-titulo { font-size: 15px; font-weight: 800; color: white; }
+  .lista-badge { background: #f8c400; color: #1B3A5C; font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 10px; min-width: 24px; text-align: center; }
+  .lista-close { background: rgba(255,255,255,0.08); border: none; color: white;
+    width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+    font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+  .lista-close:hover { background: rgba(239,49,40,0.3); }
+
+  .lista-body { overflow-y: auto; flex: 1; padding: 12px 16px 8px; }
+  .lista-body::-webkit-scrollbar { width: 4px; }
+  .lista-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+  .lista-vazia { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.3); font-size: 13px; }
+
+  /* ITENS DA LISTA */
+  .lista-item { background: #1e3359; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.06); }
+  .lista-item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .lista-item-cod { font-size: 10px; color: rgba(255,255,255,0.35); font-weight: 600; }
+  .lista-item-nome { font-size: 12px; color: white; font-weight: 700; line-height: 1.35; flex: 1; }
+  .btn-remover { background: none; border: none; color: rgba(255,255,255,0.25); cursor: pointer; font-size: 13px; padding: 0 2px; transition: color 0.15s; flex-shrink: 0; }
+  .btn-remover:hover { color: #ef3128; }
+  .lista-item-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .lista-item-preco { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .lista-item-qty-wrap { display: flex; align-items: center; gap: 6px; }
+  .lista-item-qty-label { font-size: 10px; color: rgba(255,255,255,0.35); }
+  .td-qty input { width: 52px; padding: 4px 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07); color: white; font-size: 12px; font-weight: 700; text-align: center; outline: none; font-family: inherit; }
+  .td-qty input:focus { border-color: #f8c400; }
+  .lista-item-sub { font-size: 14px; font-weight: 900; color: #f8c400; }
+
+  /* TOTAL */
+  .lista-total-box { background: #1e3359; border-radius: 10px; padding: 12px 14px; margin: 4px 0 0; border: 1px solid rgba(248,196,0,0.2); display: flex; justify-content: space-between; align-items: center; }
+  .lista-total-label { font-size: 12px; color: rgba(255,255,255,0.45); font-weight: 600; }
+  .lista-total-val { font-size: 20px; font-weight: 900; color: #f8c400; }
+
+  .lista-actions { display: flex; flex-direction: column; gap: 8px; padding: 12px 16px 20px; flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.08); }
+  .btn-excel { background: #2ecc71; color: white; border: none; border-radius: 10px; padding: 12px 16px; font-size: 13px; font-weight: 800; cursor: pointer; transition: background 0.15s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-excel:hover { background: #27ae60; }
+  .btn-excel:disabled { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.25); cursor: not-allowed; }
+  .btn-limpar { background: none; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.4); border-radius: 10px; padding: 10px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .btn-limpar:hover { border-color: #ef3128; color: #ef3128; }
+
+  @media (max-width: 480px) {
+    .lista-panel { width: 100%; right: -100%; }
+  }
+
+  @media (max-width: 600px) {
+    .banner { flex-direction: column; }
+    .banner-num { display: none; }
+    .stats { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* SIDEBAR */
+  :root { --sidebar-w: 220px; }
+  .sidebar { width: var(--sidebar-w); min-height: 100vh; background: #f5e5d6; position: fixed; top: 0; left: 0; bottom: 0; z-index: 40; display: flex; flex-direction: column; overflow-y: auto; border-right: 1px solid rgba(0,0,0,0.06); box-shadow: 2px 0 20px rgba(0,0,0,0.08); }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }
+  .sb-header { padding: 16px 14px 12px; border-bottom: 1px solid rgba(0,0,0,0.06); flex-shrink: 0; }
+  .sb-logo { display: block; height: 48px; width: auto; margin-bottom: 8px; }
+  .sb-back { display: inline-flex; align-items: center; gap: 5px; font-size: 0.7rem; font-weight: 700; color: #1B3A5C; text-decoration: none; opacity: 0.6; transition: opacity 0.2s; }
+  .sb-back:hover { opacity: 1; }
+  .sb-nav { flex: 1; padding: 10px 0; }
+  .sb-cat { margin: 0 10px 4px; border-radius: 12px; overflow: hidden; }
+  .sb-cat-head { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; cursor: pointer; }
+  .sb-cat-bar { width: 4px; height: 24px; border-radius: 3px; flex-shrink: 0; }
+  .sb-cat-num { font-family: sans-serif; font-size: 0.7rem; font-weight: 600; opacity: 0.35; min-width: 18px; }
+  .sb-cat-name { flex: 1; font-size: 0.76rem; font-weight: 700; line-height: 1.2; }
+  .sb-cat-arrow { font-size: 0.65rem; opacity: 0.4; transition: transform 0.25s; }
+  .sb-subs { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .sb-cat.open .sb-subs { max-height: 400px; }
+  .sb-cat.open .sb-cat-arrow { transform: rotate(90deg); }
+  .sb-sub { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 28px; text-decoration: none; font-size: 0.72rem; font-weight: 600; border-radius: 8px; margin: 0 8px; transition: all 0.2s; }
+  .sb-sub-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .sb-sub-page { font-size: 0.62rem; font-weight: 700; opacity: 0.35; margin-left: auto; }
+  .sb-sub:hover { background: rgba(255,255,255,0.3); }
+  .sb-blocos .sb-cat-head { background: #a496b0; } .sb-blocos .sb-cat-bar { background: #293b7f; } .sb-blocos .sb-cat-num,.sb-blocos .sb-cat-name,.sb-blocos .sb-cat-arrow { color: #1e2a5a; } .sb-blocos .sb-sub { color: #1e2a5a; } .sb-blocos .sb-sub-dot { background: #293b7f; }
+  .sb-educ .sb-cat-head { background: #b49abf; } .sb-educ .sb-cat-bar { background: #4d359a; } .sb-educ .sb-cat-num,.sb-educ .sb-cat-name,.sb-educ .sb-cat-arrow { color: #3a2470; } .sb-educ .sb-sub { color: #3a2470; } .sb-educ .sb-sub-dot { background: #4d359a; }
+  .sb-jogos .sb-cat-head { background: #eda487; } .sb-jogos .sb-cat-bar { background: #ef3128; } .sb-jogos .sb-cat-num,.sb-jogos .sb-cat-name,.sb-jogos .sb-cat-arrow { color: #8b1a15; } .sb-jogos .sb-sub { color: #8b1a15; } .sb-jogos .sb-sub-dot { background: #ef3128; }
+  .sb-faz .sb-cat-head { background: #c1d7c8; } .sb-faz .sb-cat-bar { background: #5ec9c8; } .sb-faz .sb-cat-num,.sb-faz .sb-cat-name,.sb-faz .sb-cat-arrow { color: #2a7574; } .sb-faz .sb-sub { color: #2a7574; } .sb-faz .sb-sub-dot { background: #5ec9c8; }
+  .sb-rodados .sb-cat-head { background: #c1d597; } .sb-rodados .sb-cat-bar { background: #63c437; } .sb-rodados .sb-cat-num,.sb-rodados .sb-cat-name,.sb-rodados .sb-cat-arrow { color: #3a7520; } .sb-rodados .sb-sub { color: #3a7520; } .sb-rodados .sb-sub-dot { background: #63c437; }
+  .sb-esportes .sb-cat-head { background: #efc68f; } .sb-esportes .sb-cat-bar { background: #f89e1c; } .sb-esportes .sb-cat-num,.sb-esportes .sb-cat-name,.sb-esportes .sb-cat-arrow { color: #8a5a0e; } .sb-esportes .sb-sub { color: #8a5a0e; } .sb-esportes .sb-sub-dot { background: #f89e1c; }
+  .sb-playground .sb-cat-head { background: #c78c88; } .sb-playground .sb-cat-bar { background: #891434; } .sb-playground .sb-cat-num,.sb-playground .sb-cat-name,.sb-playground .sb-cat-arrow { color: #5e0e24; } .sb-playground .sb-sub { color: #5e0e24; } .sb-playground .sb-sub-dot { background: #891434; }
+  .sb-ofertas .sb-cat-head { background: #f8c400; } .sb-ofertas .sb-cat-bar { background: #c8960a; } .sb-ofertas .sb-cat-num,.sb-ofertas .sb-cat-name,.sb-ofertas .sb-cat-arrow { color: #5a3d00; } .sb-ofertas .sb-sub { color: #5a3d00; } .sb-ofertas .sb-sub-dot { background: #c8960a; }
+  .sb-toggle { display: none; position: fixed; top: 14px; left: 14px; z-index: 60; width: 42px; height: 42px; background: rgba(200,150,10,0.92); color: white; border: 2px solid rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+  .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 35; }
+  @media (max-width: 860px) {
+    .sidebar { transform: translateX(-100%); transition: transform 0.35s ease; }
+    .sidebar.open { transform: translateX(0); }
+    .sb-toggle { display: flex; }
+    .sb-overlay.open { display: block; }
+    .camp-body, .camp-header { margin-left: 0 !important; }
+  }
+  .camp-header, .camp-body { margin-left: var(--sidebar-w); }
+</style>
+</head>
+<body>
+
+<button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+</button>
+<div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sb-header">
+    <img src="logo-xalingo.png" alt="Xalingo" class="sb-logo">
+    <a href="sumario.html" class="sb-back">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m0 0l7 7m-7-7l7-7"/></svg>
+      Voltar ao Sumário
+    </a>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-cat sb-blocos" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">01</div><div class="sb-cat-name">Blocos de Montar</div><div class="sb-cat-arrow">&#9658;</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="blocos-de-montar.html#engenheiro"><span class="sb-sub-dot"></span>Brincando de Engenheiro<span class="sb-sub-page">07</span></a>
+        <a class="sb-sub" href="blocos-de-montar.html#blocos"><span class="sb-sub-dot"></span>Blocos de Montar<span class="sb-sub-page">16</span></a>
+        <a class="sb-sub" href="blocos-de-montar.html#grandes"><span class="sb-sub-dot"></span>Blocos Grandes<span class="sb-sub-page">61</span></a>
+        <a class="sb-sub" href="blocos-de-montar.html#soft"><span class="sb-sub-dot"></span>Blocos Soft<span class="sb-sub-page">70</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-educ" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">02</div><div class="sb-cat-name">Educativos</div><div class="sb-cat-arrow">&#9658;</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="educativos.html#desenvolvimento"><span class="sb-sub-dot"></span>Desenvolvimento<span class="sb-sub-page">75</span></a>
+        <a class="sb-sub" href="educativos.html#steam"><span class="sb-sub-dot"></span>Steam<span class="sb-sub-page">86</span></a>
+        <a class="sb-sub" href="educativos.html#playset"><span class="sb-sub-dot"></span>Playset<span class="sb-sub-page">89</span></a>
+        <a class="sb-sub" href="educativos.html#colorir"><span class="sb-sub-dot"></span>Quadros para Colorir<span class="sb-sub-page">91</span></a>
+        <a class="sb-sub" href="educativos.html#quebracabeca"><span class="sb-sub-dot"></span>Quebra-cabeca<span class="sb-sub-page">93</span></a>
+        <a class="sb-sub" href="educativos.html#memoria"><span class="sb-sub-dot"></span>Memoria<span class="sb-sub-page">99</span></a>
+        <a class="sb-sub" href="educativos.html#domino"><span class="sb-sub-dot"></span>Domino<span class="sb-sub-page">102</span></a>
+        <a class="sb-sub" href="educativos.html#pedagogicos"><span class="sb-sub-dot"></span>Blocos Pedagogicos<span class="sb-sub-page">105</span></a>
+        <a class="sb-sub" href="educativos.html#jogoseducativos"><span class="sb-sub-dot"></span>Jogos Educativos<span class="sb-sub-page">107</span></a>
+        <a class="sb-sub" href="educativos.html#carimbos"><span class="sb-sub-dot"></span>Carimbos<span class="sb-sub-page">112</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-jogos" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">03</div><div class="sb-cat-name">Jogos</div><div class="sb-cat-arrow">&#9658;</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="jogos.html#xadrez"><span class="sb-sub-dot"></span>Xadrez<span class="sb-sub-page">114</span></a>
+        <a class="sb-sub" href="jogos.html#classicos"><span class="sb-sub-dot"></span>Jogos Classicos<span class="sb-sub-page">118</span></a>
+        <a class="sb-sub" href="jogos.html#boardgames"><span class="sb-sub-dot"></span>Board Games<span class="sb-sub-page">126</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-faz" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">04</div><div class="sb-cat-name">Faz de Conta</div><div class="sb-cat-arrow">&#9658;</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="faz-de-conta.html#cozinhas"><span class="sb-sub-dot"></span>Cozinhas<span class="sb-sub-page">130</span></a>
+        <a class="sb-sub" href="faz-de-conta.html#fazdeconta"><span class="sb-sub-dot"></span>Faz de Conta<span class="sb-sub-page">131</span></a>
+        <a class="sb-sub" href="faz-de-conta.html#agua"><span class="sb-sub-dot"></span>Brinquedos de Agua<span class="sb-sub-page">134</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-rodados" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">05</div><div class="sb-cat-name">Rodados</div><div class="sb-cat-arrow">&#9658;</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="rodados.html#tric12"><span class="sb-sub-dot"></span>Triciclos 12 meses<span class="sb-sub-page">137</span></a>
+        <a class="sb-sub" href="rodados.html#tric24"><span class="sb-sub-dot"></span>Triciclos 24 meses<span class="sb-sub-page">138</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-esportes" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">06</div><div class="sb-cat-name">Esportes</div><div class="sb-cat-arrow">&#9658;</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="esportes.html#basquete"><span class="sb-sub-dot"></span>Basquete<span class="sb-sub-page">144</span></a>
+        <a class="sb-sub" href="esportes.html#futebol"><span class="sb-sub-dot"></span>Futebol de Mesa<span class="sb-sub-page">146</span></a>
+        <a class="sb-sub" href="esportes.html#tenis"><span class="sb-sub-dot"></span>Tenis de Mesa<span class="sb-sub-page">147</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-playground" onclick="toggleCat(this)">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">07</div><div class="sb-cat-name">Playground</div><div class="sb-cat-arrow">&#9658;</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="playground.html#balancos"><span class="sb-sub-dot"></span>Balancoes<span class="sb-sub-page">149</span></a>
+        <a class="sb-sub" href="playground.html#gangorras"><span class="sb-sub-dot"></span>Gangorras<span class="sb-sub-page">150</span></a>
+        <a class="sb-sub" href="playground.html#complementos"><span class="sb-sub-dot"></span>Complementos<span class="sb-sub-page">154</span></a>
+        <a class="sb-sub" href="playground.html#escorregadores"><span class="sb-sub-dot"></span>Escorregadores<span class="sb-sub-page">156</span></a>
+        <a class="sb-sub" href="playground.html#casinhas"><span class="sb-sub-dot"></span>Casinhas<span class="sb-sub-page">158</span></a>
+        <a class="sb-sub" href="playground.html#outdoormenor"><span class="sb-sub-dot"></span>Outdoor Menor<span class="sb-sub-page">161</span></a>
+        <a class="sb-sub" href="playground.html#outdoormaior"><span class="sb-sub-dot"></span>Outdoor Maior<span class="sb-sub-page">165</span></a>
+      </div>
+    </div>
+    <div class="sb-cat sb-ofertas active open">
+      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">08</div><div class="sb-cat-name">Ofertas</div><div class="sb-cat-arrow">&#9658;</div></div>
+      <div class="sb-subs">
+        <a class="sb-sub" href="ofertas.html"><span class="sb-sub-dot"></span>Vem Brincar 2026</a>
+      </div>
+    </div>
+  </nav>
+</aside>
+<div class="camp-header">
+  <div class="camp-logo">Xalingo Brinquedos</div>
+  <div class="camp-title">Vem Brincar <span>com a Xalingo</span></div>
+  <div class="camp-subtitle">Mais Prazo &middot; Mais Desconto &middot; Mais Sucesso</div>
+  <div class="camp-badge">Abril / Maio / Junho 2026</div>
+</div>
+
+<div class="camp-body">
+
+  <div class="banner" style="margin-top:20px;">
+    <div class="banner-info">
+      <div class="banner-tag">Campanha Principal</div>
+      <div class="banner-title">Mais Prazo, Mais Desconto!</div>
+      <div class="banner-desc">A cada reducao de 28 dias no prazo de pagamento, desconto adicional garantido.</div>
+      <div class="banner-validade">Vigencia: <strong>Abril, Maio e Junho de 2026</strong></div>
+    </div>
+    <div class="banner-num">
+      <div class="banner-pct">1,5%</div>
+      <div class="banner-pct-label">Por periodo</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num">75</div><div class="stat-label">Produtos em oferta</div></div>
+    <div class="stat"><div class="stat-num">ate 62%</div><div class="stat-label">De desconto</div></div>
+    <div class="stat"><div class="stat-num">ABR-JUN</div><div class="stat-label">Vigencia 2026</div></div>
+  </div>
+
+  <div class="filtros">
+    <button class="f-btn active" onclick="filtrar('todos',this)">Todos</button>
+    <button class="f-btn" onclick="filtrar('patrulha',this)">Patrulha Canina</button>
+    <button class="f-btn" onclick="filtrar('educativo',this)">Educativos</button>
+    <button class="f-btn" onclick="filtrar('jogos',this)">Jogos</button>
+    <button class="f-btn" onclick="filtrar('fazdeconta',this)">Faz de Conta</button>
+    <button class="f-btn" onclick="filtrar('musical',this)">Musical</button>
+    <button class="f-btn" onclick="filtrar('outros',this)">Outros</button>
+  </div>
+
+  <div class="secao-label">Produtos em oferta</div>
+  <div class="cards-grid" id="cards-grid">
+    <div class="card" data-cat="patrulha" data-cod="1387.6" data-nome="Quebra-cabeça Big Patrulha Canina" data-preco="14.94">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/1387.6-Quebra-Cabeca-Big-Patrulha-Canina-730x730.jpg" alt="1387.6" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-40%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1387.6</div>
+        <div class="card-nome">Quebra-cabeça Big Patrulha Canina</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 24,90</span>
+          <span class="card-preco-por">R$ 14,94</span>
+        </div>
+        <div class="card-qt">QT: 2.078</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="patrulha" data-cod="1378.7" data-nome="Quebra-cabeça Duas Partes Patrulha Canina" data-preco="14.16">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/1378.7-Quebra-Cabeca-Duas-Partes-Patrulha-Canina-730x730.jpg" alt="1378.7" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-40%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1378.7</div>
+        <div class="card-nome">Quebra-cabeça Duas Partes Patrulha Canina</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 23,60</span>
+          <span class="card-preco-por">R$ 14,16</span>
+        </div>
+        <div class="card-qt">QT: 1.863</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="patrulha" data-cod="1383.2" data-nome="Quebra-cabeça Progressivo Patrulha Canina" data-preco="17.22">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/1383.2-Quebra-cabeca-Progressivo-Patrulha-Canina-730x730.jpg" alt="1383.2" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-40%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1383.2</div>
+        <div class="card-nome">Quebra-cabeça Progressivo Patrulha Canina</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 28,70</span>
+          <span class="card-preco-por">R$ 17,22</span>
+        </div>
+        <div class="card-qt">QT: 1.438</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="patrulha" data-cod="1396.5" data-nome="Alfabeto Ilustrativo Patrulha Canina" data-preco="25.38">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/1396.5-Mockup-Alfabeto-Ilustrativo-730x543.png" alt="1396.5" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-40%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1396.5</div>
+        <div class="card-nome">Alfabeto Ilustrativo Patrulha Canina</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 42,30</span>
+          <span class="card-preco-por">R$ 25,38</span>
+        </div>
+        <div class="card-qt">QT: 1.432</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="patrulha" data-cod="1382.1" data-nome="Carimbos Patrulha Canina" data-preco="24.18">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/1382.1-Carimbos-Patrulha-Canina-730x730.jpg" alt="1382.1" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-40%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1382.1</div>
+        <div class="card-nome">Carimbos Patrulha Canina</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 40,30</span>
+          <span class="card-preco-por">R$ 24,18</span>
+        </div>
+        <div class="card-qt">QT: 1.417</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="patrulha" data-cod="6810.9" data-nome="Kit Quadros para Colorir Patrulha Canina" data-preco="35.76">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/12/6810.9-Kit-Quadros-para-Colorir-Patrulha-Canina-Mockup-730x730.png" alt="6810.9" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-40%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6810.9</div>
+        <div class="card-nome">Kit Quadros para Colorir Patrulha Canina</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 59,60</span>
+          <span class="card-preco-por">R$ 35,76</span>
+        </div>
+        <div class="card-qt">QT: 383</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="patrulha" data-cod="1398.7" data-nome="Aprendendo as Horas Patrulha Canina" data-preco="24.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/1398.7-Mockup-Aprendendo-as-Horas-Patrulha-Canina-730x459.png" alt="1398.7" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-45%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1398.7</div>
+        <div class="card-nome">Aprendendo as Horas Patrulha Canina</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 45,50</span>
+          <span class="card-preco-por">R$ 24,90</span>
+        </div>
+        <div class="card-qt">QT: 683</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="patrulha" data-cod="1397.6" data-nome="Brincando de Soletrar Patrulha Canina" data-preco="39.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/1397.6-Mockup-Brincando-de-Soletrar-Patrulha-Canina-730x459.png" alt="1397.6" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-38%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1397.6</div>
+        <div class="card-nome">Brincando de Soletrar Patrulha Canina</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 63,90</span>
+          <span class="card-preco-por">R$ 39,90</span>
+        </div>
+        <div class="card-qt">QT: 154</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5148.7" data-nome="Dominó Divisão Silábica Minha Escolinha" data-preco="6.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/5148.7-Domino-Divisao-Silabica-Minha-Escolinha-730x730.jpg" alt="5148.7" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-40%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5148.7</div>
+        <div class="card-nome">Dominó Divisão Silábica Minha Escolinha</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 11,60</span>
+          <span class="card-preco-por">R$ 6,90</span>
+        </div>
+        <div class="card-qt">QT: 209</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="1760.9" data-nome="Quebra-cabeça Encaixe Aprendendo Braile" data-preco="35.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/02/1760.9-Mockup-QC-Encaixe-Aprendendo-Braille-730x401.png" alt="1760.9" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-18%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1760.9</div>
+        <div class="card-nome">Quebra-cabeça Encaixe Aprendendo Braile</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 43,60</span>
+          <span class="card-preco-por">R$ 35,90</span>
+        </div>
+        <div class="card-qt">QT: 334</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5325.4" data-nome="Interactive Play QC Fofossauros" data-preco="9.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/5325.4-Interactive-Play-Quebra-cabeca-Fofossauros-730x730.jpg" alt="5325.4" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-43%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5325.4</div>
+        <div class="card-nome">Interactive Play QC Fofossauros</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 17,20</span>
+          <span class="card-preco-por">R$ 9,90</span>
+        </div>
+        <div class="card-qt">QT: 257</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5156.5" data-nome="Carimbos Escolares Minha Escolinha" data-preco="9.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/5156.5-Carimbos-Incentivos-Escolares-Minha-Escolinha-730x730.jpg" alt="5156.5" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-46%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5156.5</div>
+        <div class="card-nome">Carimbos Escolares Minha Escolinha</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 18,20</span>
+          <span class="card-preco-por">R$ 9,90</span>
+        </div>
+        <div class="card-qt">QT: 1.604</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="1289.8" data-nome="QC Aprendendo os Números em Libras" data-preco="14.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/12/1289.8-Quebra-cabeca-Aprendendo-os-Numeros-em-Libras-730x730.png" alt="1289.8" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-37%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1289.8</div>
+        <div class="card-nome">QC Aprendendo os Números em Libras</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 23,60</span>
+          <span class="card-preco-por">R$ 14,90</span>
+        </div>
+        <div class="card-qt">QT: 507</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="1783.2" data-nome="Dominó Spidey" data-preco="12.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/12/1783.2-Domino-Spidey-730x730.png" alt="1783.2" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-37%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1783.2</div>
+        <div class="card-nome">Dominó Spidey</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 20,50</span>
+          <span class="card-preco-por">R$ 12,90</span>
+        </div>
+        <div class="card-qt">QT: 2.929</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="1285.4" data-nome="Partes do Corpo Humano Inglês" data-preco="19.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/12/1285.4-Aprendendo-Ingles-Partes-do-Corpo-Humano-730x730.png" alt="1285.4" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-41%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1285.4</div>
+        <div class="card-nome">Partes do Corpo Humano Inglês</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 33,90</span>
+          <span class="card-preco-por">R$ 19,90</span>
+        </div>
+        <div class="card-qt">QT: 1.013</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5075.4" data-nome="Lousa e Giz" data-preco="12.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/5075.4-Lousa-e-Giz-730x730.jpg" alt="5075.4" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-41%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5075.4</div>
+        <div class="card-nome">Lousa e Giz</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 21,70</span>
+          <span class="card-preco-por">R$ 12,90</span>
+        </div>
+        <div class="card-qt">QT: 282</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="1050.9" data-nome="Carimbos Dia A Dia Turma da Monica" data-preco="23.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/1050.9-Carimbos-Turma-da-Monica-730x730.jpg" alt="1050.9" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-34%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1050.9</div>
+        <div class="card-nome">Carimbos Dia A Dia Turma da Monica</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 36,40</span>
+          <span class="card-preco-por">R$ 23,90</span>
+        </div>
+        <div class="card-qt">QT: 1.274</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5093.2" data-nome="Carimbos Alfabeto" data-preco="29.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/5093.2-Carimbos-Alfabeto-730x730.jpg" alt="5093.2" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-45%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5093.2</div>
+        <div class="card-nome">Carimbos Alfabeto</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 54,20</span>
+          <span class="card-preco-por">R$ 29,90</span>
+        </div>
+        <div class="card-qt">QT: 36</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5078.7" data-nome="Carimbos Educativos Animais do Sitio" data-preco="18.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/5078.7-Carimbos-Animais-do-Sitio-730x730.jpg" alt="5078.7" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-37%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5078.7</div>
+        <div class="card-nome">Carimbos Educativos Animais do Sitio</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 30,00</span>
+          <span class="card-preco-por">R$ 18,90</span>
+        </div>
+        <div class="card-qt">QT: 461</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="1761.0" data-nome="Kit Atividades Aprendendo Braile" data-preco="24.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/02/1761.0-Mockup-Kit-Atividades-Aprendendo-Braille-730x439.png" alt="1761.0" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-46%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1761.0</div>
+        <div class="card-nome">Kit Atividades Aprendendo Braile</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 45,80</span>
+          <span class="card-preco-por">R$ 24,90</span>
+        </div>
+        <div class="card-qt">QT: 978</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="1298.7" data-nome="Separacao de Cores e Formas Turma da Monica" data-preco="24.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/12/1298.7-Separacao-de-Formas-e-Cores-Turma-da-Monica-730x730.png" alt="1298.7" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-48%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1298.7</div>
+        <div class="card-nome">Separacao de Cores e Formas Turma da Monica</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 48,30</span>
+          <span class="card-preco-por">R$ 24,90</span>
+        </div>
+        <div class="card-qt">QT: 340</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="1292.1" data-nome="Domino Tatil Turma da Monica" data-preco="24.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/12/12921-DOMINO-TATIL-TURMA-DA-MONICA-730x730.png" alt="1292.1" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-33%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1292.1</div>
+        <div class="card-nome">Domino Tatil Turma da Monica</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 37,10</span>
+          <span class="card-preco-por">R$ 24,90</span>
+        </div>
+        <div class="card-qt">QT: 616</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5080.9" data-nome="Carimbos Educativos Frutas" data-preco="18.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/5080.9-Carimbos-Frutas-730x730.jpg" alt="5080.9" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-37%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5080.9</div>
+        <div class="card-nome">Carimbos Educativos Frutas</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 30,00</span>
+          <span class="card-preco-por">R$ 18,90</span>
+        </div>
+        <div class="card-qt">QT: 1.161</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5091.0" data-nome="Carimbos Letras e Numeros" data-preco="29.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/5091.0-Carimbos-Letras-e-Numeros-caixa.jpg" alt="5091.0" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-45%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5091.0</div>
+        <div class="card-nome">Carimbos Letras e Numeros</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 54,20</span>
+          <span class="card-preco-por">R$ 29,90</span>
+        </div>
+        <div class="card-qt">QT: 1.207</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="6014.3" data-nome="Quebra-cabeca Encaixe Frutas" data-preco="19.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/6014.3-Quebra-Cabeca-de-Encaixe-Frutas-730x730.jpg" alt="6014.3" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-31%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6014.3</div>
+        <div class="card-nome">Quebra-cabeca Encaixe Frutas</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 29,00</span>
+          <span class="card-preco-por">R$ 19,90</span>
+        </div>
+        <div class="card-qt">QT: 542</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="6812.1" data-nome="Brincando de Engenheiro Construtor 53 Pcs" data-preco="39.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2024/01/6812.1-Brincando-de-Engenheiro-Construtor-53-pecas-730x730.png" alt="6812.1" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-43%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6812.1</div>
+        <div class="card-nome">Brincando de Engenheiro Construtor 53 Pcs</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 69,50</span>
+          <span class="card-preco-por">R$ 39,90</span>
+        </div>
+        <div class="card-qt">QT: 2.337</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5259.8" data-nome="Domino Divisao" data-preco="9.50">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/5259.8-Domino-Divisao-730x730.jpg" alt="5259.8" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-37%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5259.8</div>
+        <div class="card-nome">Domino Divisao</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 15,00</span>
+          <span class="card-preco-por">R$ 9,50</span>
+        </div>
+        <div class="card-qt">QT: 371</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5248.7" data-nome="Domino Figuras e Palavras" data-preco="9.50">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/5248.7-Domino-Figuras-e-Palavras-730x730.jpg" alt="5248.7" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-37%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5248.7</div>
+        <div class="card-nome">Domino Figuras e Palavras</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 15,00</span>
+          <span class="card-preco-por">R$ 9,50</span>
+        </div>
+        <div class="card-qt">QT: 474</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5246.5" data-nome="Domino Animais" data-preco="9.50">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/01/5246.5-Domino-Animais-730x730.jpg" alt="5246.5" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-37%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5246.5</div>
+        <div class="card-nome">Domino Animais</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 15,00</span>
+          <span class="card-preco-por">R$ 9,50</span>
+        </div>
+        <div class="card-qt">QT: 376</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="1287.6" data-nome="Aprendendo os Numeros Ingles" data-preco="14.90">
+      <div class="card-img">
+        <img src="https://produtosxalingo.oneweb.com.br/wp-content/uploads/2023/12/1287.6-Aprendendo-Ingles-Numeros-730x730.png" alt="1287.6" style="width:100%;height:100%;object-fit:contain;padding:8px;">
+        <div class="card-desconto-badge">-37%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1287.6</div>
+        <div class="card-nome">Aprendendo os Numeros Ingles</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 23,50</span>
+          <span class="card-preco-por">R$ 14,90</span>
+        </div>
+        <div class="card-qt">QT: 880</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="1286.5" data-nome="Aprendendo Frutas e Vegetais Ingles" data-preco="22.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-38%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1286.5</div>
+        <div class="card-nome">Aprendendo Frutas e Vegetais Ingles</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 37,10</span>
+          <span class="card-preco-por">R$ 22,90</span>
+        </div>
+        <div class="card-qt">QT: 1.008</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="educativo" data-cod="5473.2" data-nome="Multiblocks Matematico" data-preco="49.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-44%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5473.2</div>
+        <div class="card-nome">Multiblocks Matematico</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 89,10</span>
+          <span class="card-preco-por">R$ 49,90</span>
+        </div>
+        <div class="card-qt">QT: 20</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="jogos" data-cod="1163.2" data-nome="Memoria Halloween" data-preco="9.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-42%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1163.2</div>
+        <div class="card-nome">Memoria Halloween</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 17,00</span>
+          <span class="card-preco-por">R$ 9,90</span>
+        </div>
+        <div class="card-qt">QT: 2.056</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="jogos" data-cod="1131.0" data-nome="Quebra-Cabeca Halloween" data-preco="9.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-42%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1131.0</div>
+        <div class="card-nome">Quebra-Cabeca Halloween</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 17,00</span>
+          <span class="card-preco-por">R$ 9,90</span>
+        </div>
+        <div class="card-qt">QT: 1.108</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="jogos" data-cod="6798.7" data-nome="Quadro de Atividades Harry Potter" data-preco="34.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-41%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6798.7</div>
+        <div class="card-nome">Quadro de Atividades Harry Potter</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 59,60</span>
+          <span class="card-preco-por">R$ 34,90</span>
+        </div>
+        <div class="card-qt">QT: 189</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="jogos" data-cod="6060.9" data-nome="Jogo de Tabuleiro Um Dia Divertido" data-preco="32.76">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-35%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6060.9</div>
+        <div class="card-nome">Jogo de Tabuleiro Um Dia Divertido</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 50,40</span>
+          <span class="card-preco-por">R$ 32,76</span>
+        </div>
+        <div class="card-qt">QT: 425</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="jogos" data-cod="0716.5" data-nome="Loto 24 Cartelas" data-preco="12.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-44%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">0716.5</div>
+        <div class="card-nome">Loto 24 Cartelas</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 22,90</span>
+          <span class="card-preco-por">R$ 12,90</span>
+        </div>
+        <div class="card-qt">QT: 113</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="jogos" data-cod="1293.2" data-nome="Torre em Risco Desafio da Roleta" data-preco="14.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-52%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1293.2</div>
+        <div class="card-nome">Torre em Risco Desafio da Roleta</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 30,90</span>
+          <span class="card-preco-por">R$ 14,90</span>
+        </div>
+        <div class="card-qt">QT: 559</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="jogos" data-cod="1280.9" data-nome="Xadrez Brincando de Engenheiro" data-preco="74.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-40%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1280.9</div>
+        <div class="card-nome">Xadrez Brincando de Engenheiro</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 125,00</span>
+          <span class="card-preco-por">R$ 74,90</span>
+        </div>
+        <div class="card-qt">QT: 782</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="jogos" data-cod="6781.0" data-nome="Jogo Memoria Adicao e Subtracao" data-preco="6.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-44%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6781.0</div>
+        <div class="card-nome">Jogo Memoria Adicao e Subtracao</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 12,40</span>
+          <span class="card-preco-por">R$ 6,90</span>
+        </div>
+        <div class="card-qt">QT: 26</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="jogos" data-cod="1275.4" data-nome="Damas e Ludo" data-preco="9.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-51%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1275.4</div>
+        <div class="card-nome">Damas e Ludo</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 20,30</span>
+          <span class="card-preco-por">R$ 9,90</span>
+        </div>
+        <div class="card-qt">QT: 1.404</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="jogos" data-cod="5427.6" data-nome="QC Progressivo Fofossauros" data-preco="14.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-36%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">5427.6</div>
+        <div class="card-nome">QC Progressivo Fofossauros</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 23,30</span>
+          <span class="card-preco-por">R$ 14,90</span>
+        </div>
+        <div class="card-qt">QT: 98</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="fazdeconta" data-cod="6807.6" data-nome="Mesa de Atividades Avengers" data-preco="109.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-48%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6807.6</div>
+        <div class="card-nome">Mesa de Atividades Avengers</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 213,00</span>
+          <span class="card-preco-por">R$ 109,90</span>
+        </div>
+        <div class="card-qt">QT: 249</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="fazdeconta" data-cod="6506.9" data-nome="Fast Food Red com Som" data-preco="69.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-38%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6506.9</div>
+        <div class="card-nome">Fast Food Red com Som</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 112,00</span>
+          <span class="card-preco-por">R$ 69,90</span>
+        </div>
+        <div class="card-qt">QT: 397</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="fazdeconta" data-cod="1294.3" data-nome="Refrigerador Petit Chef Mickey" data-preco="99.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-38%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1294.3</div>
+        <div class="card-nome">Refrigerador Petit Chef Mickey</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 162,00</span>
+          <span class="card-preco-por">R$ 99,90</span>
+        </div>
+        <div class="card-qt">QT: 436</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="fazdeconta" data-cod="6760.9" data-nome="Forninho Magico em Madeira" data-preco="199.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-43%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6760.9</div>
+        <div class="card-nome">Forninho Magico em Madeira</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 350,00</span>
+          <span class="card-preco-por">R$ 199,90</span>
+        </div>
+        <div class="card-qt">QT: 23</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="fazdeconta" data-cod="9836.5" data-nome="Mini Cozinha Interativa" data-preco="249.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-38%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">9836.5</div>
+        <div class="card-nome">Mini Cozinha Interativa</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 400,00</span>
+          <span class="card-preco-por">R$ 249,90</span>
+        </div>
+        <div class="card-qt">QT: 62</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="fazdeconta" data-cod="9837.6" data-nome="Cesta de Compras Interativa" data-preco="249.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-38%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">9837.6</div>
+        <div class="card-nome">Cesta de Compras Interativa</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 400,00</span>
+          <span class="card-preco-por">R$ 249,90</span>
+        </div>
+        <div class="card-qt">QT: 87</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="fazdeconta" data-cod="9835.4" data-nome="Kit Churrasqueira" data-preco="249.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-38%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">9835.4</div>
+        <div class="card-nome">Kit Churrasqueira</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 400,00</span>
+          <span class="card-preco-por">R$ 249,90</span>
+        </div>
+        <div class="card-qt">QT: 36</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="fazdeconta" data-cod="6774.3" data-nome="Carrinho com Pista em Fita" data-preco="14.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-56%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6774.3</div>
+        <div class="card-nome">Carrinho com Pista em Fita</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 33,80</span>
+          <span class="card-preco-por">R$ 14,90</span>
+        </div>
+        <div class="card-qt">QT: 13</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="fazdeconta" data-cod="6741.0" data-nome="Bancada Ferrovia Premium" data-preco="699.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-51%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6741.0</div>
+        <div class="card-nome">Bancada Ferrovia Premium</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 1.436,00</span>
+          <span class="card-preco-por">R$ 699,90</span>
+        </div>
+        <div class="card-qt">QT: 1</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="9829.8" data-nome="Guitarra Musical Infantil Premium" data-preco="249.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-47%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">9829.8</div>
+        <div class="card-nome">Guitarra Musical Infantil Premium</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 469,00</span>
+          <span class="card-preco-por">R$ 249,90</span>
+        </div>
+        <div class="card-qt">QT: 79</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="6770.9" data-nome="Guitarra Musical Infantil" data-preco="189.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-44%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6770.9</div>
+        <div class="card-nome">Guitarra Musical Infantil</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 337,00</span>
+          <span class="card-preco-por">R$ 189,90</span>
+        </div>
+        <div class="card-qt">QT: 326</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="6765.4" data-nome="Mini Piano Musical Infantil" data-preco="69.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-47%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6765.4</div>
+        <div class="card-nome">Mini Piano Musical Infantil</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 132,00</span>
+          <span class="card-preco-por">R$ 69,90</span>
+        </div>
+        <div class="card-qt">QT: 14</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="6773.2" data-nome="Caixa Musical Giratoria Infantil" data-preco="99.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-43%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6773.2</div>
+        <div class="card-nome">Caixa Musical Giratoria Infantil</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 175,00</span>
+          <span class="card-preco-por">R$ 99,90</span>
+        </div>
+        <div class="card-qt">QT: 62</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="6768.7" data-nome="Bongo Musical Infantil" data-preco="144.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-45%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6768.7</div>
+        <div class="card-nome">Bongo Musical Infantil</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 263,00</span>
+          <span class="card-preco-por">R$ 144,90</span>
+        </div>
+        <div class="card-qt">QT: 29</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="9827.6" data-nome="Sinfonia Magica Musical Infantil" data-preco="199.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-46%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">9827.6</div>
+        <div class="card-nome">Sinfonia Magica Musical Infantil</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 371,00</span>
+          <span class="card-preco-por">R$ 199,90</span>
+        </div>
+        <div class="card-qt">QT: 62</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="6771.0" data-nome="Tambor Musical Infantil" data-preco="139.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-47%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6771.0</div>
+        <div class="card-nome">Tambor Musical Infantil</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 263,00</span>
+          <span class="card-preco-por">R$ 139,90</span>
+        </div>
+        <div class="card-qt">QT: 41</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="6744.3" data-nome="Xilofone Musical Infantil" data-preco="159.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-45%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6744.3</div>
+        <div class="card-nome">Xilofone Musical Infantil</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 288,00</span>
+          <span class="card-preco-por">R$ 159,90</span>
+        </div>
+        <div class="card-qt">QT: 3</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="6764.3" data-nome="Piano Musical Infantil Premium" data-preco="239.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-44%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6764.3</div>
+        <div class="card-nome">Piano Musical Infantil Premium</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 432,00</span>
+          <span class="card-preco-por">R$ 239,90</span>
+        </div>
+        <div class="card-qt">QT: 3</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="9831.0" data-nome="Bate Pino e Xilofone Musical" data-preco="179.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-47%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">9831.0</div>
+        <div class="card-nome">Bate Pino e Xilofone Musical</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 337,00</span>
+          <span class="card-preco-por">R$ 179,90</span>
+        </div>
+        <div class="card-qt">QT: 76</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="6762.1" data-nome="Kit Interativo Feliz Aniversario" data-preco="149.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-51%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6762.1</div>
+        <div class="card-nome">Kit Interativo Feliz Aniversario</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 306,00</span>
+          <span class="card-preco-por">R$ 149,90</span>
+        </div>
+        <div class="card-qt">QT: 96</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="9839.0" data-nome="DJ Plataforma Giratoria" data-preco="119.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-49%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">9839.0</div>
+        <div class="card-nome">DJ Plataforma Giratoria</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 234,00</span>
+          <span class="card-preco-por">R$ 119,90</span>
+        </div>
+        <div class="card-qt">QT: 121</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="6749.8" data-nome="Andador Divertido em Madeira" data-preco="229.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-50%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6749.8</div>
+        <div class="card-nome">Andador Divertido em Madeira</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 459,00</span>
+          <span class="card-preco-por">R$ 229,90</span>
+        </div>
+        <div class="card-qt">QT: 79</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="musical" data-cod="6778.7" data-nome="Corrida de Bolinha Quadri 44 Pcs" data-preco="349.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-43%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6778.7</div>
+        <div class="card-nome">Corrida de Bolinha Quadri 44 Pcs</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 613,00</span>
+          <span class="card-preco-por">R$ 349,90</span>
+        </div>
+        <div class="card-qt">QT: 2</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="outros" data-cod="0725.1" data-nome="Triciclo 3X1 Minnie" data-preco="249.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-44%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">0725.1</div>
+        <div class="card-nome">Triciclo 3X1 Minnie</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 444,00</span>
+          <span class="card-preco-por">R$ 249,90</span>
+        </div>
+        <div class="card-qt">QT: 4</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="outros" data-cod="1668.7" data-nome="Basquete De Mesa" data-preco="124.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-34%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1668.7</div>
+        <div class="card-nome">Basquete De Mesa</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 190,00</span>
+          <span class="card-preco-por">R$ 124,90</span>
+        </div>
+        <div class="card-qt">QT: 564</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="outros" data-cod="2867.6" data-nome="Bola de Basquete Oficial No 7" data-preco="37.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-35%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">2867.6</div>
+        <div class="card-nome">Bola de Basquete Oficial No 7</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 57,90</span>
+          <span class="card-preco-por">R$ 37,90</span>
+        </div>
+        <div class="card-qt">QT: 499</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="outros" data-cod="0987.6" data-nome="Trave de Gol" data-preco="399.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-47%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">0987.6</div>
+        <div class="card-nome">Trave de Gol</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 756,00</span>
+          <span class="card-preco-por">R$ 399,90</span>
+        </div>
+        <div class="card-qt">QT: 37</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="outros" data-cod="1623.2" data-nome="Blocos Grandes Natal 77 Pcs" data-preco="94.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-45%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">1623.2</div>
+        <div class="card-nome">Blocos Grandes Natal 77 Pcs</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 174,00</span>
+          <span class="card-preco-por">R$ 94,90</span>
+        </div>
+        <div class="card-qt">QT: 1.189</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="outros" data-cod="2240.7" data-nome="Minha Primeira Viagem de Iate e Helicoptero" data-preco="99.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-51%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">2240.7</div>
+        <div class="card-nome">Minha Primeira Viagem de Iate e Helicoptero</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 204,00</span>
+          <span class="card-preco-por">R$ 99,90</span>
+        </div>
+        <div class="card-qt">QT: 598</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="outros" data-cod="6856.5" data-nome="Caminhao Press And Go Display 12 Pcs" data-preco="9.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-37%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6856.5</div>
+        <div class="card-nome">Caminhao Press And Go Display 12 Pcs</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 15,80</span>
+          <span class="card-preco-por">R$ 9,90</span>
+        </div>
+        <div class="card-qt">QT: 886</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="outros" data-cod="0661.8" data-nome="Mini Projetores Dinos Display 12 Unidades" data-preco="12.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-59%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">0661.8</div>
+        <div class="card-nome">Mini Projetores Dinos Display 12 Unidades</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 31,50</span>
+          <span class="card-preco-por">R$ 12,90</span>
+        </div>
+        <div class="card-qt">QT: 3.330</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" data-cat="outros" data-cod="6666.5" data-nome="Monociclo de Equilibrio Sapo" data-preco="39.90">
+      <div class="card-img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <div class="card-desconto-badge">-62%</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cod">6666.5</div>
+        <div class="card-nome">Monociclo de Equilibrio Sapo</div>
+        <div class="card-precos">
+          <span class="card-preco-de">R$ 104,00</span>
+          <span class="card-preco-por">R$ 39,90</span>
+        </div>
+        <div class="card-qt">QT: 3.892</div>
+        <div class="card-add-area">
+          <input type="number" class="qty-input" value="1" min="1" max="9999" />
+          <button class="btn-add" onclick="adicionarItem(this)">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="camp-footer">
+    <div class="camp-footer-text">
+      <strong>Condicao de pagamento:</strong> A cada reducao de 28 dias no prazo, desconto adicional de 1,5%.
+      Vigencia: Abril, Maio e Junho de 2026. Estoque sujeito a disponibilidade.
+    </div>
+  </div>
+
+</div>
+
+<!-- OVERLAY -->
+<div class="lista-overlay" id="lista-overlay" onclick="toggleLista()"></div>
+
+<!-- SIDEBAR LISTA -->
+<div class="lista-panel" id="lista-panel">
+  <div class="lista-header">
+    <div class="lista-header-left">
+      <span class="lista-titulo">Lista de Pedido</span>
+      <span class="lista-badge" id="lista-count">0</span>
+    </div>
+    <button class="lista-close" onclick="toggleLista()">&#10005;</button>
+  </div>
+  <div class="lista-body" id="lista-body">
+    <div class="lista-vazia" id="lista-vazia">Nenhum produto adicionado ainda.</div>
+    <div id="lista-itens"></div>
+    <div class="lista-total-box" id="lista-total-box" style="display:none">
+      <span class="lista-total-label">TOTAL DO PEDIDO</span>
+      <span class="lista-total-val" id="lista-total-val">R$ 0,00</span>
+    </div>
+  </div>
+  <div class="lista-actions">
+    <button class="btn-excel" id="btn-excel" onclick="gerarExcel()" disabled>
+      &#11015; Exportar Excel
+    </button>
+    <button class="btn-limpar" onclick="limparLista()">Limpar lista</button>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="lista-fab" id="lista-fab" onclick="toggleLista()">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+  Pedido
+  <span class="lista-fab-badge" id="lista-fab-badge">0</span>
+</button>
+
+<script>
+  var lista = [];
+  var listaAberta = false;
+
+  function filtrar(cat, btn) {
+    document.querySelectorAll(".f-btn").forEach(function(b) { b.classList.remove("active"); });
+    btn.classList.add("active");
+    document.querySelectorAll(".card").forEach(function(c) {
+      if (cat === "todos" || c.dataset.cat === cat) {
+        c.classList.remove("hidden");
+      } else {
+        c.classList.add("hidden");
+      }
+    });
+  }
+
+  function adicionarItem(btn) {
+    var card = btn.closest(".card");
+    var cod = card.dataset.cod;
+    var nome = card.dataset.nome;
+    var preco = parseFloat(card.dataset.preco.replace(",", "."));
+    var qty = parseInt(card.querySelector(".qty-input").value) || 1;
+
+    var existente = null;
+    for (var i = 0; i < lista.length; i++) {
+      if (lista[i].cod === cod) { existente = lista[i]; break; }
+    }
+    if (existente) {
+      existente.qty += qty;
+    } else {
+      lista.push({ cod: cod, nome: nome, preco: preco, qty: qty });
+    }
+
+    card.classList.add("no-carrinho");
+    btn.textContent = "Adicionado!";
+    btn.classList.add("adicionado");
+    setTimeout(function() {
+      btn.textContent = "+ Adicionar";
+      btn.classList.remove("adicionado");
+    }, 1500);
+
+    renderLista();
+    if (!listaAberta) toggleLista();
+  }
+
+  function calcTotal() {
+    var total = 0;
+    for (var i = 0; i < lista.length; i++) {
+      total += lista[i].preco * lista[i].qty;
+    }
+    return total;
+  }
+
+  function fmtMoeda(v) {
+    return "R$ " + v.toFixed(2).replace(".", ",");
+  }
+
+  function renderLista() {
+    var count = lista.length;
+    var total = calcTotal();
+
+    document.getElementById("lista-count").textContent = count;
+    document.getElementById("lista-fab-badge").textContent = count;
+    document.getElementById("btn-excel").disabled = count === 0;
+
+    if (count === 0) {
+      document.getElementById("lista-vazia").style.display = "";
+      document.getElementById("lista-itens").innerHTML = "";
+      document.getElementById("lista-total-box").style.display = "none";
+      document.querySelectorAll(".card").forEach(function(c) { c.classList.remove("no-carrinho"); });
+      return;
+    }
+
+    document.getElementById("lista-vazia").style.display = "none";
+    document.getElementById("lista-total-box").style.display = "flex";
+    document.getElementById("lista-total-val").textContent = fmtMoeda(total);
+
+    var container = document.getElementById("lista-itens");
+    container.innerHTML = "";
+    for (var i = 0; i < lista.length; i++) {
+      var item = lista[i];
+      var sub = item.preco * item.qty;
+      var div = document.createElement("div");
+      div.className = "lista-item";
+      div.innerHTML =
+        "<div class='lista-item-top'>" +
+          "<div>" +
+            "<div class='lista-item-cod'>" + item.cod + "</div>" +
+            "<div class='lista-item-nome'>" + item.nome + "</div>" +
+          "</div>" +
+          "<button class='btn-remover' data-idx='" + i + "' onclick='removerItem(this)' title='Remover'>&#10005;</button>" +
+        "</div>" +
+        "<div class='lista-item-bottom'>" +
+          "<span class='lista-item-preco'>" + fmtMoeda(item.preco) + " un</span>" +
+          "<div class='lista-item-qty-wrap td-qty'>" +
+            "<span class='lista-item-qty-label'>Qtd:</span>" +
+            "<input type='number' value='" + item.qty + "' min='1' max='9999' data-idx='" + i + "' onchange='atualizarQty(this)' />" +
+          "</div>" +
+          "<span class='lista-item-sub'>" + fmtMoeda(sub) + "</span>" +
+        "</div>";
+      container.appendChild(div);
+    }
+  }
+
+  function atualizarQty(input) {
+    var idx = parseInt(input.dataset.idx);
+    var val = parseInt(input.value);
+    if (val > 0) { lista[idx].qty = val; }
+    renderLista();
+  }
+
+  function removerItem(btn) {
+    var idx = parseInt(btn.dataset.idx);
+    var cod = lista[idx].cod;
+    lista.splice(idx, 1);
+    document.querySelectorAll(".card").forEach(function(c) {
+      if (c.dataset.cod === cod) c.classList.remove("no-carrinho");
+    });
+    renderLista();
+  }
+
+  function limparLista() {
+    lista = [];
+    document.querySelectorAll(".card").forEach(function(c) { c.classList.remove("no-carrinho"); });
+    renderLista();
+  }
+
+  function toggleLista() {
+    listaAberta = !listaAberta;
+    document.getElementById("lista-panel").classList.toggle("open", listaAberta);
+    document.getElementById("lista-overlay").classList.toggle("open", listaAberta);
+  }
+
+  function gerarExcel() {
+    if (lista.length === 0) return;
+    var total = calcTotal();
+    var wb = XLSX.utils.book_new();
+    var dados = [["Referencia", "Nome do Produto", "Preco Unit. (R$)", "Quantidade", "Subtotal (R$)"]];
+    for (var i = 0; i < lista.length; i++) {
+      var item = lista[i];
+      dados.push([
+        item.cod,
+        item.nome,
+        item.preco.toFixed(2).replace(".", ","),
+        item.qty,
+        (item.preco * item.qty).toFixed(2).replace(".", ",")
+      ]);
+    }
+    dados.push(["", "", "", "TOTAL", total.toFixed(2).replace(".", ",")]);
+    var ws = XLSX.utils.aoa_to_sheet(dados);
+    ws["!cols"] = [{wch:14},{wch:45},{wch:18},{wch:12},{wch:18}];
+    XLSX.utils.book_append_sheet(wb, ws, "Pedido Xalingo");
+    var hoje = new Date();
+    var data = hoje.getDate().toString().padStart(2,"0") + (hoje.getMonth()+1).toString().padStart(2,"0") + hoje.getFullYear();
+    XLSX.writeFile(wb, "pedido_xalingo_" + data + ".xlsx");
+  }
+
+  function toggleCat(el) { if (event && event.target.closest(".sb-sub")) return; el.classList.toggle("open"); }
+  function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); document.getElementById("sbOverlay").classList.toggle("open"); }
+</script>
+</body>
+</html>
