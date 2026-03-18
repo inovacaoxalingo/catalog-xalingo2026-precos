@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: "Segoe UI", sans-serif; background: #1a2a4a; min-height: 100vh; padding-bottom: 20px; transition: padding-right 0.35s ease; }
+  body { font-family: "Segoe UI", sans-serif; background: #e8e0d0; min-height: 100vh; padding-bottom: 20px; transition: padding-right 0.35s ease; }
 
   /* HEADER */
   .camp-header { background: linear-gradient(135deg, #1B3A5C 0%, #293b7f 100%); padding: 28px 24px 24px; text-align: center; }
@@ -32,46 +32,46 @@
 
   /* STATS */
   .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
-  .stat { background: #1e3359; border-radius: 12px; padding: 12px 14px; text-align: center; border: 1px solid rgba(255,255,255,0.06); }
+  .stat { background: #ffffff; border-radius: 12px; padding: 12px 14px; text-align: center; border: 1px solid rgba(0,0,0,0.08); }
   .stat-num { font-size: 22px; font-weight: 900; color: #f8c400; }
-  .stat-label { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 600; margin-top: 2px; }
+  .stat-label { font-size: 11px; color: rgba(0,0,0,0.45); font-weight: 600; margin-top: 2px; }
 
   /* FILTROS */
   .filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-  .f-btn { background: #1e3359; color: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
-  .f-btn:hover { background: #293b7f; color: white; }
+  .f-btn { background: #ffffff; color: rgba(0,0,0,0.55); border: 1px solid rgba(0,0,0,0.12); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .f-btn:hover { background: #293b7f; color: white; border-color: #293b7f; }
   .f-btn.active { background: #f8c400; color: #1B3A5C; border-color: #f8c400; }
 
   /* GRID */
-  .secao-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .secao-label { font-size: 10px; font-weight: 700; color: rgba(0,0,0,0.4); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
   .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 12px; }
 
   /* CARD */
-  .card { background: #1e3359; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; }
+  .card { background: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; }
   .card:hover { transform: translateY(-3px); }
-  .card.no-carrinho { border-color: #f8c400; }
+  .card.no-carrinho { border-color: #f8c400; border-width: 2px; }
   .card.hidden { display: none; }
   .card-img { height: 130px; background: #fff; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
   .card-desconto-badge { position: absolute; top: 8px; right: 8px; background: #ef3128; color: white; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px; }
   .card-body { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; }
-  .card-cod { font-size: 10px; color: rgba(255,255,255,0.3); font-weight: 600; margin-bottom: 3px; }
-  .card-nome { font-size: 12px; font-weight: 700; color: white; margin-bottom: 8px; line-height: 1.35; flex: 1; }
+  .card-cod { font-size: 10px; color: rgba(0,0,0,0.35); font-weight: 600; margin-bottom: 3px; }
+  .card-nome { font-size: 12px; font-weight: 700; color: #1B3A5C; margin-bottom: 8px; line-height: 1.35; flex: 1; }
   .card-precos { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
-  .card-preco-de { font-size: 11px; color: rgba(255,255,255,0.35); text-decoration: line-through; }
+  .card-preco-de { font-size: 11px; color: rgba(0,0,0,0.35); text-decoration: line-through; }
   .card-preco-por { font-size: 18px; font-weight: 900; color: #f8c400; }
-  .card-qt { font-size: 10px; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
+  .card-qt { font-size: 10px; color: rgba(0,0,0,0.4); margin-bottom: 10px; }
   .card-add-area { display: flex; align-items: center; gap: 6px; }
-  .qty-input { width: 52px; padding: 5px 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07); color: white; font-size: 13px; font-weight: 700; text-align: center; outline: none; font-family: inherit; }
-  .qty-input:focus { border-color: #f8c400; }
+  .qty-input { width: 52px; padding: 5px 6px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.15); background: #f5f5f5; color: #1B3A5C; font-size: 13px; font-weight: 700; text-align: center; outline: none; font-family: inherit; }
+  .qty-input:focus { border-color: #293b7f; outline: none; }
   .btn-add { flex: 1; background: #f8c400; color: #1B3A5C; border: none; border-radius: 8px; padding: 6px 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: background 0.15s, transform 0.1s; font-family: inherit; }
   .btn-add:hover { background: #ffe033; }
   .btn-add:active { transform: scale(0.97); }
   .btn-add.adicionado { background: #2ecc71; color: white; }
 
   /* FOOTER INFO */
-  .camp-footer { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-top: 24px; }
-  .camp-footer-text { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.6; }
-  .camp-footer-text strong { color: white; }
+  .camp-footer { background: rgba(255,255,255,0.5); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-top: 24px; }
+  .camp-footer-text { font-size: 12px; color: rgba(0,0,0,0.55); line-height: 1.6; }
+  .camp-footer-text strong { color: #1B3A5C; }
 
   /* FAB LISTA */
   .lista-fab { position: fixed; bottom: 24px; right: 24px; z-index: 99;
@@ -186,7 +186,7 @@
     .sb-overlay.open { display: block; }
     .camp-body, .camp-header { margin-left: 0 !important; }
   }
-  .camp-header, .camp-body { margin-left: var(--sidebar-w); }
+  .camp-header { margin-left: var(--sidebar-w); } .camp-body { margin-left: var(--sidebar-w); padding: 24px 32px; }
 </style>
 </head>
 <body>
