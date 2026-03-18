@@ -350,6 +350,48 @@
       grid-template-columns: 1fr;
     }
   }
+
+  /* ===== IMPRESSÃO ===== */
+  @media print {
+    .sidebar, .sb-toggle, .sb-overlay, .back-to-top, .btn-print { display: none !important; }
+    .main { margin-left: 0 !important; zoom: 1 !important; background: white !important; }
+    .pages-grid { display: block !important; padding: 0 !important; gap: 0 !important; }
+    .page-cover { width: 100% !important; max-width: 100% !important; margin: 0 !important; box-shadow: none !important; border-radius: 0 !important; page-break-after: always; }
+    .page-img { display: block !important; width: 100% !important; height: auto !important; page-break-after: always; box-shadow: none !important; }
+    .pages-grid > div { page-break-after: always; }
+    * { box-shadow: none !important; }
+    @page { size: A4 portrait; margin: 0; }
+  }
+
+  .btn-print-wrap {
+    padding: 12px 10px 16px;
+    border-top: 1px solid rgba(0,0,0,0.07);
+    flex-shrink: 0;
+  }
+  .btn-print {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 12px;
+    background: rgba(27,58,92,0.08);
+    color: #1B3A5C;
+    border: 1.5px solid rgba(27,58,92,0.18);
+    border-radius: 10px;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.2px;
+  }
+  .btn-print:hover {
+    background: rgba(27,58,92,0.14);
+    border-color: rgba(27,58,92,0.3);
+    transform: translateY(-1px);
+  }
+  .btn-print:active { transform: scale(0.98); }
 </style>
 </head>
 <body>
