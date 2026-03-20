@@ -369,6 +369,18 @@
 
   .cat-playground .card-bar { background: var(--playground-bar); }
   .cat-playground .card-main { background: var(--playground-bg); }
+  .cat-playground .card-num,.cat-playground .card-title,.cat-playground .card-pages,.cat-playground .item { color: var(--playground-text); }
+  .cat-playground .item:hover { background: rgba(255,255,255,0.18); }
+  .cat-playground .item-dot { background: var(--playground-bar); }
+  .cat-playground .item-arrow { color: var(--playground-bar); }
+
+  .cat-ofertas .card-bar { background: var(--ofertas-bar); }
+  .cat-ofertas .card-main { background: var(--ofertas-bg); }
+  .cat-ofertas .card-num,.cat-ofertas .card-title,.cat-ofertas .card-pages,.cat-ofertas .item { color: var(--ofertas-text); }
+  .cat-ofertas .item:hover { background: rgba(255,255,255,0.2); }
+  .cat-ofertas .item-dot { background: var(--ofertas-bar); }
+  .cat-ofertas .item-arrow { color: var(--ofertas-bar); }
+  .cat-playground .card-main { background: var(--playground-bg); }
   .cat-playground .card-num,
   .cat-playground .card-title,
   .cat-playground .card-pages,
@@ -433,23 +445,16 @@
     .item { padding: 8px 10px; }
   }
 
-  .sb-ofertas .sb-cat-head { background: #d9d9d9 !important; cursor: not-allowed !important; opacity: 0.6; }
-  .sb-ofertas .sb-cat-bar { background: #aaa !important; }
-  .sb-ofertas .sb-cat-num, .sb-ofertas .sb-cat-name, .sb-ofertas .sb-cat-arrow { color: #888 !important; }
-  .sb-ofertas .sb-sub { color: #888 !important; pointer-events: none; }
-  .sb-ofertas .sb-sub-dot { background: #aaa !important; }
-  .sb-news .sb-cat-head { background: #1B3A5C; }
-  .sb-news .sb-cat-bar { background: #378ADD; }
-  .sb-news .sb-cat-num, .sb-news .sb-cat-name, .sb-news .sb-cat-arrow { color: #e6f1fb; }
-  .sb-news .sb-sub { color: #e6f1fb; }
-  .sb-news .sb-sub-dot { background: #378ADD; }
-
   .cat-news .card-bar { background: #378ADD; }
   .cat-news .card-main { background: #E6F1FB; }
   .cat-news .card-num, .cat-news .card-title, .cat-news .card-pages, .cat-news .item { color: #0C447C; }
-  .cat-news .item:hover { background: rgba(255,255,255,0.3); }
+  .cat-news .item:hover { background: rgba(55,138,221,0.1); }
   .cat-news .item-dot { background: #378ADD; }
   .cat-news .item-arrow { color: #378ADD; }
+  .cat-ofertas .card-bar { background: #aaa !important; }
+  .cat-ofertas .card-main { background: #e8e8e8 !important; cursor: not-allowed !important; }
+  .cat-ofertas .card-num, .cat-ofertas .card-title, .cat-ofertas .card-pages, .cat-ofertas .item { color: #999 !important; }
+  .cat-ofertas .item { pointer-events: none; }
 </style>
 </head>
 <body>
@@ -483,7 +488,7 @@
   <div class="col col-left">
 
     <!-- 01 BLOCOS DE MONTAR -->
-    <div class="card cat-blocos">
+    <div class="card cat-blocos" style="cursor:pointer" onclick="window.location.href='blocos-de-montar.html'">
       <div class="card-bar"></div>
       <div class="card-main">
         <div class="card-head">
@@ -495,19 +500,19 @@
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
-          <a class="item" href="brincando-de-engenheiro.html">
+          <a class="item" href="blocos-de-montar.html#engenheiro">
             <span class="item-dot"></span><span class="item-name">Brincando de Engenheiro</span>
             <span class="item-page">07</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="blocos-de-montar.html">
+          <a class="item" href="blocos-de-montar.html#blocos">
             <span class="item-dot"></span><span class="item-name">Blocos de Montar</span>
             <span class="item-page">16</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="blocos-grandes.html">
+          <a class="item" href="blocos-de-montar.html#grandes">
             <span class="item-dot"></span><span class="item-name">Blocos Grandes</span>
             <span class="item-page">61</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="blocos-soft.html">
+          <a class="item" href="blocos-de-montar.html#soft">
             <span class="item-dot"></span><span class="item-name">Blocos Soft</span>
             <span class="item-page">70</span><span class="item-arrow">→</span>
           </a>
@@ -516,7 +521,7 @@
     </div>
 
     <!-- 02 EDUCATIVOS -->
-    <div class="card cat-educativos">
+    <div class="card cat-educativos" style="cursor:pointer" onclick="window.location.href='educativos.html'">
       <div class="card-bar"></div>
       <div class="card-main">
         <div class="card-head">
@@ -528,43 +533,43 @@
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
-          <a class="item" href="desenvolvimento.html">
+          <a class="item" href="educativos.html#desenvolvimento">
             <span class="item-dot"></span><span class="item-name">Desenvolvimento</span>
             <span class="item-page">75</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="steam.html">
+          <a class="item" href="educativos.html#steam">
             <span class="item-dot"></span><span class="item-name">Steam</span>
             <span class="item-page">86</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="playset.html">
+          <a class="item" href="educativos.html#playset">
             <span class="item-dot"></span><span class="item-name">Playset</span>
             <span class="item-page">89</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="quadros-para-colorir.html">
+          <a class="item" href="educativos.html#colorir">
             <span class="item-dot"></span><span class="item-name">Quadros para Colorir</span>
             <span class="item-page">91</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="quebra-cabeca.html">
+          <a class="item" href="educativos.html#quebracabeca">
             <span class="item-dot"></span><span class="item-name">Quebra-cabeça</span>
             <span class="item-page">93</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="memoria.html">
+          <a class="item" href="educativos.html#memoria">
             <span class="item-dot"></span><span class="item-name">Memória</span>
             <span class="item-page">99</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="domino.html">
+          <a class="item" href="educativos.html#domino">
             <span class="item-dot"></span><span class="item-name">Dominó</span>
             <span class="item-page">102</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="blocos-pedagogicos.html">
+          <a class="item" href="educativos.html#pedagogicos">
             <span class="item-dot"></span><span class="item-name">Blocos Pedagógicos</span>
             <span class="item-page">105</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="jogos-educativos.html">
+          <a class="item" href="educativos.html#jogoseducativos">
             <span class="item-dot"></span><span class="item-name">Jogos Educativos</span>
             <span class="item-page">107</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="carimbos.html">
+          <a class="item" href="educativos.html#carimbos">
             <span class="item-dot"></span><span class="item-name">Carimbos</span>
             <span class="item-page">112</span><span class="item-arrow">→</span>
           </a>
@@ -573,7 +578,7 @@
     </div>
 
     <!-- 03 JOGOS -->
-    <div class="card cat-jogos">
+    <div class="card cat-jogos" style="cursor:pointer" onclick="window.location.href='jogos.html'">
       <div class="card-bar"></div>
       <div class="card-main">
         <div class="card-head">
@@ -585,15 +590,15 @@
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
-          <a class="item" href="xadrez.html">
+          <a class="item" href="jogos.html#xadrez">
             <span class="item-dot"></span><span class="item-name">Xadrez</span>
             <span class="item-page">114</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="jogos-classicos.html">
+          <a class="item" href="jogos.html#classicos">
             <span class="item-dot"></span><span class="item-name">Jogos Clássicos</span>
             <span class="item-page">118</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="board-games.html">
+          <a class="item" href="jogos.html#boardgames">
             <span class="item-dot"></span><span class="item-name">Board Games</span>
             <span class="item-page">126</span><span class="item-arrow">→</span>
           </a>
@@ -690,7 +695,7 @@
     </div>
 
     <!-- 07 PLAYGROUND -->
-    <div class="card cat-playground">
+    <div class="card cat-playground" style="cursor:pointer" onclick="window.location.href='playground.html'">
       <div class="card-bar"></div>
       <div class="card-main">
         <div class="card-head">
@@ -702,31 +707,31 @@
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
-          <a class="item" href="balancos.html">
+          <a class="item" href="playground.html#balancos">
             <span class="item-dot"></span><span class="item-name">Balanços</span>
             <span class="item-page">149</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="gangorras.html">
+          <a class="item" href="playground.html#gangorras">
             <span class="item-dot"></span><span class="item-name">Gangorras</span>
             <span class="item-page">150</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="complementos.html">
+          <a class="item" href="playground.html#complementos">
             <span class="item-dot"></span><span class="item-name">Complementos</span>
             <span class="item-page">154</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="escorregadores.html">
+          <a class="item" href="playground.html#escorregadores">
             <span class="item-dot"></span><span class="item-name">Escorregadores</span>
             <span class="item-page">156</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="casinhas.html">
+          <a class="item" href="playground.html#casinhas">
             <span class="item-dot"></span><span class="item-name">Casinhas</span>
             <span class="item-page">158</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="outdoor-menor.html">
+          <a class="item" href="playground.html#outdoormenor">
             <span class="item-dot"></span><span class="item-name">Outdoor Menor</span>
             <span class="item-page">161</span><span class="item-arrow">→</span>
           </a>
-          <a class="item" href="outdoor-maior.html">
+          <a class="item" href="playground.html#outdoormaior">
             <span class="item-dot"></span><span class="item-name">Outdoor Maior</span>
             <span class="item-page">165</span><span class="item-arrow">→</span>
           </a>
@@ -735,24 +740,27 @@
     </div>
 
 
-    <div class="card cat-news" style="cursor:pointer" onclick="window.location.href='news.html'">
+    <!-- 08 OFERTAS -->
+    <div class="card cat-ofertas" style="cursor:not-allowed">
       <div class="card-bar"></div>
       <div class="card-main">
         <div class="card-head">
-          <div class="card-num">09</div>
+          <div class="card-num">08</div>
           <div class="card-head-info">
-            <div class="card-title">News</div>
-            <div class="card-pages">Novidades</div>
+            <div class="card-title">Ofertas</div>
+            <div class="card-pages">Campanhas Ativas</div>
           </div>
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
-          <a class="item" href="news.html#avisos"><span class="item-dot"></span><span class="item-name">Avisos</span><span class="item-arrow">&#8594;</span></a>
-          <a class="item" href="news.html#videos"><span class="item-dot"></span><span class="item-name">Videos</span><span class="item-arrow">&#8594;</span></a>
-          <a class="item" href="news.html#tiktok"><span class="item-dot"></span><span class="item-name">TikTok</span><span class="item-arrow">&#8594;</span></a>
+          <a class="item" href="ofertas.html">
+            <span class="item-dot"></span><span class="item-name">Vem Brincar com a Xalingo</span>
+            <span class="item-arrow">&#8594;</span>
+          </a>
         </div>
       </div>
     </div>
+
   </div>
 
 </div>

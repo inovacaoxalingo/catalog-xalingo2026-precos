@@ -351,11 +351,57 @@
     }
   }
 
-  .sb-ofertas .sb-cat-head { background: #d9d9d9 !important; cursor: not-allowed !important; opacity: 0.6; }
+  /* ===== IMPRESSÃO ===== */
+  @media print {
+    .sidebar, .sb-toggle, .sb-overlay, .back-to-top, .btn-print { display: none !important; }
+    .main { margin-left: 0 !important; zoom: 1 !important; background: white !important; }
+    .pages-grid { display: block !important; padding: 0 !important; gap: 0 !important; }
+    .page-cover { width: 100% !important; max-width: 100% !important; margin: 0 !important; box-shadow: none !important; border-radius: 0 !important; page-break-after: always; }
+    .page-img { display: block !important; width: 100% !important; height: auto !important; page-break-after: always; box-shadow: none !important; }
+    .pages-grid > div { page-break-after: always; }
+    * { box-shadow: none !important; }
+    @page { size: A4 portrait; margin: 0; }
+  }
+
+  .btn-print-wrap {
+    padding: 12px 10px 16px;
+    border-top: 1px solid rgba(0,0,0,0.07);
+    flex-shrink: 0;
+  }
+  .btn-print {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 12px;
+    background: rgba(27,58,92,0.08);
+    color: #1B3A5C;
+    border: 1.5px solid rgba(27,58,92,0.18);
+    border-radius: 10px;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.2px;
+  }
+  .btn-print:hover {
+    background: rgba(27,58,92,0.14);
+    border-color: rgba(27,58,92,0.3);
+    transform: translateY(-1px);
+  }
+  .btn-print:active { transform: scale(0.98); }
+  .sb-ofertas .sb-cat-head { background: #f8c400; }
+  .sb-ofertas .sb-cat-bar { background: #c8960a; }
+  .sb-ofertas .sb-cat-num,.sb-ofertas .sb-cat-name,.sb-ofertas .sb-cat-arrow { color: #5a3d00; }
+  .sb-ofertas .sb-sub { color: #5a3d00; }
+  .sb-ofertas .sb-sub-dot { background: #c8960a; }
+
+  .sb-ofertas .sb-cat-head { background: #d0d0d0 !important; cursor: not-allowed !important; opacity: 0.55; }
   .sb-ofertas .sb-cat-bar { background: #aaa !important; }
   .sb-ofertas .sb-cat-num, .sb-ofertas .sb-cat-name, .sb-ofertas .sb-cat-arrow { color: #888 !important; }
-  .sb-ofertas .sb-sub { color: #888 !important; pointer-events: none; }
-  .sb-ofertas .sb-sub-dot { background: #aaa !important; }
+  .sb-ofertas .sb-sub { pointer-events: none; opacity: 0.5; }
   .sb-news .sb-cat-head { background: #1B3A5C; }
   .sb-news .sb-cat-bar { background: #378ADD; }
   .sb-news .sb-cat-num, .sb-news .sb-cat-name, .sb-news .sb-cat-arrow { color: #e6f1fb; }
@@ -408,16 +454,16 @@
         <div class="sb-cat-arrow">▸</div>
       </div>
       <div class="sb-subs">
-        <a class="sb-sub" href="desenvolvimento.html"><span class="sb-sub-dot"></span>Desenvolvimento<span class="sb-sub-page">75</span></a>
-        <a class="sb-sub" href="steam.html"><span class="sb-sub-dot"></span>Steam<span class="sb-sub-page">86</span></a>
-        <a class="sb-sub" href="playset.html"><span class="sb-sub-dot"></span>Playset<span class="sb-sub-page">89</span></a>
-        <a class="sb-sub" href="quadros-para-colorir.html"><span class="sb-sub-dot"></span>Quadros para Colorir<span class="sb-sub-page">91</span></a>
-        <a class="sb-sub" href="quebra-cabeca.html"><span class="sb-sub-dot"></span>Quebra-cabeça<span class="sb-sub-page">93</span></a>
-        <a class="sb-sub" href="memoria.html"><span class="sb-sub-dot"></span>Memória<span class="sb-sub-page">99</span></a>
-        <a class="sb-sub" href="domino.html"><span class="sb-sub-dot"></span>Dominó<span class="sb-sub-page">102</span></a>
-        <a class="sb-sub" href="blocos-pedagogicos.html"><span class="sb-sub-dot"></span>Blocos Pedagógicos<span class="sb-sub-page">105</span></a>
-        <a class="sb-sub" href="jogos-educativos.html"><span class="sb-sub-dot"></span>Jogos Educativos<span class="sb-sub-page">107</span></a>
-        <a class="sb-sub" href="carimbos.html"><span class="sb-sub-dot"></span>Carimbos<span class="sb-sub-page">112</span></a>
+        <a class="sb-sub" href="educativos.html#desenvolvimento"><span class="sb-sub-dot"></span>Desenvolvimento<span class="sb-sub-page">75</span></a>
+        <a class="sb-sub" href="educativos.html#steam"><span class="sb-sub-dot"></span>Steam<span class="sb-sub-page">86</span></a>
+        <a class="sb-sub" href="educativos.html#playset"><span class="sb-sub-dot"></span>Playset<span class="sb-sub-page">89</span></a>
+        <a class="sb-sub" href="educativos.html#colorir"><span class="sb-sub-dot"></span>Quadros para Colorir<span class="sb-sub-page">91</span></a>
+        <a class="sb-sub" href="educativos.html#quebracabeca"><span class="sb-sub-dot"></span>Quebra-cabeça<span class="sb-sub-page">93</span></a>
+        <a class="sb-sub" href="educativos.html#memoria"><span class="sb-sub-dot"></span>Memória<span class="sb-sub-page">99</span></a>
+        <a class="sb-sub" href="educativos.html#domino"><span class="sb-sub-dot"></span>Dominó<span class="sb-sub-page">102</span></a>
+        <a class="sb-sub" href="educativos.html#pedagogicos"><span class="sb-sub-dot"></span>Blocos Pedagógicos<span class="sb-sub-page">105</span></a>
+        <a class="sb-sub" href="educativos.html#jogoseducativos"><span class="sb-sub-dot"></span>Jogos Educativos<span class="sb-sub-page">107</span></a>
+        <a class="sb-sub" href="educativos.html#carimbos"><span class="sb-sub-dot"></span>Carimbos<span class="sb-sub-page">112</span></a>
       </div>
     </div>
 
@@ -430,9 +476,9 @@
         <div class="sb-cat-arrow">▸</div>
       </div>
       <div class="sb-subs">
-        <a class="sb-sub" href="xadrez.html"><span class="sb-sub-dot"></span>Xadrez<span class="sb-sub-page">114</span></a>
-        <a class="sb-sub" href="jogos-classicos.html"><span class="sb-sub-dot"></span>Jogos Clássicos<span class="sb-sub-page">118</span></a>
-        <a class="sb-sub" href="board-games.html"><span class="sb-sub-dot"></span>Board Games<span class="sb-sub-page">126</span></a>
+        <a class="sb-sub" href="jogos.html#xadrez"><span class="sb-sub-dot"></span>Xadrez<span class="sb-sub-page">114</span></a>
+        <a class="sb-sub" href="jogos.html#classicos"><span class="sb-sub-dot"></span>Jogos Clássicos<span class="sb-sub-page">118</span></a>
+        <a class="sb-sub" href="jogos.html#boardgames"><span class="sb-sub-dot"></span>Board Games<span class="sb-sub-page">126</span></a>
       </div>
     </div>
 
@@ -489,16 +535,15 @@
         <div class="sb-cat-arrow">▸</div>
       </div>
       <div class="sb-subs">
-        <a class="sb-sub" href="balancos.html"><span class="sb-sub-dot"></span>Balanços<span class="sb-sub-page">149</span></a>
-        <a class="sb-sub" href="gangorras.html"><span class="sb-sub-dot"></span>Gangorras<span class="sb-sub-page">150</span></a>
-        <a class="sb-sub" href="complementos.html"><span class="sb-sub-dot"></span>Complementos<span class="sb-sub-page">154</span></a>
-        <a class="sb-sub" href="escorregadores.html"><span class="sb-sub-dot"></span>Escorregadores<span class="sb-sub-page">156</span></a>
-        <a class="sb-sub" href="casinhas.html"><span class="sb-sub-dot"></span>Casinhas<span class="sb-sub-page">158</span></a>
-        <a class="sb-sub" href="outdoor-menor.html"><span class="sb-sub-dot"></span>Outdoor Menor<span class="sb-sub-page">161</span></a>
-        <a class="sb-sub" href="outdoor-maior.html"><span class="sb-sub-dot"></span>Outdoor Maior<span class="sb-sub-page">165</span></a>
+        <a class="sb-sub" href="playground.html#balancos"><span class="sb-sub-dot"></span>Balanços<span class="sb-sub-page">149</span></a>
+        <a class="sb-sub" href="playground.html#gangorras"><span class="sb-sub-dot"></span>Gangorras<span class="sb-sub-page">150</span></a>
+        <a class="sb-sub" href="playground.html#complementos"><span class="sb-sub-dot"></span>Complementos<span class="sb-sub-page">154</span></a>
+        <a class="sb-sub" href="playground.html#escorregadores"><span class="sb-sub-dot"></span>Escorregadores<span class="sb-sub-page">156</span></a>
+        <a class="sb-sub" href="playground.html#casinhas"><span class="sb-sub-dot"></span>Casinhas<span class="sb-sub-page">158</span></a>
+        <a class="sb-sub" href="playground.html#outdoormenor"><span class="sb-sub-dot"></span>Outdoor Menor<span class="sb-sub-page">161</span></a>
+        <a class="sb-sub" href="playground.html#outdoormaior"><span class="sb-sub-dot"></span>Outdoor Maior<span class="sb-sub-page">165</span></a>
       </div>
     </div>
-
 
     <div class="sb-cat sb-ofertas">
       <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">08</div><div class="sb-cat-name">Ofertas</div><div class="sb-cat-arrow">&#9658;</div></div>
@@ -506,57 +551,81 @@
         <a class="sb-sub" href="ofertas.html"><span class="sb-sub-dot"></span>Vem Brincar 2026</a>
       </div>
     </div>
-    <div class="sb-cat sb-news" onclick="toggleCat(this)">
-      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">09</div><div class="sb-cat-name">News</div><div class="sb-cat-arrow">&#9658;</div></div>
-      <div class="sb-subs">
-        <a class="sb-sub" href="news.html#avisos"><span class="sb-sub-dot"></span>Avisos</a>
-        <a class="sb-sub" href="news.html#videos"><span class="sb-sub-dot"></span>Videos</a>
-        <a class="sb-sub" href="news.html#tiktok"><span class="sb-sub-dot"></span>TikTok</a>
-        <a class="sb-sub" href="news.html#redes"><span class="sb-sub-dot"></span>Redes Sociais</a>
-      </div>
-    </div>
   </nav>
 </aside>
 
 <!-- ===== MAIN CONTENT ===== -->
 <main class="main">
-
-  <!-- Páginas Blocos de Montar -->
+  <img class="page-cover" src="img-blocos/blocos-p0001.jpg" alt="Capa Blocos">
   <div class="pages-grid">
-    <div style="position:relative">
-      <span class="section-anchor" id="engenheiro"></span>
-      <img class="page-img" src="img-blocos/blocos-p0002.jpg" alt="Brincando de Engenheiro - 70 anos">
-    </div>
-    <img class="page-img" src="img-blocos/blocos-p0003.jpg" alt="Brincando de Engenheiro - Benefícios">
-    <img class="page-img" src="img-blocos/blocos-p0004.jpg" alt="Brincando de Engenheiro Nº1 a Nº4">
-    <div style="position:relative">
-      <span class="section-anchor" id="blocos"></span>
-      <img class="page-img" src="img-blocos/blocos-p0014.jpg" alt="Blocos Criativos">
-    </div>
-    <img class="page-img" src="img-blocos/blocos-p0018.jpg" alt="Lançadores">
-    <img class="page-img" src="img-blocos/blocos-p0025.jpg" alt="Super Máquina na Pista">
-    <img class="page-img" src="img-blocos/blocos-p0027.jpg" alt="Mundo Encantado">
-    <img class="page-img" src="img-blocos/blocos-p0032.jpg" alt="Fazenda">
-    <img class="page-img" src="img-blocos/blocos-p0033.jpg" alt="Bombeiros">
-    <img class="page-img" src="img-blocos/blocos-p0043.jpg" alt="Aliança Justiça e Paz">
-    <img class="page-img" src="img-blocos/blocos-p0047.jpg" alt="Aliança Justiça e Paz - Super Tanque">
-    <img class="page-img" src="img-blocos/blocos-p0048.jpg" alt="Aliança Justiça e Paz - Jato">
-    <img class="page-img" src="img-blocos/blocos-p0049.jpg" alt="Cidade em Obras">
-    <img class="page-img" src="img-blocos/blocos-p0053.jpg" alt="Quadrante X">
-    <div style="position:relative">
-      <span class="section-anchor" id="grandes"></span>
-      <img class="page-img" src="img-blocos/blocos-p0057.jpg" alt="Blocos Grandes Mesa Interativa">
-    </div>
-    <img class="page-img" src="img-blocos/blocos-p0058.jpg" alt="Blocos Grandes Trenzinho">
-    <img class="page-img" src="img-blocos/blocos-p0059.jpg" alt="Blocos Grandes Mundo Encantado">
-    <img class="page-img" src="img-blocos/blocos-p0062.jpg" alt="Blocos Grandes Circuito Play">
-    <img class="page-img" src="img-blocos/blocos-p0063.jpg" alt="Blocos Grandes Floresta">
-    <div style="position:relative">
-      <span class="section-anchor" id="soft"></span>
-      <img class="page-img" src="img-blocos/blocos-p0065.jpg" alt="Blocos Soft">
-    </div>
+    <div style="position:relative"><span class="section-anchor" id="engenheiro"></span><img class="page-img" src="img-blocos/blocos-p0002.jpg" alt="Blocos p0002"></div>
+    <img class="page-img" src="img-blocos/blocos-p0003.jpg" alt="Blocos p0003">
+    <img class="page-img" src="img-blocos/blocos-p0004.jpg" alt="Blocos p0004">
+    <img class="page-img" src="img-blocos/blocos-p0005.jpg" alt="Blocos p0005">
+    <img class="page-img" src="img-blocos/blocos-p0006.jpg" alt="Blocos p0006">
+    <img class="page-img" src="img-blocos/blocos-p0007.jpg" alt="Blocos p0007">
+    <img class="page-img" src="img-blocos/blocos-p0008.jpg" alt="Blocos p0008">
+    <img class="page-img" src="img-blocos/blocos-p0009.jpg" alt="Blocos p0009">
+    <div style="position:relative"><span class="section-anchor" id="blocos"></span><img class="page-img" src="img-blocos/blocos-p0010.jpg" alt="Blocos p0010"></div>
+    <img class="page-img" src="img-blocos/blocos-p0011.jpg" alt="Blocos p0011">
+    <img class="page-img" src="img-blocos/blocos-p0012.jpg" alt="Blocos p0012">
+    <img class="page-img" src="img-blocos/blocos-p0013.jpg" alt="Blocos p0013">
+    <img class="page-img" src="img-blocos/blocos-p0014.jpg" alt="Blocos p0014">
+    <img class="page-img" src="img-blocos/blocos-p0015.jpg" alt="Blocos p0015">
+    <img class="page-img" src="img-blocos/blocos-p0016.jpg" alt="Blocos p0016">
+    <img class="page-img" src="img-blocos/blocos-p0017.jpg" alt="Blocos p0017">
+    <img class="page-img" src="img-blocos/blocos-p0018.jpg" alt="Blocos p0018">
+    <img class="page-img" src="img-blocos/blocos-p0019.jpg" alt="Blocos p0019">
+    <img class="page-img" src="img-blocos/blocos-p0020.jpg" alt="Blocos p0020">
+    <img class="page-img" src="img-blocos/blocos-p0021.jpg" alt="Blocos p0021">
+    <img class="page-img" src="img-blocos/blocos-p0022.jpg" alt="Blocos p0022">
+    <img class="page-img" src="img-blocos/blocos-p0023.jpg" alt="Blocos p0023">
+    <img class="page-img" src="img-blocos/blocos-p0024.jpg" alt="Blocos p0024">
+    <img class="page-img" src="img-blocos/blocos-p0025.jpg" alt="Blocos p0025">
+    <img class="page-img" src="img-blocos/blocos-p0026.jpg" alt="Blocos p0026">
+    <img class="page-img" src="img-blocos/blocos-p0027.jpg" alt="Blocos p0027">
+    <img class="page-img" src="img-blocos/blocos-p0028.jpg" alt="Blocos p0028">
+    <img class="page-img" src="img-blocos/blocos-p0029.jpg" alt="Blocos p0029">
+    <img class="page-img" src="img-blocos/blocos-p0030.jpg" alt="Blocos p0030">
+    <img class="page-img" src="img-blocos/blocos-p0031.jpg" alt="Blocos p0031">
+    <img class="page-img" src="img-blocos/blocos-p0032.jpg" alt="Blocos p0032">
+    <img class="page-img" src="img-blocos/blocos-p0033.jpg" alt="Blocos p0033">
+    <img class="page-img" src="img-blocos/blocos-p0034.jpg" alt="Blocos p0034">
+    <img class="page-img" src="img-blocos/blocos-p0035.jpg" alt="Blocos p0035">
+    <img class="page-img" src="img-blocos/blocos-p0036.jpg" alt="Blocos p0036">
+    <img class="page-img" src="img-blocos/blocos-p0037.jpg" alt="Blocos p0037">
+    <img class="page-img" src="img-blocos/blocos-p0038.jpg" alt="Blocos p0038">
+    <img class="page-img" src="img-blocos/blocos-p0039.jpg" alt="Blocos p0039">
+    <img class="page-img" src="img-blocos/blocos-p0040.jpg" alt="Blocos p0040">
+    <img class="page-img" src="img-blocos/blocos-p0041.jpg" alt="Blocos p0041">
+    <img class="page-img" src="img-blocos/blocos-p0042.jpg" alt="Blocos p0042">
+    <img class="page-img" src="img-blocos/blocos-p0043.jpg" alt="Blocos p0043">
+    <img class="page-img" src="img-blocos/blocos-p0044.jpg" alt="Blocos p0044">
+    <img class="page-img" src="img-blocos/blocos-p0045.jpg" alt="Blocos p0045">
+    <img class="page-img" src="img-blocos/blocos-p0046.jpg" alt="Blocos p0046">
+    <img class="page-img" src="img-blocos/blocos-p0047.jpg" alt="Blocos p0047">
+    <img class="page-img" src="img-blocos/blocos-p0048.jpg" alt="Blocos p0048">
+    <img class="page-img" src="img-blocos/blocos-p0049.jpg" alt="Blocos p0049">
+    <img class="page-img" src="img-blocos/blocos-p0050.jpg" alt="Blocos p0050">
+    <img class="page-img" src="img-blocos/blocos-p0051.jpg" alt="Blocos p0051">
+    <img class="page-img" src="img-blocos/blocos-p0052.jpg" alt="Blocos p0052">
+    <img class="page-img" src="img-blocos/blocos-p0053.jpg" alt="Blocos p0053">
+    <img class="page-img" src="img-blocos/blocos-p0054.jpg" alt="Blocos p0054">
+    <img class="page-img" src="img-blocos/blocos-p0055.jpg" alt="Blocos p0055">
+    <div style="position:relative"><span class="section-anchor" id="grandes"></span><img class="page-img" src="img-blocos/blocos-p0056.jpg" alt="Blocos p0056"></div>
+    <img class="page-img" src="img-blocos/blocos-p0057.jpg" alt="Blocos p0057">
+    <img class="page-img" src="img-blocos/blocos-p0058.jpg" alt="Blocos p0058">
+    <img class="page-img" src="img-blocos/blocos-p0059.jpg" alt="Blocos p0059">
+    <img class="page-img" src="img-blocos/blocos-p0060.jpg" alt="Blocos p0060">
+    <img class="page-img" src="img-blocos/blocos-p0061.jpg" alt="Blocos p0061">
+    <img class="page-img" src="img-blocos/blocos-p0062.jpg" alt="Blocos p0062">
+    <img class="page-img" src="img-blocos/blocos-p0063.jpg" alt="Blocos p0063">
+    <div style="position:relative"><span class="section-anchor" id="soft"></span><img class="page-img" src="img-blocos/blocos-p0064.jpg" alt="Blocos p0064"></div>
+    <img class="page-img" src="img-blocos/blocos-p0065.jpg" alt="Blocos p0065">
+    <img class="page-img" src="img-blocos/blocos-p0066.jpg" alt="Blocos p0066">
+    <img class="page-img" src="img-blocos/blocos-p0067.jpg" alt="Blocos p0067">
+    <img class="page-img" src="img-blocos/blocos-p0068.jpg" alt="Blocos p0068">
   </div>
-
 </main>
 
 <!-- Back to top -->
