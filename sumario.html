@@ -443,6 +443,13 @@
   .sb-news .sb-cat-num, .sb-news .sb-cat-name, .sb-news .sb-cat-arrow { color: #e6f1fb; }
   .sb-news .sb-sub { color: #e6f1fb; }
   .sb-news .sb-sub-dot { background: #378ADD; }
+
+  .cat-news .card-bar { background: #378ADD; }
+  .cat-news .card-main { background: #E6F1FB; }
+  .cat-news .card-num, .cat-news .card-title, .cat-news .card-pages, .cat-news .item { color: #0C447C; }
+  .cat-news .item:hover { background: rgba(255,255,255,0.3); }
+  .cat-news .item-dot { background: #378ADD; }
+  .cat-news .item-arrow { color: #378ADD; }
 </style>
 </head>
 <body>
@@ -727,6 +734,25 @@
       </div>
     </div>
 
+
+    <div class="card cat-news" style="cursor:pointer" onclick="window.location.href='news.html'">
+      <div class="card-bar"></div>
+      <div class="card-main">
+        <div class="card-head">
+          <div class="card-num">09</div>
+          <div class="card-head-info">
+            <div class="card-title">News</div>
+            <div class="card-pages">Novidades</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <a class="item" href="news.html#avisos"><span class="item-dot"></span><span class="item-name">Avisos</span><span class="item-arrow">&#8594;</span></a>
+          <a class="item" href="news.html#videos"><span class="item-dot"></span><span class="item-name">Videos</span><span class="item-arrow">&#8594;</span></a>
+          <a class="item" href="news.html#tiktok"><span class="item-dot"></span><span class="item-name">TikTok</span><span class="item-arrow">&#8594;</span></a>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
