@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>News | Catálogo 2026 - Xalingo Brinquedos</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--page-bg:#f5e5d6;--sidebar-w:220px;--accent:#1B3A5C;--red:#E24B4A;--green:#2ecc71;--yellow:#f8c400}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Quicksand',sans-serif;background:#e8e0d0;display:flex;min-height:100vh}
+
+  /* SIDEBAR */
+  .sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--page-bg);position:fixed;top:0;left:0;bottom:0;z-index:40;display:flex;flex-direction:column;overflow-y:auto;border-right:1px solid rgba(0,0,0,0.06);box-shadow:2px 0 20px rgba(0,0,0,0.08)}
+  .sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:4px}
+  .sb-header{padding:16px 14px 12px;border-bottom:1px solid rgba(0,0,0,0.06);flex-shrink:0}
+  .sb-logo{display:block;height:48px;width:auto;margin-bottom:8px}
+  .sb-back{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:700;color:var(--accent);text-decoration:none;opacity:.6;transition:opacity .2s}.sb-back:hover{opacity:1}
+  .sb-nav{flex:1;padding:10px 0}
+  .sb-cat{margin:0 10px 4px;border-radius:12px;overflow:hidden}
+  .sb-cat-head{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;cursor:pointer}
+  .sb-cat-bar{width:4px;height:24px;border-radius:3px;flex-shrink:0}
+  .sb-cat-num{font-family:'Fredoka',sans-serif;font-size:.7rem;font-weight:600;opacity:.35;min-width:18px}
+  .sb-cat-name{flex:1;font-size:.76rem;font-weight:700;line-height:1.2}
+  .sb-cat-arrow{font-size:.65rem;opacity:.4;transition:transform .25s}
+  .sb-subs{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .sb-cat.open .sb-subs{max-height:400px}.sb-cat.open .sb-cat-arrow{transform:rotate(90deg)}
+  .sb-sub{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 28px;text-decoration:none;font-size:.72rem;font-weight:600;border-radius:8px;margin:0 8px;transition:all .2s}
+  .sb-sub-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+  .sb-sub-page{font-size:.62rem;font-weight:700;opacity:.35;margin-left:auto}
+  .sb-sub:hover{background:rgba(255,255,255,0.3)}
+
+  .sb-blocos .sb-cat-head{background:#a496b0}.sb-blocos .sb-cat-bar{background:#293b7f}.sb-blocos .sb-cat-num,.sb-blocos .sb-cat-name,.sb-blocos .sb-cat-arrow{color:#1e2a5a}.sb-blocos .sb-sub{color:#1e2a5a}.sb-blocos .sb-sub-dot{background:#293b7f}
+  .sb-educ .sb-cat-head{background:#b49abf}.sb-educ .sb-cat-bar{background:#4d359a}.sb-educ .sb-cat-num,.sb-educ .sb-cat-name,.sb-educ .sb-cat-arrow{color:#3a2470}.sb-educ .sb-sub{color:#3a2470}.sb-educ .sb-sub-dot{background:#4d359a}
+  .sb-jogos .sb-cat-head{background:#eda487}.sb-jogos .sb-cat-bar{background:#ef3128}.sb-jogos .sb-cat-num,.sb-jogos .sb-cat-name,.sb-jogos .sb-cat-arrow{color:#8b1a15}.sb-jogos .sb-sub{color:#8b1a15}.sb-jogos .sb-sub-dot{background:#ef3128}
+  .sb-faz .sb-cat-head{background:#c1d7c8}.sb-faz .sb-cat-bar{background:#5ec9c8}.sb-faz .sb-cat-num,.sb-faz .sb-cat-name,.sb-faz .sb-cat-arrow{color:#2a7574}.sb-faz .sb-sub{color:#2a7574}.sb-faz .sb-sub-dot{background:#5ec9c8}
+  .sb-rodados .sb-cat-head{background:#c1d597}.sb-rodados .sb-cat-bar{background:#63c437}.sb-rodados .sb-cat-num,.sb-rodados .sb-cat-name,.sb-rodados .sb-cat-arrow{color:#3a7520}.sb-rodados .sb-sub{color:#3a7520}.sb-rodados .sb-sub-dot{background:#63c437}
+  .sb-esportes .sb-cat-head{background:#efc68f}.sb-esportes .sb-cat-bar{background:#f89e1c}.sb-esportes .sb-cat-num,.sb-esportes .sb-cat-name,.sb-esportes .sb-cat-arrow{color:#8a5a0e}.sb-esportes .sb-sub{color:#8a5a0e}.sb-esportes .sb-sub-dot{background:#f89e1c}
+  .sb-playground .sb-cat-head{background:#c78c88}.sb-playground .sb-cat-bar{background:#891434}.sb-playground .sb-cat-num,.sb-playground .sb-cat-name,.sb-playground .sb-cat-arrow{color:#5e0e24}.sb-playground .sb-sub{color:#5e0e24}.sb-playground .sb-sub-dot{background:#891434}
+  .sb-ofertas .sb-cat-head{background:#f8c400}.sb-ofertas .sb-cat-bar{background:#c8960a}.sb-ofertas .sb-cat-num,.sb-ofertas .sb-cat-name,.sb-ofertas .sb-cat-arrow{color:#5a3d00}.sb-ofertas .sb-sub{color:#5a3d00}.sb-ofertas .sb-sub-dot{background:#c8960a}
+  .sb-news .sb-cat-head{background:var(--accent)}.sb-news .sb-cat-bar{background:#378ADD}.sb-news .sb-cat-num,.sb-news .sb-cat-name,.sb-news .sb-cat-arrow{color:#e6f1fb}
+  .sb-news .sb-sub{color:var(--accent);font-weight:700}.sb-news .sb-sub-dot{background:var(--accent)}.sb-news .sb-sub:hover{background:rgba(27,58,92,0.08)}
+
+  .sb-toggle{display:none;position:fixed;top:14px;left:14px;z-index:60;width:42px;height:42px;background:rgba(27,58,92,0.92);color:white;border:2px solid rgba(255,255,255,0.15);border-radius:12px;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,0.25)}
+  .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:35}
+
+  /* MAIN - dashboard */
+  .main{margin-left:var(--sidebar-w);flex:1;padding:14px 22px;min-width:0;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+  /* HEADER */
+  .hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-shrink:0}
+  .hdr-icon{width:24px;height:24px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .hdr h1{font-family:'Fredoka',sans-serif;font-size:17px;font-weight:700;color:var(--accent)}
+  .hdr p{font-size:10px;color:rgba(0,0,0,0.35);font-weight:600;margin-left:4px}
+
+  /* SECTION LABEL */
+  .slbl{font-size:8px;font-weight:700;color:rgba(0,0,0,0.35);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;margin-top:8px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .slbl::after{content:'';flex:1;height:1px;background:rgba(0,0,0,0.06)}
+
+  /* AVISOS - 3 cards, slightly larger */
+  .avisos-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex-shrink:0}
+  .av{background:white;border-radius:10px;padding:12px 16px;border-left:4px solid #ccc;cursor:default}
+  .av.u{border-left-color:var(--red)}.av.i{border-left-color:var(--accent)}.av.o{border-left-color:var(--green)}.av.w{border-left-color:var(--yellow)}
+  .av-t{font-size:13px;font-weight:800;color:#0d2640;line-height:1.35;margin-bottom:3px}
+  .av-desc{font-size:11px;color:#1B3A5C;line-height:1.4;margin-bottom:3px;font-weight:600}
+  .av-d{font-size:9px;color:rgba(27,58,92,0.5);font-weight:700}
+
+  /* MEDIA ROW - 4 colunas: YT | Insta Post | Short | TikTok */
+  .media-row{display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr;gap:10px;flex:1;min-height:0;overflow:hidden}
+  .media-col{display:flex;flex-direction:column;min-height:0}
+  .col-label{display:flex;align-items:center;gap:5px;margin-bottom:4px;flex-shrink:0}
+  .col-label h3{font-family:'Fredoka',sans-serif;font-size:11px;font-weight:700;color:#0d2640}
+  .pill{font-size:7px;font-weight:800;padding:1px 6px;border-radius:6px;color:white}
+
+  /* YouTube card */
+  .yt-card{background:white;border-radius:10px;overflow:hidden;border:.5px solid rgba(0,0,0,0.06);flex:1;display:flex;flex-direction:column;min-height:0}
+  .yt-vid{position:relative;width:100%;padding-top:56.25%;flex-shrink:0}
+  .yt-vid iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+  .yt-nfo{padding:6px 10px;flex-shrink:0}
+  .yt-nfo-t{font-size:11px;font-weight:800;color:#0d2640;line-height:1.2;margin-bottom:1px}
+  .yt-nfo-m{font-size:8px;color:rgba(0,0,0,0.3)}
+  .yt-nfo a{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:#FF0000;text-decoration:none;margin-top:2px}
+  .yt-nfo a:hover{opacity:.7}
+
+  /* Vertical card (short/tiktok/insta) */
+  .vcard{background:white;border-radius:10px;overflow:hidden;border:.5px solid rgba(0,0,0,0.06);flex:1;display:flex;flex-direction:column;min-height:0}
+  .vcard iframe{width:100%;flex:1;border:none;display:block;min-height:0}
+  .vcard-nfo{padding:4px 8px;flex-shrink:0}
+  .vcard-t{font-size:10px;font-weight:800;color:#0d2640;line-height:1.2}
+  .vcard a{display:inline-flex;align-items:center;gap:3px;font-size:8px;font-weight:700;text-decoration:none;margin-top:1px}
+  .vcard a:hover{opacity:.7}
+
+  /* BOTTOM: Instagram bar + Social bar */
+  .bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex-shrink:0;margin-top:8px}
+
+  .insta-bar{background:white;border-radius:10px;padding:8px 12px;border:.5px solid rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px}
+  .insta-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f09433,#dc2743,#bc1888);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:2px}
+  .insta-av-in{width:100%;height:100%;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-family:'Fredoka',sans-serif;font-weight:700;font-size:12px;color:var(--accent)}
+  .insta-info{flex:1;min-width:0}
+  .insta-info strong{font-size:11px;color:#0d2640;display:block;font-weight:800}
+  .insta-info span{font-size:9px;color:#1B3A5C;font-weight:600}
+  .insta-stats{display:flex;gap:10px;flex-shrink:0}
+  .insta-st{text-align:center}
+  .insta-st b{font-family:'Fredoka',sans-serif;font-size:13px;color:#0d2640;display:block;font-weight:700}
+  .insta-st small{font-size:8px;color:#1B3A5C;font-weight:700}
+  .insta-reels{display:flex;gap:5px;flex-shrink:0}
+  .insta-reel-thumb{width:36px;height:36px;border-radius:7px;overflow:hidden;background:linear-gradient(135deg,#f09433,#dc2743,#bc1888);padding:1.5px;flex-shrink:0;cursor:pointer;transition:transform .15s;text-decoration:none;display:block}
+  .insta-reel-thumb:hover{transform:scale(1.08)}
+  .insta-reel-inner{width:100%;height:100%;border-radius:5.5px;background:var(--accent);display:flex;align-items:center;justify-content:center}
+  .insta-btn-sm{background:linear-gradient(135deg,#f09433,#dc2743,#bc1888);color:white;border:none;border-radius:6px;padding:5px 12px;font-size:9px;font-weight:800;font-family:inherit;cursor:pointer;flex-shrink:0;text-decoration:none}
+  .insta-btn-sm:hover{opacity:.9}
+
+  .social-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .scard{background:white;border-radius:8px;padding:7px 8px;border:.5px solid rgba(0,0,0,0.06);text-decoration:none;display:flex;align-items:center;gap:6px;transition:transform .15s;position:relative;overflow:hidden}
+  .scard::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
+  .scard.si::before{background:linear-gradient(180deg,#f09433,#dc2743,#bc1888)}.scard.sy::before{background:#FF0000}.scard.st::before{background:#010101}.scard.sf::before{background:#1877F2}
+  .scard:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,0.06)}
+  .scard-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .scard-icon.insta{background:linear-gradient(135deg,#f09433,#dc2743,#bc1888)}.scard-icon.yt{background:#FF0000}.scard-icon.tt{background:#010101}.scard-icon.fb{background:#1877F2}
+  .scard-info{flex:1;min-width:0}
+  .scard-info strong{font-size:10px;color:#0d2640;display:block;font-weight:800}
+  .scard-info span{font-size:8px;color:#1B3A5C;font-weight:600}
+  .scard-num{font-family:'Fredoka',sans-serif;font-size:12px;font-weight:700;color:#0d2640;flex-shrink:0}
+
+  @media(max-width:1100px){.media-row{grid-template-columns:1fr 1fr}.main{height:auto;overflow:auto}.bottom-row{grid-template-columns:1fr}}
+  @media(max-width:860px){
+    .sidebar{transform:translateX(-100%);transition:transform .35s ease}.sidebar.open{transform:translateX(0)}
+    .sb-toggle{display:flex}.sb-overlay.open{display:block}
+    .main{margin-left:0;padding:12px;height:auto;overflow:auto}
+    .avisos-row{grid-template-columns:1fr}.media-row{grid-template-columns:1fr}
+    .social-bar{grid-template-columns:1fr 1fr}.bottom-row{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+<div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sb-header">
+    <img src="logo-xalingo.png" alt="Xalingo" class="sb-logo">
+    <a href="sumario.html" class="sb-back"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m0 0l7 7m-7-7l7-7"/></svg> Voltar ao Sumário</a>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-cat sb-blocos" onclick="toggleCat(this)"><div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">01</div><div class="sb-cat-name">Blocos de Montar</div><div class="sb-cat-arrow">&#9658;</div></div><div class="sb-subs"><a class="sb-sub" href="blocos-de-montar.html#engenheiro"><span class="sb-sub-dot"></span>Brincando de Engenheiro<span class="sb-sub-page">07</span></a><a class="sb-sub" href="blocos-de-montar.html#blocos"><span class="sb-sub-dot"></span>Blocos de Montar<span class="sb-sub-page">16</span></a><a class="sb-sub" href="blocos-de-montar.html#grandes"><span class="sb-sub-dot"></span>Blocos Grandes<span class="sb-sub-page">61</span></a><a class="sb-sub" href="blocos-de-montar.html#soft"><span class="sb-sub-dot"></span>Blocos Soft<span class="sb-sub-page">70</span></a></div></div>
+    <div class="sb-cat sb-educ" onclick="toggleCat(this)"><div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">02</div><div class="sb-cat-name">Educativos</div><div class="sb-cat-arrow">&#9658;</div></div><div class="sb-subs"><a class="sb-sub" href="educativos.html#desenvolvimento"><span class="sb-sub-dot"></span>Desenvolvimento<span class="sb-sub-page">75</span></a><a class="sb-sub" href="educativos.html#steam"><span class="sb-sub-dot"></span>Steam<span class="sb-sub-page">86</span></a><a class="sb-sub" href="educativos.html#colorir"><span class="sb-sub-dot"></span>Quadros para Colorir<span class="sb-sub-page">91</span></a><a class="sb-sub" href="educativos.html#quebracabeca"><span class="sb-sub-dot"></span>Quebra-cabeça<span class="sb-sub-page">93</span></a><a class="sb-sub" href="educativos.html#memoria"><span class="sb-sub-dot"></span>Memória<span class="sb-sub-page">99</span></a><a class="sb-sub" href="educativos.html#carimbos"><span class="sb-sub-dot"></span>Carimbos<span class="sb-sub-page">112</span></a></div></div>
+    <div class="sb-cat sb-jogos" onclick="toggleCat(this)"><div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">03</div><div class="sb-cat-name">Jogos</div><div class="sb-cat-arrow">&#9658;</div></div><div class="sb-subs"><a class="sb-sub" href="jogos.html#xadrez"><span class="sb-sub-dot"></span>Xadrez<span class="sb-sub-page">114</span></a><a class="sb-sub" href="jogos.html#classicos"><span class="sb-sub-dot"></span>Jogos Clássicos<span class="sb-sub-page">118</span></a><a class="sb-sub" href="jogos.html#boardgames"><span class="sb-sub-dot"></span>Board Games<span class="sb-sub-page">126</span></a></div></div>
+    <div class="sb-cat sb-faz" onclick="toggleCat(this)"><div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">04</div><div class="sb-cat-name">Faz de Conta</div><div class="sb-cat-arrow">&#9658;</div></div><div class="sb-subs"><a class="sb-sub" href="faz-de-conta.html#cozinhas"><span class="sb-sub-dot"></span>Cozinhas<span class="sb-sub-page">130</span></a><a class="sb-sub" href="faz-de-conta.html#fazdeconta"><span class="sb-sub-dot"></span>Faz de Conta<span class="sb-sub-page">131</span></a><a class="sb-sub" href="faz-de-conta.html#agua"><span class="sb-sub-dot"></span>Brinquedos de Água<span class="sb-sub-page">134</span></a></div></div>
+    <div class="sb-cat sb-rodados" onclick="toggleCat(this)"><div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">05</div><div class="sb-cat-name">Rodados</div><div class="sb-cat-arrow">&#9658;</div></div><div class="sb-subs"><a class="sb-sub" href="rodados.html#tric12"><span class="sb-sub-dot"></span>Triciclos 12 meses<span class="sb-sub-page">137</span></a><a class="sb-sub" href="rodados.html#tric24"><span class="sb-sub-dot"></span>Triciclos 24 meses<span class="sb-sub-page">138</span></a></div></div>
+    <div class="sb-cat sb-esportes" onclick="toggleCat(this)"><div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">06</div><div class="sb-cat-name">Esportes</div><div class="sb-cat-arrow">&#9658;</div></div><div class="sb-subs"><a class="sb-sub" href="esportes.html#basquete"><span class="sb-sub-dot"></span>Basquete<span class="sb-sub-page">144</span></a><a class="sb-sub" href="esportes.html#futebol"><span class="sb-sub-dot"></span>Futebol de Mesa<span class="sb-sub-page">146</span></a><a class="sb-sub" href="esportes.html#tenis"><span class="sb-sub-dot"></span>Tênis de Mesa<span class="sb-sub-page">147</span></a></div></div>
+    <div class="sb-cat sb-playground" onclick="toggleCat(this)"><div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">07</div><div class="sb-cat-name">Playground</div><div class="sb-cat-arrow">&#9658;</div></div><div class="sb-subs"><a class="sb-sub" href="playground.html#balancos"><span class="sb-sub-dot"></span>Balanços<span class="sb-sub-page">149</span></a><a class="sb-sub" href="playground.html#gangorras"><span class="sb-sub-dot"></span>Gangorras<span class="sb-sub-page">150</span></a><a class="sb-sub" href="playground.html#escorregadores"><span class="sb-sub-dot"></span>Escorregadores<span class="sb-sub-page">156</span></a><a class="sb-sub" href="playground.html#casinhas"><span class="sb-sub-dot"></span>Casinhas<span class="sb-sub-page">158</span></a><a class="sb-sub" href="playground.html#outdoormenor"><span class="sb-sub-dot"></span>Outdoor Menor<span class="sb-sub-page">161</span></a><a class="sb-sub" href="playground.html#outdoormaior"><span class="sb-sub-dot"></span>Outdoor Maior<span class="sb-sub-page">165</span></a></div></div>
+    <div class="sb-cat sb-ofertas" onclick="toggleCat(this)"><div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">08</div><div class="sb-cat-name">Ofertas</div><div class="sb-cat-arrow">&#9658;</div></div><div class="sb-subs"><a class="sb-sub" href="ofertas.html"><span class="sb-sub-dot"></span>Vem Brincar 2026</a></div></div>
+    <div class="sb-cat sb-news active open"><div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">09</div><div class="sb-cat-name">News</div><div class="sb-cat-arrow">&#9658;</div></div><div class="sb-subs"><a class="sb-sub" href="#avisos"><span class="sb-sub-dot"></span>Avisos</a><a class="sb-sub" href="#midia"><span class="sb-sub-dot"></span>Vídeos</a><a class="sb-sub" href="#redes"><span class="sb-sub-dot"></span>Redes Sociais</a></div></div>
+  </nav>
+</aside>
+
+<main class="main">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+    <h1>News &amp; Comunicados</h1>
+    <p>— Novidades, avisos e conteúdos Xalingo</p>
+  </div>
+
+  <!-- ============================================================
+       AVISOS — EDITAR AQUI
+       Para trocar um aviso: altere o texto dentro de av-t (título),
+       av-desc (descrição) e av-d (data).
+       Cores: u = urgente/vermelho | i = info/azul | o = ok/verde | w = aviso/amarelo
+       Para adicionar mais cards: copie um bloco <div class="av ..."> completo.
+       Para remover: delete o bloco inteiro.
+       ============================================================ -->
+  <span id="avisos"></span>
+  <div class="slbl">Avisos</div>
+  <div class="avisos-row">
+
+    <!-- AVISO 1: Tabela de preços -->
+    <div class="av u">
+      <div class="av-t">⚠ Nova tabela de preços — 17/04/2026</div>
+      <div class="av-desc">A nova tabela será divulgada em 17/04. Fique atento e consulte seu representante.</div>
+      <div class="av-d">Atualizado 20 Mar 2026</div>
+    </div>
+
+    <!-- AVISO 2: Campanha de Prazos -->
+    <div class="av w">
+      <div class="av-t">📅 Campanha de Prazos — 23/03 a 30/04</div>
+      <div class="av-desc">Campanha de prazos especiais ativa. Aproveitem!</div>
+      <div class="av-d">23 Mar 2026</div>
+    </div>
+
+    <!-- AVISO 3: Catálogo -->
+    <div class="av i">
+      <div class="av-t">📘 Catálogo Digital 2026 disponível!</div>
+      <div class="av-desc">O catálogo completo está no ar. Compartilhe com seus clientes!</div>
+      <div class="av-d">Disponível desde 20 Mar 2026</div>
+    </div>
+
+  </div>
+  <!-- FIM DOS AVISOS -->
+
+
+  <!-- ============================================================
+       VÍDEOS — EDITAR AQUI
+       4 colunas: YouTube | Post Instagram | Short YouTube | TikTok
+
+       Para trocar um vídeo:
+       - YouTube: troque o ID após /embed/ (ex: -qpAMmDb9t8)
+       - Instagram Post: troque a URL do /p/CODIGO/embed/
+       - YouTube Short: troque o ID após /embed/ (ex: FnW3nPAD7xM)
+       - TikTok: troque o número após /v2/ (ex: 7571502365346483474)
+       ============================================================ -->
+  <span id="midia"></span>
+  <div class="slbl">Vídeos e Conteúdos</div>
+  <div class="media-row">
+
+    <!-- COL 1: YouTube Videos (2 empilhados) -->
+    <div class="media-col" style="gap:8px;">
+      <div class="col-label"><h3>YouTube</h3><span class="pill" style="background:#FF0000">DESTAQUE</span></div>
+      <!-- VIDEO 1: TROCAR o ID depois de /embed/ -->
+      <div style="background:white;border-radius:10px;overflow:hidden;border:.5px solid rgba(0,0,0,0.06);flex:1;display:flex;flex-direction:column;min-height:0;">
+        <div class="yt-vid"><iframe src="https://www.youtube-nocookie.com/embed/-qpAMmDb9t8?si=B70ysYPCv9fwRCkN" title="Xalingo" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+        <div class="yt-nfo">
+          <div class="yt-nfo-t">Xalingo Brinquedos — Lançamentos 2026</div>
+          <a href="https://www.youtube.com/@XalingoBrinquedosOficial" target="_blank">Ver canal ↗</a>
+        </div>
+      </div>
+      <!-- VIDEO 2: TROCAR o ID depois de /embed/ -->
+      <div style="background:white;border-radius:10px;overflow:hidden;border:.5px solid rgba(0,0,0,0.06);flex:1;display:flex;flex-direction:column;min-height:0;">
+        <div class="yt-vid"><iframe src="https://www.youtube-nocookie.com/embed/FnW3nPAD7xM" title="Xalingo Short" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+        <div class="yt-nfo">
+          <div class="yt-nfo-t">Mapa do Mundo — Blocos Criativos</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COL 2: Instagram Post (TROCAR a URL do post/reel) -->
+    <div class="media-col">
+      <div class="col-label"><h3>Instagram</h3><span class="pill" style="background:linear-gradient(135deg,#f09433,#dc2743,#bc1888)">POST</span></div>
+      <div class="vcard">
+        <!-- TROCAR POST INSTA: substitua a URL abaixo pelo novo post/reel
+             Formato: https://www.instagram.com/p/CODIGO/embed/
+             Ou reel: https://www.instagram.com/reel/CODIGO/embed/ -->
+        <iframe src="https://www.instagram.com/reel/DFiPyaeRd9x/embed/" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <div class="vcard-nfo">
+          <div class="vcard-t">Brincando de Engenheiro</div>
+          <a style="color:#dc2743" href="https://www.instagram.com/xalingobrinquedos/" target="_blank">Ver Instagram ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- COL 3: YouTube Short (TROCAR o ID do short) -->
+    <div class="media-col">
+      <div class="col-label"><h3>Short</h3><span class="pill" style="background:#FF0000">NOVO</span></div>
+      <div class="vcard">
+        <!-- TROCAR SHORT: altere o ID depois de /embed/ -->
+        <iframe src="https://www.youtube-nocookie.com/embed/FnW3nPAD7xM" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+        <div class="vcard-nfo">
+          <div class="vcard-t">Mapa do Mundo — Blocos Criativos</div>
+          <a style="color:#FF0000" href="https://www.youtube.com/@XalingoBrinquedosOficial" target="_blank">Ver canal ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- COL 4: TikTok (TROCAR o ID do vídeo) -->
+    <div class="media-col">
+      <div class="col-label"><h3>TikTok</h3><span class="pill" style="background:#010101">NOVO</span></div>
+      <div class="vcard">
+        <!-- TROCAR TIKTOK: altere o número depois de /v2/ -->
+        <iframe src="https://www.tiktok.com/embed/v2/7571502365346483474" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media" allowfullscreen></iframe>
+        <div class="vcard-nfo">
+          <div class="vcard-t">Mundo Dinos — Blocos Grandes</div>
+          <a style="color:#010101" href="https://www.tiktok.com/@xalingobrinquedos" target="_blank">Ver TikTok ↗</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- FIM DOS VÍDEOS -->
+
+
+  <!-- ============================================================
+       RODAPÉ — Instagram + Redes Sociais
+       Instagram Reels: troque as URLs dos thumbs nos href=""
+       Redes Sociais: edite os links e números conforme necessário
+       ============================================================ -->
+  <span id="redes"></span>
+  <div class="bottom-row">
+
+    <!-- INSTAGRAM BAR -->
+    <div class="insta-bar">
+      <div class="insta-av"><div class="insta-av-in">X</div></div>
+      <div class="insta-info"><strong>Xalingo Brinquedos</strong><span>@xalingobrinquedos · Mais do que brincar!</span></div>
+      <div class="insta-stats">
+        <div class="insta-st"><b>42K</b><small>seguidores</small></div>
+        <div class="insta-st"><b>2,1K</b><small>posts</small></div>
+      </div>
+      <div class="insta-reels">
+        <!-- TROCAR REELS: altere os href com URLs dos reels mais recentes -->
+        <a class="insta-reel-thumb" href="https://www.instagram.com/reel/DFiPyaeRd9x/" target="_blank" title="Brincando de Engenheiro"><div class="insta-reel-inner"><svg width="12" height="12" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></a>
+        <a class="insta-reel-thumb" href="https://www.instagram.com/reel/C77cK7vMW8p/" target="_blank" title="Linha Desenvolvimento"><div class="insta-reel-inner"><svg width="12" height="12" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></a>
+        <a class="insta-reel-thumb" href="https://www.instagram.com/reel/C7uhm64Rm7q/" target="_blank" title="De 1 em 1"><div class="insta-reel-inner"><svg width="12" height="12" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></a>
+      </div>
+      <a class="insta-btn-sm" href="https://www.instagram.com/xalingobrinquedos/" target="_blank">Seguir</a>
+    </div>
+
+    <!-- SOCIAL BAR -->
+    <div class="social-bar">
+      <a class="scard si" href="https://www.instagram.com/xalingobrinquedos/" target="_blank"><div class="scard-icon insta"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/></svg></div><div class="scard-info"><strong>Instagram</strong><span>@xalingobrinquedos</span></div><div class="scard-num">42K</div></a>
+      <a class="scard sy" href="https://www.youtube.com/@XalingoBrinquedosOficial" target="_blank"><div class="scard-icon yt"><svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98" fill="#FF0000"/></svg></div><div class="scard-info"><strong>YouTube</strong><span>@XalingoBrinquedosOficial</span></div><div class="scard-num">Ver</div></a>
+      <a class="scard st" href="https://www.tiktok.com/@xalingobrinquedos" target="_blank"><div class="scard-icon tt"><svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.74a4.85 4.85 0 01-1.01-.05z"/></svg></div><div class="scard-info"><strong>TikTok</strong><span>@xalingobrinquedos</span></div><div class="scard-num">Ver</div></a>
+      <a class="scard sf" href="https://www.facebook.com/xalingo/" target="_blank"><div class="scard-icon fb"><svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></div><div class="scard-info"><strong>Facebook</strong><span>@xalingo</span></div><div class="scard-num">212K</div></a>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  function toggleCat(el){if(event&&event.target.closest(".sb-sub"))return;el.classList.toggle("open");}
+  function toggleSidebar(){document.getElementById("sidebar").classList.toggle("open");document.getElementById("sbOverlay").classList.toggle("open");}
+</script>
+</body>
+</html>

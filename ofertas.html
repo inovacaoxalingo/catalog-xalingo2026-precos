@@ -196,6 +196,80 @@
     margin: 0 auto;
     padding: 0 32px;
   }
+
+  .countdown-bar {
+    background: #1B3A5C;
+    border-radius: 12px;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .countdown-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .countdown-icon {
+    font-size: 18px;
+  }
+  .countdown-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    font-weight: 600;
+  }
+  .countdown-text strong {
+    color: white;
+  }
+  .countdown-boxes {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .countdown-box {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 6px 12px;
+    text-align: center;
+    min-width: 52px;
+  }
+  .countdown-box-num {
+    font-size: 20px;
+    font-weight: 900;
+    color: #f8c400;
+    line-height: 1;
+  }
+  .countdown-box-label {
+    font-size: 9px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .countdown-sep {
+    font-size: 18px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 10px;
+  }
+  .countdown-bar.expirado {
+    background: #8b1a15;
+  }
+
+  .sb-ofertas .sb-cat-head { background: #d9d9d9 !important; cursor: not-allowed !important; opacity: 0.6; }
+  .sb-ofertas .sb-cat-bar { background: #aaa !important; }
+  .sb-ofertas .sb-cat-num, .sb-ofertas .sb-cat-name, .sb-ofertas .sb-cat-arrow { color: #888 !important; }
+  .sb-ofertas .sb-sub { color: #888 !important; pointer-events: none; }
+  .sb-ofertas .sb-sub-dot { background: #aaa !important; }
+  .sb-news .sb-cat-head { background: #1B3A5C; }
+  .sb-news .sb-cat-bar { background: #378ADD; }
+  .sb-news .sb-cat-num, .sb-news .sb-cat-name, .sb-news .sb-cat-arrow { color: #e6f1fb; }
+  .sb-news .sb-sub { color: #e6f1fb; }
+  .sb-news .sb-sub-dot { background: #378ADD; }
 </style>
 </head>
 <body>
@@ -296,6 +370,34 @@
 </div>
 
 <div class="camp-body">
+
+  <div class="countdown-bar" id="countdown-bar">
+    <div class="countdown-left">
+      <span class="countdown-icon">⏳</span>
+      <span class="countdown-text">Campanha válida até <strong>31 de Março de 2026</strong></span>
+    </div>
+    <div class="countdown-boxes" id="countdown-boxes">
+      <div class="countdown-box">
+        <div class="countdown-box-num" id="cd-dias">--</div>
+        <div class="countdown-box-label">Dias</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-box">
+        <div class="countdown-box-num" id="cd-horas">--</div>
+        <div class="countdown-box-label">Horas</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-box">
+        <div class="countdown-box-num" id="cd-min">--</div>
+        <div class="countdown-box-label">Min</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-box">
+        <div class="countdown-box-num" id="cd-seg">--</div>
+        <div class="countdown-box-label">Seg</div>
+      </div>
+    </div>
+  </div>
 
   <div class="banner" style="margin-top:20px;">
     <div class="banner-info">
@@ -1939,6 +2041,32 @@
 
   function toggleCat(el) { if (event && event.target.closest(".sb-sub")) return; el.classList.toggle("open"); }
   function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); document.getElementById("sbOverlay").classList.toggle("open"); }
+
+  // COUNTDOWN
+  function updateCountdown() {
+    var fim = new Date("2026-03-31T23:59:59");
+    var agora = new Date();
+    var diff = fim - agora;
+
+    if (diff <= 0) {
+      document.getElementById("countdown-bar").classList.add("expirado");
+      document.getElementById("countdown-boxes").innerHTML = "<span style=\"color:#ff6b6b;font-weight:800;font-size:14px;\">Campanha encerrada</span>";
+      return;
+    }
+
+    var dias  = Math.floor(diff / (1000 * 60 * 60 * 24));
+    var horas = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var min   = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    var seg   = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById("cd-dias").textContent  = dias;
+    document.getElementById("cd-horas").textContent = horas.toString().padStart(2,"0");
+    document.getElementById("cd-min").textContent   = min.toString().padStart(2,"0");
+    document.getElementById("cd-seg").textContent   = seg.toString().padStart(2,"0");
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 </script>
 </body>
 </html>
