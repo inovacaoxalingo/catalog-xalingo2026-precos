@@ -129,6 +129,77 @@
   .sb-news .sb-cat-num, .sb-news .sb-cat-name, .sb-news .sb-cat-arrow { color: #e6f1fb; }
   .sb-news .sb-sub { color: #1B3A5C; }
   .sb-news .sb-sub-dot { background: #378ADD; }
+
+  /* ===== LANG SWITCHER SIDEBAR ===== */
+  .sb-lang {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    flex-wrap: wrap;
+  }
+  .sb-lang-label {
+    font-size: 0.6rem; font-weight: 700; color: rgba(27,58,92,0.35);
+    letter-spacing: 0.6px; text-transform: uppercase; margin-right: 2px; flex-shrink: 0;
+  }
+  .sb-lang-btn {
+    display: flex; align-items: center; gap: 3px;
+    background: transparent; border: 1.5px solid transparent;
+    color: rgba(27,58,92,0.45); font-family: 'Quicksand', sans-serif;
+    font-size: 0.62rem; font-weight: 700; cursor: pointer;
+    padding: 3px 7px; border-radius: 20px; transition: all 0.2s ease;
+    letter-spacing: 0.2px; line-height: 1;
+  }
+  .sb-lang-btn .flag { font-size: 0.85rem; line-height: 1; }
+  .sb-lang-btn:hover { background: rgba(27,58,92,0.06); color: rgba(27,58,92,0.75); }
+  .sb-lang-btn.active { background: rgba(27,58,92,0.1); border-color: rgba(27,58,92,0.18); color: #1B3A5C; }
+
+  /* ===== SEARCH WIDGET ===== */
+  .sb-search {
+    padding: 14px 10px 18px; border-top: 1px solid rgba(0,0,0,0.08);
+    flex-shrink: 0; background: rgba(0,0,0,0.03);
+  }
+  .sb-search-title {
+    font-family: 'Fredoka', sans-serif; font-size: 0.72rem; font-weight: 600;
+    color: #1B3A5C; letter-spacing: 0.5px; text-transform: uppercase;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .sb-search-title::before {
+    content: ''; display: inline-block; width: 4px; height: 14px;
+    background: #1B3A5C; border-radius: 3px; flex-shrink: 0; opacity: 0.4;
+  }
+  .sb-search-input {
+    width: 100%; padding: 8px 10px; border-radius: 10px;
+    border: 1.5px solid rgba(27,58,92,0.2);
+    background: rgba(255,255,255,0.75); font-family: 'Quicksand', sans-serif;
+    font-size: 0.72rem; font-weight: 600; color: #1B3A5C; outline: none; transition: all 0.2s;
+  }
+  .sb-search-input::placeholder { color: rgba(27,58,92,0.35); font-weight: 500; }
+  .sb-search-input:focus {
+    border-color: rgba(27,58,92,0.45); background: #fff;
+    box-shadow: 0 0 0 3px rgba(27,58,92,0.08);
+  }
+  .sb-search-results {
+    margin-top: 8px; display: flex; flex-direction: column; gap: 4px;
+    max-height: 220px; overflow-y: auto;
+  }
+  .sb-search-results::-webkit-scrollbar { width: 3px; }
+  .sb-search-results::-webkit-scrollbar-track { background: transparent; }
+  .sb-search-results::-webkit-scrollbar-thumb { background: rgba(27,58,92,0.2); border-radius: 3px; }
+  .sb-result-item {
+    display: flex; flex-direction: column; padding: 7px 10px; border-radius: 9px;
+    background: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,0,0.08);
+    cursor: pointer; transition: all 0.18s; text-decoration: none;
+  }
+  .sb-result-item:hover { background: rgba(255,255,255,0.9); transform: translateX(2px); }
+  .sb-result-ref { font-family: 'Fredoka', sans-serif; font-size: 0.68rem; font-weight: 600; line-height: 1; margin-bottom: 2px; }
+  .sb-result-name { font-size: 0.67rem; font-weight: 700; color: #1B3A5C; line-height: 1.25; }
+  .sb-result-page { font-size: 0.62rem; font-weight: 600; color: rgba(27,58,92,0.5); margin-top: 3px; }
+  .sb-search-empty { font-size: 0.68rem; color: rgba(27,58,92,0.4); text-align: center; padding: 10px 0; font-weight: 600; }
+  @keyframes flash-result { 0%{opacity:.4} 100%{opacity:1} }
+  .sb-result-item.highlight-flash { animation: flash-result 0.5s ease; }
+
 </style>
 </head>
 <body>
@@ -141,79 +212,130 @@
 <aside class="sidebar" id="sidebar">
   <div class="sb-header">
     <img src="logo-xalingo.png" alt="Xalingo" class="sb-logo">
+
+    <!-- Language switcher -->
+    <div class="sb-lang">
+      <span class="sb-lang-label">Idioma</span>
+      <button class="sb-lang-btn" data-lang="pt" onclick="setLang('pt')"><span class="flag">🇧🇷</span> PT</button>
+      <button class="sb-lang-btn" data-lang="en" onclick="setLang('en')"><span class="flag">🇺🇸</span> EN</button>
+      <button class="sb-lang-btn" data-lang="es" onclick="setLang('es')"><span class="flag">🇦🇷</span> ES</button>
+    </div>
+
     <a href="sumario.html" class="sb-back">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m0 0l7 7m-7-7l7-7"/></svg>
-      Voltar ao Sumário
+      <span data-i18n="backLink">Voltar ao Sumário</span>
     </a>
   </div>
   <nav class="sb-nav">
     <div class="sb-cat sb-blocos" onclick="toggleCat(this)">
-      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">01</div><div class="sb-cat-name">Blocos de Montar</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-cat-head">
+        <div class="sb-cat-bar"></div>
+        <div class="sb-cat-num">01</div>
+        <div class="sb-cat-name" data-i18n="cat01Title">Blocos de Montar</div>
+        <div class="sb-cat-arrow">▸</div>
+      </div>
       <div class="sb-subs">
-        <a class="sb-sub" href="blocos-de-montar.html#engenheiro"><span class="sb-sub-dot"></span>Brincando de Engenheiro<span class="sb-sub-page">07</span></a>
-        <a class="sb-sub" href="blocos-de-montar.html#blocos"><span class="sb-sub-dot"></span>Blocos de Montar<span class="sb-sub-page">16</span></a>
-        <a class="sb-sub" href="blocos-de-montar.html#grandes"><span class="sb-sub-dot"></span>Blocos Grandes<span class="sb-sub-page">61</span></a>
-        <a class="sb-sub" href="blocos-de-montar.html#soft"><span class="sb-sub-dot"></span>Blocos Soft<span class="sb-sub-page">70</span></a>
+        <a class="sb-sub" href="blocos-de-montar.html#engenheiro"><span class="sb-sub-dot"></span><span data-i18n="cat01item1">Brincando de Engenheiro</span><span class="sb-sub-page">07</span></a>
+        <a class="sb-sub" href="blocos-de-montar.html"><span class="sb-sub-dot"></span><span data-i18n="cat01item2">Blocos de Montar</span><span class="sb-sub-page">16</span></a>
+        <a class="sb-sub" href="blocos-de-montar.html#grandes"><span class="sb-sub-dot"></span><span data-i18n="cat01item3">Blocos Grandes</span><span class="sb-sub-page">61</span></a>
+        <a class="sb-sub" href="blocos-de-montar.html#soft"><span class="sb-sub-dot"></span><span data-i18n="cat01item4">Blocos Soft</span><span class="sb-sub-page">70</span></a>
       </div>
     </div>
-    <div class="sb-cat sb-educ">
-      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">02</div><div class="sb-cat-name">Educativos</div><div class="sb-cat-arrow">▸</div></div>
+
+    <div class="sb-cat sb-educ" onclick="toggleCat(this)">
+      <div class="sb-cat-head">
+        <div class="sb-cat-bar"></div>
+        <div class="sb-cat-num">02</div>
+        <div class="sb-cat-name" data-i18n="cat02Title">Educativos</div>
+        <div class="sb-cat-arrow">▸</div>
+      </div>
       <div class="sb-subs">
-        <a class="sb-sub" href="#desenvolvimento"><span class="sb-sub-dot"></span>Desenvolvimento<span class="sb-sub-page">75</span></a>
-        <a class="sb-sub" href="#steam"><span class="sb-sub-dot"></span>Steam<span class="sb-sub-page">86</span></a>
-        <a class="sb-sub" href="#playset"><span class="sb-sub-dot"></span>Playset<span class="sb-sub-page">89</span></a>
-        <a class="sb-sub" href="#colorir"><span class="sb-sub-dot"></span>Quadros para Colorir<span class="sb-sub-page">91</span></a>
-        <a class="sb-sub" href="#quebracabeca"><span class="sb-sub-dot"></span>Quebra-cabeça<span class="sb-sub-page">93</span></a>
-        <a class="sb-sub" href="#memoria"><span class="sb-sub-dot"></span>Memória<span class="sb-sub-page">99</span></a>
-        <a class="sb-sub" href="#domino"><span class="sb-sub-dot"></span>Dominó<span class="sb-sub-page">102</span></a>
-        <a class="sb-sub" href="#pedagogicos"><span class="sb-sub-dot"></span>Blocos Pedagógicos<span class="sb-sub-page">105</span></a>
-        <a class="sb-sub" href="#jogoseducativos"><span class="sb-sub-dot"></span>Jogos Educativos<span class="sb-sub-page">107</span></a>
-        <a class="sb-sub" href="#carimbos"><span class="sb-sub-dot"></span>Carimbos<span class="sb-sub-page">112</span></a>
+        <a class="sb-sub" href="educativos.html#desenvolvimento"><span class="sb-sub-dot"></span><span data-i18n="cat02item1">Desenvolvimento</span><span class="sb-sub-page">75</span></a>
+        <a class="sb-sub" href="educativos.html#steam"><span class="sb-sub-dot"></span><span data-i18n="cat02item2">Steam</span><span class="sb-sub-page">86</span></a>
+        <a class="sb-sub" href="educativos.html#playset"><span class="sb-sub-dot"></span><span data-i18n="cat02item3">Playset</span><span class="sb-sub-page">89</span></a>
+        <a class="sb-sub" href="educativos.html#colorir"><span class="sb-sub-dot"></span><span data-i18n="cat02item4">Quadros para Colorir</span><span class="sb-sub-page">91</span></a>
+        <a class="sb-sub" href="educativos.html#quebracabeca"><span class="sb-sub-dot"></span><span data-i18n="cat02item5">Quebra-cabeça</span><span class="sb-sub-page">93</span></a>
+        <a class="sb-sub" href="educativos.html#memoria"><span class="sb-sub-dot"></span><span data-i18n="cat02item6">Memória</span><span class="sb-sub-page">99</span></a>
+        <a class="sb-sub" href="educativos.html#domino"><span class="sb-sub-dot"></span><span data-i18n="cat02item7">Dominó</span><span class="sb-sub-page">102</span></a>
+        <a class="sb-sub" href="educativos.html#pedagogicos"><span class="sb-sub-dot"></span><span data-i18n="cat02item8">Blocos Pedagógicos</span><span class="sb-sub-page">105</span></a>
+        <a class="sb-sub" href="educativos.html#jogoseducativos"><span class="sb-sub-dot"></span><span data-i18n="cat02item9">Jogos Educativos</span><span class="sb-sub-page">107</span></a>
+        <a class="sb-sub" href="educativos.html#carimbos"><span class="sb-sub-dot"></span><span data-i18n="cat02item10">Carimbos</span><span class="sb-sub-page">112</span></a>
       </div>
     </div>
-    <div class="sb-cat sb-jogos active open" onclick="toggleCat(this)">
-      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">03</div><div class="sb-cat-name">Jogos</div><div class="sb-cat-arrow">▸</div></div>
+
+    <div class="sb-cat sb-jogos active open">
+      <div class="sb-cat-head">
+        <div class="sb-cat-bar"></div>
+        <div class="sb-cat-num">03</div>
+        <div class="sb-cat-name" data-i18n="cat03Title">Jogos</div>
+        <div class="sb-cat-arrow">▸</div>
+      </div>
       <div class="sb-subs">
-        <a class="sb-sub" href="jogos.html#xadrez"><span class="sb-sub-dot"></span>Xadrez<span class="sb-sub-page">114</span></a>
-        <a class="sb-sub" href="jogos.html#classicos"><span class="sb-sub-dot"></span>Jogos Clássicos<span class="sb-sub-page">118</span></a>
-        <a class="sb-sub" href="jogos.html#boardgames"><span class="sb-sub-dot"></span>Board Games<span class="sb-sub-page">126</span></a>
+        <a class="sb-sub" href="jogos.html#xadrez"><span class="sb-sub-dot"></span><span data-i18n="cat03item1">Xadrez</span><span class="sb-sub-page">114</span></a>
+        <a class="sb-sub" href="jogos.html#classicos"><span class="sb-sub-dot"></span><span data-i18n="cat03item2">Jogos Clássicos</span><span class="sb-sub-page">118</span></a>
+        <a class="sb-sub" href="jogos.html#boardgames"><span class="sb-sub-dot"></span><span data-i18n="cat03item3">Board Games</span><span class="sb-sub-page">126</span></a>
       </div>
     </div>
+
     <div class="sb-cat sb-faz" onclick="toggleCat(this)">
-      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">04</div><div class="sb-cat-name">Faz de Conta</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-cat-head">
+        <div class="sb-cat-bar"></div>
+        <div class="sb-cat-num">04</div>
+        <div class="sb-cat-name" data-i18n="cat04Title">Faz de Conta</div>
+        <div class="sb-cat-arrow">▸</div>
+      </div>
       <div class="sb-subs">
-        <a class="sb-sub" href="faz-de-conta.html#cozinhas"><span class="sb-sub-dot"></span>Cozinhas<span class="sb-sub-page">130</span></a>
-        <a class="sb-sub" href="faz-de-conta.html#fazdeconta"><span class="sb-sub-dot"></span>Faz de Conta<span class="sb-sub-page">131</span></a>
-        <a class="sb-sub" href="faz-de-conta.html#agua"><span class="sb-sub-dot"></span>Brinquedos de Água<span class="sb-sub-page">134</span></a>
+        <a class="sb-sub" href="faz-de-conta.html#cozinhas"><span class="sb-sub-dot"></span><span data-i18n="cat04item1">Cozinhas</span><span class="sb-sub-page">130</span></a>
+        <a class="sb-sub" href="faz-de-conta.html"><span class="sb-sub-dot"></span><span data-i18n="cat04item2">Faz de Conta</span><span class="sb-sub-page">131</span></a>
+        <a class="sb-sub" href="faz-de-conta.html#agua"><span class="sb-sub-dot"></span><span data-i18n="cat04item3">Brinquedos de Água</span><span class="sb-sub-page">134</span></a>
       </div>
     </div>
+
     <div class="sb-cat sb-rodados" onclick="toggleCat(this)">
-      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">05</div><div class="sb-cat-name">Rodados</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-cat-head">
+        <div class="sb-cat-bar"></div>
+        <div class="sb-cat-num">05</div>
+        <div class="sb-cat-name" data-i18n="cat05Title">Rodados</div>
+        <div class="sb-cat-arrow">▸</div>
+      </div>
       <div class="sb-subs">
-        <a class="sb-sub" href="rodados.html#tric12"><span class="sb-sub-dot"></span>Triciclos 12 meses<span class="sb-sub-page">137</span></a>
-        <a class="sb-sub" href="rodados.html#tric24"><span class="sb-sub-dot"></span>Triciclos 24 meses<span class="sb-sub-page">138</span></a>
+        <a class="sb-sub" href="#tric12"><span class="sb-sub-dot"></span><span data-i18n="cat05item1">Triciclos 12 meses</span><span class="sb-sub-page">137</span></a>
+        <a class="sb-sub" href="#tric24"><span class="sb-sub-dot"></span><span data-i18n="cat05item2">Triciclos 24 meses</span><span class="sb-sub-page">138</span></a>
       </div>
     </div>
+
     <div class="sb-cat sb-esportes" onclick="toggleCat(this)">
-      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">06</div><div class="sb-cat-name">Esportes</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-cat-head">
+        <div class="sb-cat-bar"></div>
+        <div class="sb-cat-num">06</div>
+        <div class="sb-cat-name" data-i18n="cat06Title">Esportes</div>
+        <div class="sb-cat-arrow">▸</div>
+      </div>
       <div class="sb-subs">
-        <a class="sb-sub" href="esportes.html#basquete"><span class="sb-sub-dot"></span>Basquete<span class="sb-sub-page">144</span></a>
-        <a class="sb-sub" href="esportes.html#futebol"><span class="sb-sub-dot"></span>Futebol de Mesa<span class="sb-sub-page">146</span></a>
-        <a class="sb-sub" href="esportes.html#tenis"><span class="sb-sub-dot"></span>Tênis de Mesa<span class="sb-sub-page">147</span></a>
+        <a class="sb-sub" href="esportes.html#basquete"><span class="sb-sub-dot"></span><span data-i18n="cat06item1">Basquete</span><span class="sb-sub-page">144</span></a>
+        <a class="sb-sub" href="esportes.html#futebol"><span class="sb-sub-dot"></span><span data-i18n="cat06item2">Futebol de Mesa</span><span class="sb-sub-page">146</span></a>
+        <a class="sb-sub" href="esportes.html#tenis"><span class="sb-sub-dot"></span><span data-i18n="cat06item3">Tênis de Mesa</span><span class="sb-sub-page">147</span></a>
       </div>
     </div>
+
     <div class="sb-cat sb-playground" onclick="toggleCat(this)">
-      <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">07</div><div class="sb-cat-name">Playground</div><div class="sb-cat-arrow">▸</div></div>
+      <div class="sb-cat-head">
+        <div class="sb-cat-bar"></div>
+        <div class="sb-cat-num">07</div>
+        <div class="sb-cat-name" data-i18n="cat07Title">Playground</div>
+        <div class="sb-cat-arrow">▸</div>
+      </div>
       <div class="sb-subs">
-        <a class="sb-sub" href="playground.html#balancos"><span class="sb-sub-dot"></span>Balanços<span class="sb-sub-page">149</span></a>
-        <a class="sb-sub" href="playground.html#gangorras"><span class="sb-sub-dot"></span>Gangorras<span class="sb-sub-page">150</span></a>
-        <a class="sb-sub" href="playground.html#complementos"><span class="sb-sub-dot"></span>Complementos<span class="sb-sub-page">154</span></a>
-        <a class="sb-sub" href="playground.html#escorregadores"><span class="sb-sub-dot"></span>Escorregadores<span class="sb-sub-page">156</span></a>
-        <a class="sb-sub" href="playground.html#casinhas"><span class="sb-sub-dot"></span>Casinhas<span class="sb-sub-page">158</span></a>
-        <a class="sb-sub" href="playground.html#outdoormenor"><span class="sb-sub-dot"></span>Outdoor Menor<span class="sb-sub-page">161</span></a>
-        <a class="sb-sub" href="playground.html#outdoormaior"><span class="sb-sub-dot"></span>Outdoor Maior<span class="sb-sub-page">165</span></a>
+        <a class="sb-sub" href="playground.html#balancos"><span class="sb-sub-dot"></span><span data-i18n="cat07item1">Balanços</span><span class="sb-sub-page">149</span></a>
+        <a class="sb-sub" href="playground.html#gangorras"><span class="sb-sub-dot"></span><span data-i18n="cat07item2">Gangorras</span><span class="sb-sub-page">150</span></a>
+        <a class="sb-sub" href="playground.html#complementos"><span class="sb-sub-dot"></span><span data-i18n="cat07item3">Complementos</span><span class="sb-sub-page">154</span></a>
+        <a class="sb-sub" href="playground.html#escorregadores"><span class="sb-sub-dot"></span><span data-i18n="cat07item4">Escorregadores</span><span class="sb-sub-page">156</span></a>
+        <a class="sb-sub" href="playground.html#casinhas"><span class="sb-sub-dot"></span><span data-i18n="cat07item5">Casinhas</span><span class="sb-sub-page">158</span></a>
+        <a class="sb-sub" href="playground.html#outdoormenor"><span class="sb-sub-dot"></span><span data-i18n="cat07item6">Outdoor Menor</span><span class="sb-sub-page">161</span></a>
+        <a class="sb-sub" href="playground.html#outdoormaior"><span class="sb-sub-dot"></span><span data-i18n="cat07item7">Outdoor Maior</span><span class="sb-sub-page">165</span></a>
       </div>
     </div>
+
     <div class="sb-cat sb-ofertas">
       <div class="sb-cat-head"><div class="sb-cat-bar"></div><div class="sb-cat-num">08</div><div class="sb-cat-name">Ofertas</div><div class="sb-cat-arrow">&#9658;</div></div>
       <div class="sb-subs">
@@ -225,11 +347,20 @@
       <div class="sb-subs">
         <a class="sb-sub" href="news.html#avisos"><span class="sb-sub-dot"></span>Avisos</a>
         <a class="sb-sub" href="news.html#videos"><span class="sb-sub-dot"></span>Videos</a>
-        <a class="sb-sub" href="news.html#tiktok"><span class="sb-sub-dot"></span>TikTok</a>
         <a class="sb-sub" href="news.html#redes"><span class="sb-sub-dot"></span>Redes Sociais</a>
       </div>
     </div>
-  </nav>
+</nav>
+
+  <!-- ===== SEARCH WIDGET ===== -->
+  <div class="sb-search">
+    <div class="sb-search-title" data-i18n="searchTitle">Pesquise</div>
+    <input type="text" id="sbSearchInput" class="sb-search-input"
+      data-i18n-placeholder="searchPlaceholder" placeholder="REF ou nome do produto…"
+      oninput="doSearch(this.value)" autocomplete="off" spellcheck="false">
+    <div id="sbSearchResults" class="sb-search-results"></div>
+  </div>
+
 </aside>
 
 <main class="main">
@@ -263,6 +394,235 @@
   document.querySelectorAll('.sb-sub[href^="#"]').forEach(link => { link.addEventListener('click', () => { if (window.innerWidth <= 860) toggleSidebar(); }); });
   const btnTop = document.getElementById('backToTop');
   window.addEventListener('scroll', () => { btnTop.classList.toggle('visible', window.scrollY > 400); }, { passive: true });
+</script>
+<script src="catalogo-search.js">
+  // ===== GLOBAL SEARCH & TRANSLATIONS =====
+  const VERTS = {
+    B: { file:'blocos-de-montar.html', offset:0,   bar:'#293b7f', bg:'#a496b0', text:'#1e2a5a' },
+    E: { file:'educativos.html',       offset:62,  bar:'#4d359a', bg:'#b49abf', text:'#3a2470' },
+    J: { file:'jogos.html',            offset:103, bar:'#ef3128', bg:'#eda487', text:'#8b1a15' },
+    F: { file:'faz-de-conta.html',     offset:110, bar:'#5ec9c8', bg:'#c1d7c8', text:'#2a7574' },
+    R: { file:null,                    offset:118, bar:'#63c437', bg:'#c1d597', text:'#3a7520' },
+    S: { file:'esportes.html',         offset:124, bar:'#f89e1c', bg:'#efc68f', text:'#8a5a0e' },
+    P: { file:'playground.html',       offset:128, bar:'#891434', bg:'#c78c88', text:'#5e0e24' },
+  };
+  const THIS_VERT = 'J';
+  const IMG_PREFIX = 'jogos-p';
+  const IMG_PAD    = 4;
+
+  const PRODUTOS = [
+    [52754,'BRINCANDO DE ENGENHEIRO N1 - 42 PÇS',1,'B'],[52765,'BRINCANDO DE ENGENHEIRO N2 - 53 PÇS',1,'B'],[52776,'BRINCANDO DE ENGENHEIRO N3 - 73 PÇS',1,'B'],[52798,'BRINCANDO DE ENGENHEIRO N4 - 120 PÇS',1,'B'],[15965,'BL CRIATIVOS - HALLOWEEN - 225 PÇS',1,'B'],
+    [53054,'BRINCANDO DE ENGENHEIRO N5 - 150 PÇS',2,'B'],[53065,'BRINCANDO DE ENGENHEIRO N6 - 200 PÇS',2,'B'],[67854,'BRINCANDO DE ENGENHEIRO N7 - 300 PÇS',2,'B'],[67865,'BRINCANDO DE ENGENHEIRO N8 - 500 PÇS',2,'B'],[67876,'BRINCANDO DE ENGENHEIRO N9 - 1000 PÇS',2,'B'],
+    [12998,'BRINCANDO DE ENGENHEIRO CARRO - 78 PÇS',4,'B'],[52773,'BRINCANDO DE ENGENHEIRO CIRCUITO DE CORRIDA - 70 PÇS',5,'B'],[13287,'BRINCANDO DE ENGENHEIRO LIVRO CENÁRIO MAGNÉTICO - 46 PÇS',5,'B'],
+    [67887,'BRINCANDO DE ENGENHEIRO PAINT - 50 PÇS',6,'B'],[11298,'BRINCANDO DE ENGENHEIRO NOVA IORQUE - 52 PÇS',6,'B'],[53321,'TORRE DO ENGENHEIRO - 54 PÇS',7,'B'],[13487,'BRINCANDO DE ENGENHEIRO HALLOWEEN - 60 PÇS',7,'B'],[13476,'BRINCANDO DE ENGENHEIRO NATAL - 60 PÇS',7,'B'],
+    [68243,'BL CRIATIVOS - CLÁSSICOS - 25 PÇS',9,'B'],[20509,'BRINCANDO DE ENGENHEIRO - 20 PÇS',9,'B'],[15232,'BL CRIATIVOS - COLEÇÃO DE BONECOS - DISPLAY 15 UN',10,'B'],[68232,'BL CRIATIVOS - MINI ANIMAIS - 25 PÇS',10,'B'],[68265,'BL CRIATIVOS - ANIMAIS - DISPLAY 16 UN',10,'B'],
+    [68210,'BL CRIATIVOS - 150 PÇS',11,'B'],[15332,'BL CRIATIVOS - 300 PÇS',11,'B'],[20165,'BRINCANDO DE ENGENHEIRO 70 ANOS',11,'B'],[68221,'BL CRIATIVOS - 400 PÇS',12,'B'],[16365,'BL CRIATIVOS - MAPA DO MUNDO - 684 PÇS',13,'B'],[15976,'BL CRIATIVOS - NATAL - 218 PÇS',14,'B'],
+    [68176,'BL LANÇADORES - DISPLAY 8 UN',15,'B'],[17921,'BL CRIATIVOS - MONTANHA RUSSA 56 PÇS',17,'B'],[17910,'BL CRIATIVOS - ACESSORIOS PIRATA 51 PÇS',17,'B'],
+    [28398,'BL SUPER MÁQUINA NA PISTA - CARROS ESPORTIVOS',19,'B'],[28409,'BL SUPER MÁQUINA NA PISTA - CARROS DE CORRIDA',19,'B'],[15243,'BL SUPER MÁQUINA - LANÇADOR DE CARROS - 70 PÇS',20,'B'],[17943,'BL CRIATIVOS - 800 PÇS',20,'B'],
+    [28510,'BL SUPER MÁQUINA NA PISTA - OFF ROAD AZUL - 305 PÇS',22,'B'],[28521,'BL SUPER MÁQUINA NA PISTA - RACE CAR - 399 PÇS',22,'B'],
+    [16921,'BL RACING CAR - CARRO DE CORRIDA - DISPLAY 4 UN',24,'B'],[16910,'BL RACING CAR - CARRO DE CORRIDA - DISPLAY 4 UN',24,'B'],
+    [15310,'BL MUNDO ENCANTADO - DISPLAY 8 UN',25,'B'],[28543,'BL MUNDO ENCANTADO - FLORES - DISPLAY 6 CAIXAS',25,'B'],[16909,'BL RACING CAR - MINI CARRO DE CORRIDA',25,'B'],
+    [16221,'BL MUNDO ENCANTADO - MONTANHA RUSSA - 479 PÇS',26,'B'],[16965,'BL RACING CAR - CARRO ESPORTIVO 2 EM 1 - 203 PÇS',26,'B'],[17876,'BL RACING CAR - CARRO SUPER VELOCIDADE 277 PÇS',26,'B'],
+    [28554,'BL FAZENDA - GALINHEIRO - 71 PÇS',27,'B'],[27498,'BL FAZENDA - TRATOR HORTI FRUTI - 80 PÇS',27,'B'],[27487,'BL FAZENDA - REBOQUE DE MADEIRA - 110 PÇS',27,'B'],
+    [68154,'BL FAZENDA - POMAR - 130 PÇS',28,'B'],[68143,'BL FAZENDA - TRATOR - 134 PÇS',28,'B'],[68165,'BL FAZENDA - POÇO - 177 PÇS',28,'B'],[17854,'BL SUPER MÁQUINA NA PISTA - SPEED CAR',28,'B'],
+    [4087,'BL FAZENDA - TRANSPORTE DE ANIMAIS - 215 PÇS',29,'B'],[27998,'BL FAZENDA - ULTRA COLHEITADEIRA - 567 PÇS',29,'B'],[16932,'BL SUPER MÁQUINA NA PISTA - EXPEDITION - 246 PÇS',29,'B'],[16943,'BL SUPER MÁQUINA NA PISTA - TRUCK - 293 PÇS',29,'B'],
+    [14976,'BL BOMBEIROS - COLEÇÃO VEÍCULOS DE RESGATE',30,'B'],[14998,'BL BOMBEIROS - DISPLAY 12 UN',30,'B'],
+    [15476,'BL BOMBEIROS - MOTOCICLETA - 60 PÇS',31,'B'],[15309,'BL BOMBEIROS - HELICÓPTERO - 140 PÇS',31,'B'],[28165,'BL BOMBEIROS - CAMINHÃO RESGATE RÁPIDO 2 EM 1',31,'B'],[17887,'BL SUPER MÁQUINA NA PISTA - SPORT CAR - 415 PÇS',31,'B'],
+    [15576,'BL BOMBEIROS - CAMINHÃO DE BOMBEIRO - 160 PÇS',32,'B'],[16209,'BL BOMBEIROS - CORPO DE BOMBEIROS - 250 PÇS',32,'B'],[16954,'BL MUNDO ENCANTADO - FLOR DOS SONHOS',32,'B'],
+    [16198,'BL BOMBEIROS - CAMINHÃO DE BOMBEIRO - 260 PÇS',33,'B'],[28176,'BL BOMBEIROS - CAMINHÃO DE APOIO - 441 PÇS',33,'B'],
+    [14987,'BL DEFENSORES DA ORDEM - COLEÇÃO VEÍCULOS DE DEFESA',34,'B'],[15221,'BL DEFENSORES DA ORDEM POLÍCIA - DISPLAY 12 UN',34,'B'],
+    [16187,'BL DEFENSORES DA ORDEM - HELICÓPTERO DA POLÍCIA',35,'B'],[15465,'BL DEFENSORES DA ORDEM - VIATURA DE POLÍCIA - 66 PÇS',35,'B'],[15321,'BL DEFENSORES DA ORDEM - BARCO DE OPERAÇÕES - 92 PÇS',35,'B'],
+    [15454,'BL DEFENSORES DA ORDEM - CAMINHÃO DE TRANSPORTE',36,'B'],[15265,'BL DEFENSORES DA ORDEM - QUARTEL DE POLÍCIA',36,'B'],
+    [68198,'BL OPERAÇÕES ESPECIAIS - DISPLAY 16 UN',37,'B'],[68209,'BL OPERAÇÕES ESPECIAIS - HELICÓPTERO - 175 PÇS',38,'B'],[28187,'BL OPERAÇÕES ESPECIAIS - CARRO 3 EM 1 - 141 PÇS',38,'B'],
+    [28354,'BL OPERAÇÕES ESPECIAIS - CARRO MEGA BLINDADO',39,'B'],[28365,'BL OPERAÇÕES ESPECIAIS - ÔNIBUS - 279 PÇS',39,'B'],
+    [68254,'BL ALIANÇA JUSTIÇA E PAZ - DISPLAY 8 UN',41,'B'],[28110,'BL ALIANÇA JUSTIÇA E PAZ - TANQUE DE GUERRA',41,'B'],[28098,'BL ALIANÇA JUSTIÇA E PAZ - SUPER TANQUE - 318 PÇS',44,'B'],
+    [2654,'BL CIDADE EM OBRAS - MINI PATROLA - 60 PÇS',45,'B'],[2676,'BL CIDADE EM OBRAS - GUINCHO - 67 PÇS',45,'B'],[15443,'BL CIDADE EM OBRAS - PÁ CARREGADEIRA - 120 PÇS',45,'B'],
+    [15432,'BL CIDADE EM OBRAS - ROLO COMPACTADOR - 140 PÇS',46,'B'],[15565,'BL CIDADE EM OBRAS - CAMINHÃO - 170 PÇS',46,'B'],[15487,'BL CIDADE EM OBRAS - ESCAVADEIRA - 190 PÇS',46,'B'],
+    [15254,'BL PIRATAS - BARCO PIRATA - 60 PÇS',47,'B'],[15509,'BL PIRATAS - NAVIO - 200 PÇS',47,'B'],[28532,'BL PIRATAS - BARCO 4 EM 1 - 297 PÇS',47,'B'],[16376,'BL PIRATAS - MONTANHA RUSSA - 671 PÇS',48,'B'],[17843,'BL ALIANÇA JUSTIÇA E PAZ - PORTA AVIÕES',48,'B'],
+    [28509,'BL QUADRANTE X - NAVE ESPACIAL - 106 PÇS',49,'B'],[28310,'BL QUADRANTE X - FOGUETE ESPACIAL - 292 PÇS',49,'B'],[17865,'BL ALIANÇA JUSTIÇA E PAZ - ROBÔS DE COMBATE',49,'B'],
+    [28321,'BL QUADRANTE X - ÔNIBUS ESPACIAL - 342 PÇS',50,'B'],[15987,'BL QUADRANTE X - MONTANHA RUSSA - 832 PÇS',51,'B'],[16976,'BL ALIANÇA JUSTIÇA E PAZ - AVIÃO DE ATAQUE - 223 PÇS',51,'B'],[16987,'BL ALIANÇA JUSTIÇA E PAZ - BLINDADO DE TRANSPORTE',51,'B'],
+    [68421,'BL GRANDES - MESA INTERATIVA - 58 PÇS',52,'B'],[68365,'BL GRANDES - BOX 2 E 1 - 100 PÇS',52,'B'],[16998,'BL ALIANÇA JUSTIÇA E PAZ - HELICÓPTERO DE COMBATE',52,'B'],
+    [68343,'BL GRANDES - DISPLAY CARROS 6 UN',53,'B'],[68276,'BL GRANDES - TRENZINHO DE NÚMEROS - 50 PÇS',53,'B'],[17898,'BL ALIANÇA JUSTIÇA E PAZ - JATO 268 PÇS',53,'B'],
+    [68332,'BL GRANDES - CIDADE EM OBRAS - 90 PÇS',54,'B'],[68410,'BL GRANDES - MUNDO ENCANTADO - 126 PÇS',54,'B'],
+    [68309,'BL GRANDES - BOMBEIROS - 35 PÇS',55,'B'],[68298,'BL GRANDES - BOMBEIROS - 90 PÇS',55,'B'],
+    [68321,'BL GRANDES - POLÍCIA - 36 PÇS',56,'B'],[68310,'BL GRANDES - POLÍCIA - 90 PÇS',56,'B'],
+    [68398,'BL GRANDES - CIRCUITO PLAY - 53 PÇS',57,'B'],[68354,'BL GRANDES - CIRCUITO PLAY - 100 PÇS',57,'B'],
+    [68387,'BL GRANDES - DINOS PARK - 37 PÇS',58,'B'],[68376,'BL GRANDES - FLORESTA - 61 PÇS',58,'B'],
+    [68287,'BL GRANDES - DINO PARK - 40 PÇS',59,'B'],[68409,'BL GRANDES - MUNDO DINOS - 100 PÇS',59,'B'],[17932,'BL QUADRANTE X - PLATAFORMA DE LANÇAMENTO 461 PÇS',59,'B'],
+    [63110,'SUPER SOFT BLOCOS - 30 PÇS',60,'B'],[63109,'SUPER SOFT BLOCOS - 22 PÇS',60,'B'],[68454,'SOFT BLOCOS - 86 PÇS',61,'B'],[63121,'SUPER SOFT BLOCOS - 58 PÇS',61,'B'],[68465,'SOFT BLOCOS BIG - 33 PÇS',62,'B'],[68476,'SOFT BLOCOS BIG - 56 PÇS',62,'B'],
+    // EDUCATIVOS
+    [12310,'COMUNICAÇÃO ALTERNATIVA - 127 PALAVRAS',63,'E'],[11643,'BRINCANDO DE ENGENHEIRO DESAFIO DOS BLOCOS - 15 PÇS',63,'E'],[16232,'BL GRANDES - NATAL - 77 PÇS',63,'E'],
+    [12332,'PÉ DE EQUILÍBRIO',64,'E'],[12321,'ALINHAVOS - 6 FIGURAS',65,'E'],[15343,'CASINHA INTERATIVA FOFOSSAUROS',65,'E'],
+    [17621,'QUEBRA-CABEÇA DE EXPRESSÕES II - 25 PÇS',66,'E'],[17698,'SEPARAÇÃO DE CORES',66,'E'],[17654,'MEMÓRIA SOMBRAS E FORMAS II - 32 PÇS',67,'E'],[17687,'SEQUÊNCIA LÓGICA DAS FORMAS',67,'E'],
+    [17665,'QUADRO PARA COLORIR PIXEL ART 2',68,'E'],[17676,'PAINEL DE ATIVIDADES II',68,'E'],[17632,'APRENDENDO AS HORAS E QUANTIDADES',69,'E'],[17643,'ABC MONTANDO PALAVRAS',69,'E'],
+    [12309,'ALINHAVO E PINOS',70,'E'],[12287,'BRINCANDO COM CORES E SONS',70,'E'],[12787,'JOGO DA VELHA TÁTIL APRENDENDO BRAILLE',73,'E'],[12776,'BRINCANDO DE MATEMÁTICA APRENDENDO BRAILLE',73,'E'],
+    [17587,'QUEBRA-CABEÇA APRENDENDO O ALFABETO EM LIBRAS',74,'E'],[50498,'STEAM QUEBRA-CABEÇA CONHECENDO O CORPO HUMANO - 60 PÇS',76,'E'],[17432,'STEAM BRINCANDO DE MATEMÁTICA - 56 PÇS',76,'E'],
+    [53265,'STEAM INTERACTIVE PLAY CONHECENDO OS PLANETAS',77,'E'],[53309,'STEAM INTERACTIVE PLAY CORPO HUMANO - 100 PÇS',77,'E'],
+    [67843,'DIY PLAYSET CARRINHO PARA PINTURA 3D II',80,'E'],[67832,'DIY PLAYSET CASINHA PARA PINTURA 3D II',80,'E'],
+    [17576,'CANETAS PARA QUADRO BRANCO - 6 CORES',82,'E'],[53221,'QUADRO INFANTIL UNICÓRNIO - C/6 CANETINHAS',82,'E'],[12976,'QUADRO INFANTIL FOGUETE ESPACIAL - C/6 CANETINHAS',82,'E'],
+    [17809,'QUEBRA-CABEÇA AEIOU - 20 PÇS',85,'E'],[17798,'QUEBRA-CABEÇA NÚMEROS - 30 PÇS',85,'E'],[54265,'QUEBRA-CABEÇA BIG FOFOSSAUROS - 35 PÇS',85,'E'],[17610,'KIT DE ATIVIDADES APRENDENDO BRAILLE',85,'E'],
+    [20221,'BRINCANDO DE MATEMÁTICA PIZZA MULTIPLICAÇÃO',86,'E'],[15298,'BLOCOS PEDAGÓGICOS FRUTINHAS - 32 PÇS',87,'E'],[67976,'QUEBRA-CABEÇA HARRY POTTER 4X100 - 400 PÇS',88,'E'],
+    [20232,'PLAYSET PISANDO FUNDO',89,'E'],[50765,'MEMÓRIA ANIMAIS - 24 PÇS',90,'E'],[17376,'MEMÓRIA DAS AVES PASSATEMPO - 24 PÇS',90,'E'],[20243,'LOUSA E CANETINHAS',91,'E'],
+    [10554,'MEMÓRIA TURMA DA MÔNICA - 24 PÇS',92,'E'],[20510,'QUEBRA-CABEÇA PULLPACK',93,'E'],[20310,'QUEBRA-CABEÇA EXPLORADORES DO MUNDO - 33 PÇS',93,'E'],
+    [20287,'QUEBRA-CABEÇA FAUNA BRASILEIRA',94,'E'],[20298,'QUEBRA-CABEÇA VIAGEM ESPACIAL',94,'E'],
+    [51587,'DOMINÓ JOGOS TRADICIONAIS EM MADEIRA - 28 PÇS',95,'E'],[53032,'DOMINÓ PINGOS COLORIDOS - 28 PÇS',95,'E'],[53021,'DOMINÓ DE MADEIRA PINGOS COLORIDOS - 28 PÇS',95,'E'],
+    [20543,'QUEBRA CABEÇA A PRINCESA E O DRAGÃO - 30 PÇS',95,'E'],[20554,'QUEBRA-CABEÇA LAGO DAS FADAS - 60 PÇS',95,'E'],[20576,'QUEBRA-CABEÇA JARDIM DAS PRINCESAS - 60 PÇS',95,'E'],
+    [10543,'DOMINÓ TURMA DA MÔNICA - 28 PÇS',96,'E'],[20565,'QUEBRA-CABEÇA PISANDO FUNDO - 60 PÇS',96,'E'],[20587,'QUEBRA-CABEÇA GUARDIÃO PLASMA - 60 PÇS',96,'E'],[20598,'QUEBRA-CABEÇA PISANDO FUNDO 2X100 - 200 PÇS',96,'E'],
+    [15287,'BLOCOS PEDAGÓGICOS FUNDOS DO MAR - 32 PÇS',97,'E'],[52832,'MULTIBLOCKS MIX - 50 PÇS',98,'E'],[52821,'MULTIBLOCKS COLORIDOS - 50 PÇS',98,'E'],[11310,'QUEBRA-CABEÇA HALLOWEEN',98,'E'],
+    [52698,'BRINCANDO COM LETRAS MAIÚSCULAS - 36 PÇS',99,'E'],[52665,'ABC - MAIÚSCULAS E MINÚSCULAS - 72 PÇS',99,'E'],[20521,'MEMÓRIA PULLPACK - 20 PÇS',99,'E'],[20387,'MEMÓRIA PISANDO FUNDO - 24 PÇS',99,'E'],
+    [10576,'ASSOCIANDO NÚMEROS À QUANTIDADES TURMA DA MÔNICA',100,'E'],[50576,'BRINCANDO COM LETRAS E NÚMEROS - 72 PÇS',100,'E'],[52643,'ABCD + MAIÚSCULAS E MINÚSCULAS - 142 PÇS',100,'E'],[20376,'MEMÓRIA SALADA FRUTAS - 24 PÇS',100,'E'],
+    [12843,'APRENDENDO INGLÊS MEMÓRIA DAS CORES - 32 PÇS',101,'E'],[11632,'MEMÓRIA HALLOWEEN - 24 PÇS',101,'E'],
+    [60254,'PALAVRAS CRUZADAS',102,'E'],[67809,'TORRE EM RISCO: DESAFIO DAS CARTAS',102,'E'],[20421,'DOMINÓ ANIMAIS COM LETRAS - 28 PÇS',102,'E'],
+    [4421,'TANGRAM - 28 PÇS',103,'E'],[12965,'BATE PINOS',103,'E'],[20409,'DOMINÓ ADIÇÃO E SUBTRAÇÃO - 28 PÇS',103,'E'],[20410,'DOMINÓ MULTIPLICAÇÃO E DIVISÃO - 28 PÇS',103,'E'],
+    // JOGOS
+    [7098,'PEGA VARETAS',104,'J'],[60598,'JOGO DE TABULEIRO CORRE PIRATA',104,'J'],[60576,'JOGO DE TABULEIRO PANGEIA',104,'J'],[12809,'XADREZ BRINCANDO DE ENGENHEIRO',104,'J'],
+    [54709,'LUDO TRIDIMENSIONAL',105,'J'],[12732,'JOGO DE TABULEIRO CAMPOS DA FORTUNA',105,'J'],[65598,'JOGO 5 X 1',105,'J'],[12810,'JOGO DE TABULEIRO PISANDO FUNDO',105,'J'],[60009,'XADREZ OFICIAL',105,'J'],[60065,'XADREZ E DAMAS',105,'J'],
+    [7821,'XADREZ ESCOLAR PLÁSTICO',106,'J'],[60087,'XADREZ ESCOLAR JOGOS TRADICIONAIS EM MADEIRA',106,'J'],[65587,'18 JOGOS',106,'J'],[60010,'XADREZ ESCOLAR',106,'J'],[65576,'JOGO 4 X 1',106,'J'],
+    [60210,'DAMAS E LUDO',107,'J'],[60198,'DAMAS E TRILHA',107,'J'],[65554,'DAMAS',108,'J'],[65543,'LUDO',108,'J'],
+    [52909,'BINGO EM MADEIRA',109,'J'],[52943,'LOTO - 48 CARTELAS',109,'J'],[68510,'BINGO SHOW - 24 CARTELAS',109,'J'],[12854,'APRENDENDO INGLÊS PARTES DO CORPO HUMANO',109,'J'],[7043,'RESTA UM',110,'J'],
+    // FAZ DE CONTA
+    [6419,'COZINHA PETIT CHEF',111,'F'],[12954,'REFRIGERADOR PETIT CHEF',111,'F'],[17276,'COZINHA PETIT CHEF PRINCESAS',112,'F'],[19710,'REFRIGERADOR POP PRINCESAS',112,'F'],
+    [50809,'CARIMBOS EDUCATIVOS FRUTAS',112,'F'],[10509,'CARIMBOS DIA A DIA TURMA DA MONICA',112,'F'],[50910,'CARIMBOS LETRAS E NÚMEROS',112,'F'],
+    [11753,'MINI CHURRASQUEIRA COM SOM',113,'F'],[11750,'CAFETEIRA 3 EM 1 COM SOM',113,'F'],[62110,'SUPERMERCADO COM LUZ E SOM',113,'F'],
+    [6000,'BRINCANDO DE VETERINÁRIO',114,'F'],[4160,'PLAYSET ESPACIAL FOGUETE',115,'F'],[55025,'MALETA DE FERRAMENTAS COM PARAFUSADEIRA',115,'F'],
+    [95960,'MESA DE AGUA ÁRVORE DIVERTIDA',116,'F'],[93945,'MOCHILINHA DE PRAIA',117,'F'],[62554,'MESA DE ÁGUA AREIA PLAY',117,'F'],
+    [2921,'SHOW DE MÁGICAS - 8 MÁGICAS',118,'F'],[68498,'KIT MÁGICA COM CARTOLA - 35 TRUQUES',118,'F'],
+    // RODADOS
+    [7248,'TRICICLO 3 EM 1 BLUE RACE',119,'R'],[7249,'TRICICLO 3 EM 1 PINK PET',119,'R'],[7524,'TRICICLO SUPER TURBO ROSA',120,'R'],[7523,'TRICICLO SUPER TURBO AZUL',120,'R'],
+    [10899,'TRICICLO ROBO - C/ EMPURRADOR, PROTETOR E CESTINHA',121,'R'],[10909,'TRICICLO ABELHINHA - C/ EMPURRADOR, PROTETOR E CESTINHA',121,'R'],
+    [7252,'TRICICLO ESPORTES - C/ CESTINHA',122,'R'],[7665,'TRICICLO FOFETE - C/ CESTINHA',122,'R'],
+    [16343,'TRICICLO ZIPPY CAR',123,'R'],[7321,'TRICICLO JOANINHA',123,'R'],[16354,'TRICICLO BLOOM FLOWER',123,'R'],[7621,'TRICICLO TIGRÃO',123,'R'],
+    [7732,'TRICICLO ONCINHA RACER - S/ EMPURRADOR',124,'R'],[7754,'TRICICLO CROCO RACER - S/ EMPURRADOR',124,'R'],[7675,'TRICICLO BABY RACER - C/ EMPURRADOR',124,'R'],
+    // ESPORTES
+    [16687,'BASQUETE DE MESA',125,'S'],[28665,'BOLA DE BASQUETE OFICIAL N 7 - COLORIDA',126,'S'],[67032,'TABELA DE BASQUETE',126,'S'],
+    [7209,'JOGO DE BOTÕES BRASILEIRÃO',127,'S'],[67109,'MESA PARA JOGO DE BOTÃO COM MARCADOR',127,'S'],[67354,'PEBOLIM SUPER COPA',127,'S'],
+    [54509,'CONJUNTO TÊNIS DE MESA',128,'S'],[67287,'MESA DOBRÁVEL DE MADEIRA COM PÉS',128,'S'],
+    // PLAYGROUND
+    [9356,'BALANÇO BORBOLETINHA - S/ GANCHO',129,'P'],[9355,'BALANÇO URSINHO - S/ GANCHO',129,'P'],[2810,'BALANÇO NEW BIU',131,'P'],
+    [10687,'GANGORRA BIDU TURMA DA MÔNICA',132,'P'],[22407,'MINHA PRIMEIRA VIAGEM DE IATE E HELICÓPTERO',132,'P'],
+    [9221,'GANGORRA CAVALINHO POCOTÓ - AZUL CLARO',133,'P'],[9223,'GANGORRA CAVALINHO POCOTÓ - VERMELHO',133,'P'],[9376,'GANGORRA ANDA CAVALINHO - VERMELHO COM SOM',133,'P'],
+    [9307,'GANGORRA CAVALINHO - AMARELO COM SOM',134,'P'],[9654,'GANGORRA DINOSSAURO ROXA',134,'P'],[9521,'GANGORRA NHOCA LARANJA',135,'P'],[9698,'GANGORRA POLVO MALUCO',135,'P'],
+    [9809,'MESA SIRIZINHO',136,'P'],[9854,'GIRA PATO',136,'P'],[9409,'HIPO BAÚ ROXO',137,'P'],[9843,'CERCADINHO',137,'P'],[9419,'CAIXA DE AREIA ESTRELA DO MAR VERMELHA',137,'P'],
+    [9387,'ESCORREGADOR DESMONTAVEL VERMELHO',138,'P'],[9532,'ESCORREGADOR MASTER LARANJA',138,'P'],[9332,'ESCORREGADOR COM BALANÇO',139,'P'],
+    [9666,'CASINHA ENCANTADA AMARELA',140,'P'],[9776,'CASINHA CHALE DA MONTANHA',141,'P'],[9454,'CASINHA TROPICAL CREME',141,'P'],
+    [9954,'PARQUINHO DE ATIVIDADES',144,'P'],[9865,'NEW BIG PLAY',144,'P'],[20432,'TABELA DE BASQUETE PLAY',144,'P'],
+    [9598,'TRENZINHO DA ALEGRIA',145,'P'],[9709,'CASTELO MEDIEVAL',145,'P'],[9898,'NAVIO DOS PIRATAS',146,'P'],[10087,'ILHA DOS FOFOSSAUROS',147,'P'],
+    [9765,'PLAY DOG HOUSE',148,'P'],[9976,'CASINHA NA ÁRVORE SMART',149,'P'],[9943,'PLAY HOUSE DOIS ANDARES',150,'P'],
+    [9998,'FUN PLAY',151,'P'],[9987,'CREATIVE PLAY',152,'P'],[10009,'SUPER CREATIVE PLAY',153,'P'],[10032,'SUPER TOP PLAY',154,'P'],[10043,'BRIDGE PLAY',155,'P'],
+    [10209,'PARQUE DOS FOFOSSAUROS',157,'P'],[10221,'MUNDO DOS FOFOSSAUROS',158,'P'],[9568,'PLAY MODULAR GLOBAL',159,'P'],
+    [20610,'CASTELO ENCANTADO',160,'P'],[20621,'CASTELO REAL',160,'P'],[9685,'PLAY MODULAR ADVENTURE',161,'P'],[9686,'PLAY MODULAR FUTURE',162,'P'],
+    [10054,'GRAND PLAY',173,'P'],[20609,'UNIVERSO DOS FOFOSSAUROS',176,'P'],[9684,'PLAY MODULAR ADVANCED',178,'P'],
+  ];
+
+  const translations = {
+    pt: {
+      backLink:'Voltar ao Sumário', searchTitle:'Pesquise', searchPlaceholder:'REF ou nome do produto…', searchEmpty:'Nenhum resultado', searchGoTo:'ver nesta página', searchNavTo:'ir para',
+      cat01Title:'Blocos de Montar', cat01item1:'Brincando de Engenheiro', cat01item2:'Blocos de Montar', cat01item3:'Blocos Grandes', cat01item4:'Blocos Soft',
+      cat02Title:'Educativos', cat02item1:'Desenvolvimento', cat02item2:'Steam', cat02item3:'Playset', cat02item4:'Quadros para Colorir', cat02item5:'Quebra-cabeça', cat02item6:'Memória', cat02item7:'Dominó', cat02item8:'Blocos Pedagógicos', cat02item9:'Jogos Educativos', cat02item10:'Carimbos',
+      cat03Title:'Jogos', cat03item1:'Xadrez', cat03item2:'Jogos Clássicos', cat03item3:'Board Games',
+      cat04Title:'Faz de Conta', cat04item1:'Cozinhas', cat04item2:'Faz de Conta', cat04item3:'Brinquedos de Água',
+      cat05Title:'Rodados', cat05item1:'Triciclos 12 meses', cat05item2:'Triciclos 24 meses',
+      cat06Title:'Esportes', cat06item1:'Basquete', cat06item2:'Futebol de Mesa', cat06item3:'Tênis de Mesa',
+      cat07Title:'Playground', cat07item1:'Balanços', cat07item2:'Gangorras', cat07item3:'Complementos', cat07item4:'Escorregadores', cat07item5:'Casinhas', cat07item6:'Outdoor Menor', cat07item7:'Outdoor Maior',
+    },
+    en: {
+      backLink:'Back to Table of Contents', searchTitle:'Search', searchPlaceholder:'REF or product name…', searchEmpty:'No results', searchGoTo:'view on this page', searchNavTo:'go to',
+      cat01Title:'Building Blocks', cat01item1:'Playing Engineer', cat01item2:'Building Blocks', cat01item3:'Large Blocks', cat01item4:'Soft Blocks',
+      cat02Title:'Educational', cat02item1:'Development', cat02item2:'Steam', cat02item3:'Playset', cat02item4:'Coloring Boards', cat02item5:'Puzzle', cat02item6:'Memory', cat02item7:'Domino', cat02item8:'Pedagogical Blocks', cat02item9:'Educational Games', cat02item10:'Stamps',
+      cat03Title:'Games', cat03item1:'Chess', cat03item2:'Classic Games', cat03item3:'Board Games',
+      cat04Title:'Pretend Play', cat04item1:'Kitchens', cat04item2:'Pretend Play', cat04item3:'Water Toys',
+      cat05Title:'Ride-ons', cat05item1:'Tricycles 12 months', cat05item2:'Tricycles 24 months',
+      cat06Title:'Sports', cat06item1:'Basketball', cat06item2:'Table Football', cat06item3:'Table Tennis',
+      cat07Title:'Playground', cat07item1:'Swings', cat07item2:'Seesaws', cat07item3:'Accessories', cat07item4:'Slides', cat07item5:'Playhouses', cat07item6:'Small Outdoor', cat07item7:'Large Outdoor',
+    },
+    es: {
+      backLink:'Volver al Índice', searchTitle:'Buscar', searchPlaceholder:'REF o nombre del producto…', searchEmpty:'Sin resultados', searchGoTo:'ver en esta página', searchNavTo:'ir a',
+      cat01Title:'Bloques de Construcción', cat01item1:'Jugando al Ingeniero', cat01item2:'Bloques de Construcción', cat01item3:'Bloques Grandes', cat01item4:'Bloques Soft',
+      cat02Title:'Educativos', cat02item1:'Desarrollo', cat02item2:'Steam', cat02item3:'Playset', cat02item4:'Pizarras para Colorear', cat02item5:'Rompecabezas', cat02item6:'Memoria', cat02item7:'Dominó', cat02item8:'Bloques Pedagógicos', cat02item9:'Juegos Educativos', cat02item10:'Sellos',
+      cat03Title:'Juegos', cat03item1:'Ajedrez', cat03item2:'Juegos Clásicos', cat03item3:'Board Games',
+      cat04Title:'Juego Simbólico', cat04item1:'Cocinas', cat04item2:'Juego Simbólico', cat04item3:'Juguetes de Agua',
+      cat05Title:'Rodados', cat05item1:'Triciclos 12 meses', cat05item2:'Triciclos 24 meses',
+      cat06Title:'Deportes', cat06item1:'Baloncesto', cat06item2:'Futbolín', cat06item3:'Tenis de Mesa',
+      cat07Title:'Área de Juegos', cat07item1:'Columpios', cat07item2:'Balancines', cat07item3:'Complementos', cat07item4:'Toboganes', cat07item5:'Casitas', cat07item6:'Exterior Pequeño', cat07item7:'Exterior Grande',
+    }
+  };
+
+  const vertLabels = {
+    pt:{ B:'Blocos de Montar', E:'Educativos', J:'Jogos', F:'Faz de Conta', R:'Rodados', S:'Esportes', P:'Playground' },
+    en:{ B:'Building Blocks',  E:'Educational', J:'Games', F:'Pretend Play', R:'Ride-ons', S:'Sports',  P:'Playground' },
+    es:{ B:'Bloques de Construcción', E:'Educativos', J:'Juegos', F:'Juego Simbólico', R:'Rodados', S:'Deportes', P:'Área de Juegos' },
+  };
+
+  let currentLang = localStorage.getItem('xalingo-lang') || 'pt';
+
+  function setLang(lang) {
+    if (!translations[lang]) return;
+    currentLang = lang;
+    localStorage.setItem('xalingo-lang', lang);
+    const t = translations[lang];
+    document.documentElement.lang = {pt:'pt-BR',en:'en',es:'es'}[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.getAttribute('data-i18n');
+      if (t[k] !== undefined) el.textContent = t[k];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const k = el.getAttribute('data-i18n-placeholder');
+      if (t[k] !== undefined) el.placeholder = t[k];
+    });
+    document.querySelectorAll('.sb-lang-btn').forEach(btn =>
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang));
+    const q = document.getElementById('sbSearchInput') ? document.getElementById('sbSearchInput').value : '';
+    if (q.trim().length >= 2) doSearch(q);
+  }
+
+  function doSearch(q) {
+    const box = document.getElementById('sbSearchResults');
+    q = q.trim();
+    if (q.length < 2) { box.innerHTML = ''; return; }
+    const t = translations[currentLang];
+    const vl = vertLabels[currentLang];
+    const term = q.toLowerCase();
+    const matches = PRODUTOS.filter(p =>
+      String(p[0]).startsWith(q) || p[1].toLowerCase().includes(term)
+    ).slice(0, 14);
+    if (!matches.length) { box.innerHTML = `<div class="sb-search-empty">${t.searchEmpty}</div>`; return; }
+    box.innerHTML = matches.map(p => {
+      const v = VERTS[p[3]];
+      const isCurrent = (p[3] === THIS_VERT);
+      const imgIdx = p[2] - v.offset;
+      const destLabel = isCurrent ? t.searchGoTo : `${t.searchNavTo} ${vl[p[3]]}`;
+      return `<div class="sb-result-item" style="border-left:3px solid ${v.bar};background:${v.bg}22" onclick="goToProduct('${p[3]}',${imgIdx},this)">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:4px">
+          <span class="sb-result-ref" style="color:${v.bar}">${p[0]}</span>
+          <span style="font-size:.58rem;font-weight:700;background:${v.bar};color:#fff;padding:2px 6px;border-radius:4px;white-space:nowrap;flex-shrink:0">${vl[p[3]]}</span>
+        </div>
+        <span class="sb-result-name" style="color:${v.text}">${p[1]}</span>
+        <span class="sb-result-page" style="color:${v.text}99">pág. ${p[2]} · ${destLabel}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function goToProduct(vert, imgIdx, el) {
+    el.classList.add('highlight-flash');
+    setTimeout(() => el.classList.remove('highlight-flash'), 700);
+    if (vert === THIS_VERT) {
+      const pad = String(imgIdx).padStart(IMG_PAD, '0');
+      const target = document.querySelector(
+        `img[src*="${IMG_PREFIX}${pad}"], img[src*="${IMG_PREFIX}${imgIdx}."]`
+      );
+      if (target) {
+        window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 20, behavior: 'smooth' });
+        target.style.outline = '3px solid ' + VERTS[THIS_VERT].bar;
+        target.style.boxShadow = '0 0 0 6px ' + VERTS[THIS_VERT].bar + '33';
+        setTimeout(() => { target.style.outline=''; target.style.boxShadow=''; }, 1800);
+      }
+      if (window.innerWidth <= 860) toggleSidebar();
+    } else {
+      setTimeout(() => { window.location.href = VERTS[vert].file; }, 200);
+    }
+  }
+
+  setLang(currentLang);
 </script>
 </body>
 </html>

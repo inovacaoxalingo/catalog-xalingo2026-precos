@@ -1076,11 +1076,12 @@
     }
   };
 
-  let currentLang = 'pt';
+  let currentLang = localStorage.getItem('xalingo-lang') || 'pt';
 
   function setLang(lang) {
     if (!translations[lang]) return;
     currentLang = lang;
+    localStorage.setItem('xalingo-lang', lang);
     const t = translations[lang];
 
     // Update page title
@@ -1101,6 +1102,9 @@
       btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
     });
   }
+
+  // Apply saved language on load
+  setLang(currentLang);
 </script>
 
 </body>
