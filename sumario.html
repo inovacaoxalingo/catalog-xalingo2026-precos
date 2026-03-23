@@ -11,40 +11,32 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sumário | Catálogo 2026 - Xalingo Brinquedos</title>
+<title data-i18n="pageTitle">Sumário | Catálogo 2026 - Xalingo Brinquedos</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --page-bg: #f5e5d6;
-
     --blocos-bg: #a496b0;
     --blocos-bar: #293b7f;
     --blocos-text: #1e2a5a;
-
     --educ-bg: #b49abf;
     --educ-bar: #4d359a;
     --educ-text: #3a2470;
-
     --jogos-bg: #eda487;
     --jogos-bar: #ef3128;
     --jogos-text: #8b1a15;
-
     --faz-bg: #c1d7c8;
     --faz-bar: #5ec9c8;
     --faz-text: #2a7574;
-
     --rodados-bg: #c1d597;
     --rodados-bar: #63c437;
     --rodados-text: #3a7520;
-
     --esportes-bg: #efc68f;
     --esportes-bar: #f89e1c;
     --esportes-text: #8a5a0e;
-
     --playground-bg: #c78c88;
     --playground-bar: #891434;
     --playground-text: #5e0e24;
-
     --card-radius: 20px;
     --texto: #1B3A5C;
     --texto-muted: #7a7065;
@@ -83,6 +75,71 @@
   @keyframes drift {
     0%,100% { transform: translateY(0); }
     50% { transform: translateY(-22px); }
+  }
+
+  /* ===== LANGUAGE SWITCHER ===== */
+  .lang-switcher {
+    position: fixed;
+    top: 14px;
+    right: 16px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(27,58,92,0.88);
+    backdrop-filter: blur(10px);
+    border-radius: 28px;
+    padding: 4px 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    animation: fadeDown 0.7s ease-out both;
+  }
+
+  .lang-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 0 6px 0 4px;
+    user-select: none;
+  }
+
+  .lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 5px 9px;
+    border-radius: 20px;
+    transition: all 0.22s ease;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  .lang-btn .flag { font-size: 1rem; line-height: 1; }
+
+  .lang-btn:hover {
+    background: rgba(255,255,255,0.12);
+    color: white;
+  }
+
+  .lang-btn.active {
+    background: rgba(255,255,255,0.18);
+    color: white;
+  }
+
+  .lang-sep {
+    width: 1px;
+    height: 14px;
+    background: rgba(255,255,255,0.15);
+    flex-shrink: 0;
   }
 
   /* ===== HEADER ===== */
@@ -388,21 +445,12 @@
   .cat-ofertas .item:hover { background: rgba(255,255,255,0.2); }
   .cat-ofertas .item-dot { background: var(--ofertas-bar); }
   .cat-ofertas .item-arrow { color: var(--ofertas-bar); }
-  .cat-playground .card-main { background: var(--playground-bg); }
-  .cat-playground .card-num,
-  .cat-playground .card-title,
-  .cat-playground .card-pages,
-  .cat-playground .item { color: var(--playground-text); }
-  .cat-playground .item:hover { background: rgba(255,255,255,0.18); }
-  .cat-playground .item-dot { background: var(--playground-bar); }
-  .cat-playground .item-arrow { color: var(--playground-bar); }
 
   /* Stagger per column */
   .col-left .card:nth-child(1).visible { animation-delay: 0.0s; }
   .col-left .card:nth-child(2).visible { animation-delay: 0.12s; }
   .col-left .card:nth-child(3).visible { animation-delay: 0.24s; }
   .col-left .card:nth-child(4).visible { animation-delay: 0.36s; }
-
   .col-right .card:nth-child(1).visible { animation-delay: 0.06s; }
   .col-right .card:nth-child(2).visible { animation-delay: 0.18s; }
   .col-right .card:nth-child(3).visible { animation-delay: 0.30s; }
@@ -451,6 +499,9 @@
     .card-title { font-size: 1.1rem; }
     .card-num { font-size: 2rem; }
     .item { padding: 8px 10px; }
+    .lang-switcher { top: 10px; right: 10px; }
+    .lang-label { display: none; }
+    .lang-btn { padding: 4px 7px; font-size: 0.6rem; }
   }
 
   .cat-news .card-bar { background: #378ADD; }
@@ -474,17 +525,33 @@
   <div class="bg-shape"></div>
 </div>
 
+<!-- ===== LANGUAGE SWITCHER ===== -->
+<div class="lang-switcher" role="navigation" aria-label="Language selector">
+  <span class="lang-label" data-i18n="langLabel">Idioma:</span>
+  <button class="lang-btn active" data-lang="pt" onclick="setLang('pt')" title="Português">
+    <span class="flag">🇧🇷</span> PT
+  </button>
+  <div class="lang-sep"></div>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')" title="English">
+    <span class="flag">🇺🇸</span> EN
+  </button>
+  <div class="lang-sep"></div>
+  <button class="lang-btn" data-lang="es" onclick="setLang('es')" title="Español">
+    <span class="flag">🇪🇸</span> ES
+  </button>
+</div>
+
 <a href="index.html" class="back-link">
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m0 0l7 7m-7-7l7-7"/></svg>
-  Voltar para capa
+  <span data-i18n="backLink">Voltar para capa</span>
 </a>
 
 <header class="header">
   <div class="header-logo">
     <img src="logo-xalingo.png" alt="Xalingo - Since 1947">
   </div>
-  <h1 class="header-title">Sumário</h1>
-  <p class="header-sub">Explore nossas categorias e descubra o brinquedo ideal</p>
+  <h1 class="header-title" data-i18n="headerTitle">Sumário</h1>
+  <p class="header-sub" data-i18n="headerSub">Explore nossas categorias e descubra o brinquedo ideal</p>
   <div class="block-divider">
     <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
   </div>
@@ -502,26 +569,26 @@
         <div class="card-head">
           <div class="card-num">01</div>
           <div class="card-head-info">
-            <div class="card-title">Blocos de Montar</div>
+            <div class="card-title" data-i18n="cat01Title">Blocos de Montar</div>
             <div class="card-pages">p.07–70</div>
           </div>
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
           <a class="item" href="blocos-de-montar.html#engenheiro">
-            <span class="item-dot"></span><span class="item-name">Brincando de Engenheiro</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat01item1">Brincando de Engenheiro</span>
             <span class="item-page">07</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="blocos-de-montar.html#blocos">
-            <span class="item-dot"></span><span class="item-name">Blocos de Montar</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat01item2">Blocos de Montar</span>
             <span class="item-page">16</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="blocos-de-montar.html#grandes">
-            <span class="item-dot"></span><span class="item-name">Blocos Grandes</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat01item3">Blocos Grandes</span>
             <span class="item-page">61</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="blocos-de-montar.html#soft">
-            <span class="item-dot"></span><span class="item-name">Blocos Soft</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat01item4">Blocos Soft</span>
             <span class="item-page">70</span><span class="item-arrow">→</span>
           </a>
         </div>
@@ -535,50 +602,50 @@
         <div class="card-head">
           <div class="card-num">02</div>
           <div class="card-head-info">
-            <div class="card-title">Educativos</div>
+            <div class="card-title" data-i18n="cat02Title">Educativos</div>
             <div class="card-pages">p.75–112</div>
           </div>
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
           <a class="item" href="educativos.html#desenvolvimento">
-            <span class="item-dot"></span><span class="item-name">Desenvolvimento</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat02item1">Desenvolvimento</span>
             <span class="item-page">75</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="educativos.html#steam">
-            <span class="item-dot"></span><span class="item-name">Steam</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat02item2">Steam</span>
             <span class="item-page">86</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="educativos.html#playset">
-            <span class="item-dot"></span><span class="item-name">Playset</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat02item3">Playset</span>
             <span class="item-page">89</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="educativos.html#colorir">
-            <span class="item-dot"></span><span class="item-name">Quadros para Colorir</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat02item4">Quadros para Colorir</span>
             <span class="item-page">91</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="educativos.html#quebracabeca">
-            <span class="item-dot"></span><span class="item-name">Quebra-cabeça</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat02item5">Quebra-cabeça</span>
             <span class="item-page">93</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="educativos.html#memoria">
-            <span class="item-dot"></span><span class="item-name">Memória</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat02item6">Memória</span>
             <span class="item-page">99</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="educativos.html#domino">
-            <span class="item-dot"></span><span class="item-name">Dominó</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat02item7">Dominó</span>
             <span class="item-page">102</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="educativos.html#pedagogicos">
-            <span class="item-dot"></span><span class="item-name">Blocos Pedagógicos</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat02item8">Blocos Pedagógicos</span>
             <span class="item-page">105</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="educativos.html#jogoseducativos">
-            <span class="item-dot"></span><span class="item-name">Jogos Educativos</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat02item9">Jogos Educativos</span>
             <span class="item-page">107</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="educativos.html#carimbos">
-            <span class="item-dot"></span><span class="item-name">Carimbos</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat02item10">Carimbos</span>
             <span class="item-page">112</span><span class="item-arrow">→</span>
           </a>
         </div>
@@ -592,22 +659,22 @@
         <div class="card-head">
           <div class="card-num">03</div>
           <div class="card-head-info">
-            <div class="card-title">Jogos</div>
+            <div class="card-title" data-i18n="cat03Title">Jogos</div>
             <div class="card-pages">p.114–126</div>
           </div>
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
           <a class="item" href="jogos.html#xadrez">
-            <span class="item-dot"></span><span class="item-name">Xadrez</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat03item1">Xadrez</span>
             <span class="item-page">114</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="jogos.html#classicos">
-            <span class="item-dot"></span><span class="item-name">Jogos Clássicos</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat03item2">Jogos Clássicos</span>
             <span class="item-page">118</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="jogos.html#boardgames">
-            <span class="item-dot"></span><span class="item-name">Board Games</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat03item3">Board Games</span>
             <span class="item-page">126</span><span class="item-arrow">→</span>
           </a>
         </div>
@@ -621,22 +688,22 @@
         <div class="card-head">
           <div class="card-num">04</div>
           <div class="card-head-info">
-            <div class="card-title">Faz de Conta</div>
+            <div class="card-title" data-i18n="cat04Title">Faz de Conta</div>
             <div class="card-pages">p.130–134</div>
           </div>
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
           <a class="item" href="faz-de-conta.html#cozinhas">
-            <span class="item-dot"></span><span class="item-name">Cozinhas</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat04item1">Cozinhas</span>
             <span class="item-page">130</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="faz-de-conta.html#fazdeconta">
-            <span class="item-dot"></span><span class="item-name">Faz de Conta</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat04item2">Faz de Conta</span>
             <span class="item-page">131</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="faz-de-conta.html#agua">
-            <span class="item-dot"></span><span class="item-name">Brinquedos de Água</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat04item3">Brinquedos de Água</span>
             <span class="item-page">134</span><span class="item-arrow">→</span>
           </a>
         </div>
@@ -655,18 +722,18 @@
         <div class="card-head">
           <div class="card-num">05</div>
           <div class="card-head-info">
-            <div class="card-title">Rodados</div>
+            <div class="card-title" data-i18n="cat05Title">Rodados</div>
             <div class="card-pages">p.137–138</div>
           </div>
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
           <a class="item" href="rodados.html#tric12">
-            <span class="item-dot"></span><span class="item-name">Triciclos 12 meses</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat05item1">Triciclos 12 meses</span>
             <span class="item-page">137</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="rodados.html#tric24">
-            <span class="item-dot"></span><span class="item-name">Triciclos 24 meses</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat05item2">Triciclos 24 meses</span>
             <span class="item-page">138</span><span class="item-arrow">→</span>
           </a>
         </div>
@@ -680,22 +747,22 @@
         <a href="esportes.html" class="card-head" style="text-decoration:none; display:flex;">
           <div class="card-num">06</div>
           <div class="card-head-info">
-            <div class="card-title">Esportes</div>
+            <div class="card-title" data-i18n="cat06Title">Esportes</div>
             <div class="card-pages">p.144–147</div>
           </div>
         </a>
         <div class="card-divider"></div>
         <div class="card-body">
           <a class="item" href="esportes.html#basquete">
-            <span class="item-dot"></span><span class="item-name">Basquete</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat06item1">Basquete</span>
             <span class="item-page">144</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="esportes.html#futebol">
-            <span class="item-dot"></span><span class="item-name">Futebol de Mesa</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat06item2">Futebol de Mesa</span>
             <span class="item-page">146</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="esportes.html#tenis">
-            <span class="item-dot"></span><span class="item-name">Tênis de Mesa</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat06item3">Tênis de Mesa</span>
             <span class="item-page">147</span><span class="item-arrow">→</span>
           </a>
         </div>
@@ -709,44 +776,43 @@
         <div class="card-head">
           <div class="card-num">07</div>
           <div class="card-head-info">
-            <div class="card-title">Playground</div>
+            <div class="card-title" data-i18n="cat07Title">Playground</div>
             <div class="card-pages">p.149–165</div>
           </div>
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
           <a class="item" href="playground.html#balancos">
-            <span class="item-dot"></span><span class="item-name">Balanços</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat07item1">Balanços</span>
             <span class="item-page">149</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="playground.html#gangorras">
-            <span class="item-dot"></span><span class="item-name">Gangorras</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat07item2">Gangorras</span>
             <span class="item-page">150</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="playground.html#complementos">
-            <span class="item-dot"></span><span class="item-name">Complementos</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat07item3">Complementos</span>
             <span class="item-page">154</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="playground.html#escorregadores">
-            <span class="item-dot"></span><span class="item-name">Escorregadores</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat07item4">Escorregadores</span>
             <span class="item-page">156</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="playground.html#casinhas">
-            <span class="item-dot"></span><span class="item-name">Casinhas</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat07item5">Casinhas</span>
             <span class="item-page">158</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="playground.html#outdoormenor">
-            <span class="item-dot"></span><span class="item-name">Outdoor Menor</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat07item6">Outdoor Menor</span>
             <span class="item-page">161</span><span class="item-arrow">→</span>
           </a>
           <a class="item" href="playground.html#outdoormaior">
-            <span class="item-dot"></span><span class="item-name">Outdoor Maior</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat07item7">Outdoor Maior</span>
             <span class="item-page">165</span><span class="item-arrow">→</span>
           </a>
         </div>
       </div>
     </div>
-
 
     <!-- 08 OFERTAS -->
     <div class="card cat-ofertas" style="cursor:not-allowed">
@@ -755,14 +821,14 @@
         <div class="card-head">
           <div class="card-num">08</div>
           <div class="card-head-info">
-            <div class="card-title">Ofertas</div>
-            <div class="card-pages">Campanhas Ativas</div>
+            <div class="card-title" data-i18n="cat08Title">Ofertas</div>
+            <div class="card-pages" data-i18n="cat08Pages">Campanhas Ativas</div>
           </div>
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
           <a class="item" href="ofertas.html">
-            <span class="item-dot"></span><span class="item-name">Vem Brincar com a Xalingo</span>
+            <span class="item-dot"></span><span class="item-name" data-i18n="cat08item1">Vem Brincar com a Xalingo</span>
             <span class="item-arrow">&#8594;</span>
           </a>
         </div>
@@ -776,16 +842,16 @@
         <div class="card-head">
           <div class="card-num">09</div>
           <div class="card-head-info">
-            <div class="card-title">News</div>
-            <div class="card-pages">Novidades</div>
+            <div class="card-title" data-i18n="cat09Title">News</div>
+            <div class="card-pages" data-i18n="cat09Pages">Novidades</div>
           </div>
         </div>
         <div class="card-divider"></div>
         <div class="card-body">
-          <a class="item" href="news.html#avisos"><span class="item-dot"></span><span class="item-name">Avisos Importantes</span><span class="item-arrow">&#8594;</span></a>
-          <a class="item" href="news.html#videos"><span class="item-dot"></span><span class="item-name">Videos YouTube</span><span class="item-arrow">&#8594;</span></a>
-          <a class="item" href="news.html#tiktok"><span class="item-dot"></span><span class="item-name">TikTok</span><span class="item-arrow">&#8594;</span></a>
-          <a class="item" href="news.html#redes"><span class="item-dot"></span><span class="item-name">Redes Sociais</span><span class="item-arrow">&#8594;</span></a>
+          <a class="item" href="news.html#avisos"><span class="item-dot"></span><span class="item-name" data-i18n="cat09item1">Avisos Importantes</span><span class="item-arrow">&#8594;</span></a>
+          <a class="item" href="news.html#videos"><span class="item-dot"></span><span class="item-name" data-i18n="cat09item2">Videos YouTube</span><span class="item-arrow">&#8594;</span></a>
+          <a class="item" href="news.html#tiktok"><span class="item-dot"></span><span class="item-name" data-i18n="cat09item3">TikTok</span><span class="item-arrow">&#8594;</span></a>
+          <a class="item" href="news.html#redes"><span class="item-dot"></span><span class="item-name" data-i18n="cat09item4">Redes Sociais</span><span class="item-arrow">&#8594;</span></a>
         </div>
       </div>
     </div>
@@ -798,10 +864,11 @@
   <div class="deco-house">
     <img src="logo-xalingo.png" alt="Xalingo - Since 1947">
   </div>
-  Catálogo Digital 2026 · 78 Anos construindo histórias
+  <span data-i18n="footerText">Catálogo Digital 2026 · 78 Anos construindo histórias</span>
 </footer>
 
 <script>
+  /* ===== INTERSECTION OBSERVER ===== */
   const cards = document.querySelectorAll('.card');
   const obs = new IntersectionObserver((entries) => {
     entries.forEach(e => {
@@ -809,6 +876,231 @@
     });
   }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
   cards.forEach(c => obs.observe(c));
+
+  /* ===== TRANSLATIONS ===== */
+  const translations = {
+    pt: {
+      pageTitle:    'Sumário | Catálogo 2026 - Xalingo Brinquedos',
+      langLabel:    'Idioma:',
+      backLink:     'Voltar para capa',
+      headerTitle:  'Sumário',
+      headerSub:    'Explore nossas categorias e descubra o brinquedo ideal',
+      footerText:   'Catálogo Digital 2026 · 78 Anos construindo histórias',
+      // 01
+      cat01Title:   'Blocos de Montar',
+      cat01item1:   'Brincando de Engenheiro',
+      cat01item2:   'Blocos de Montar',
+      cat01item3:   'Blocos Grandes',
+      cat01item4:   'Blocos Soft',
+      // 02
+      cat02Title:   'Educativos',
+      cat02item1:   'Desenvolvimento',
+      cat02item2:   'Steam',
+      cat02item3:   'Playset',
+      cat02item4:   'Quadros para Colorir',
+      cat02item5:   'Quebra-cabeça',
+      cat02item6:   'Memória',
+      cat02item7:   'Dominó',
+      cat02item8:   'Blocos Pedagógicos',
+      cat02item9:   'Jogos Educativos',
+      cat02item10:  'Carimbos',
+      // 03
+      cat03Title:   'Jogos',
+      cat03item1:   'Xadrez',
+      cat03item2:   'Jogos Clássicos',
+      cat03item3:   'Board Games',
+      // 04
+      cat04Title:   'Faz de Conta',
+      cat04item1:   'Cozinhas',
+      cat04item2:   'Faz de Conta',
+      cat04item3:   'Brinquedos de Água',
+      // 05
+      cat05Title:   'Rodados',
+      cat05item1:   'Triciclos 12 meses',
+      cat05item2:   'Triciclos 24 meses',
+      // 06
+      cat06Title:   'Esportes',
+      cat06item1:   'Basquete',
+      cat06item2:   'Futebol de Mesa',
+      cat06item3:   'Tênis de Mesa',
+      // 07
+      cat07Title:   'Playground',
+      cat07item1:   'Balanços',
+      cat07item2:   'Gangorras',
+      cat07item3:   'Complementos',
+      cat07item4:   'Escorregadores',
+      cat07item5:   'Casinhas',
+      cat07item6:   'Outdoor Menor',
+      cat07item7:   'Outdoor Maior',
+      // 08
+      cat08Title:   'Ofertas',
+      cat08Pages:   'Campanhas Ativas',
+      cat08item1:   'Vem Brincar com a Xalingo',
+      // 09
+      cat09Title:   'News',
+      cat09Pages:   'Novidades',
+      cat09item1:   'Avisos Importantes',
+      cat09item2:   'Videos YouTube',
+      cat09item3:   'TikTok',
+      cat09item4:   'Redes Sociais',
+    },
+    en: {
+      pageTitle:    'Table of Contents | Catalog 2026 - Xalingo Toys',
+      langLabel:    'Language:',
+      backLink:     'Back to cover',
+      headerTitle:  'Table of Contents',
+      headerSub:    'Explore our categories and find the perfect toy',
+      footerText:   'Digital Catalog 2026 · 78 Years building stories',
+      // 01
+      cat01Title:   'Building Blocks',
+      cat01item1:   'Playing Engineer',
+      cat01item2:   'Building Blocks',
+      cat01item3:   'Large Blocks',
+      cat01item4:   'Soft Blocks',
+      // 02
+      cat02Title:   'Educational',
+      cat02item1:   'Development',
+      cat02item2:   'Steam',
+      cat02item3:   'Playset',
+      cat02item4:   'Coloring Boards',
+      cat02item5:   'Puzzle',
+      cat02item6:   'Memory',
+      cat02item7:   'Domino',
+      cat02item8:   'Pedagogical Blocks',
+      cat02item9:   'Educational Games',
+      cat02item10:  'Stamps',
+      // 03
+      cat03Title:   'Games',
+      cat03item1:   'Chess',
+      cat03item2:   'Classic Games',
+      cat03item3:   'Board Games',
+      // 04
+      cat04Title:   'Pretend Play',
+      cat04item1:   'Kitchens',
+      cat04item2:   'Pretend Play',
+      cat04item3:   'Water Toys',
+      // 05
+      cat05Title:   'Ride-ons',
+      cat05item1:   'Tricycles 12 months',
+      cat05item2:   'Tricycles 24 months',
+      // 06
+      cat06Title:   'Sports',
+      cat06item1:   'Basketball',
+      cat06item2:   'Table Football',
+      cat06item3:   'Table Tennis',
+      // 07
+      cat07Title:   'Playground',
+      cat07item1:   'Swings',
+      cat07item2:   'Seesaws',
+      cat07item3:   'Accessories',
+      cat07item4:   'Slides',
+      cat07item5:   'Playhouses',
+      cat07item6:   'Small Outdoor',
+      cat07item7:   'Large Outdoor',
+      // 08
+      cat08Title:   'Offers',
+      cat08Pages:   'Active Campaigns',
+      cat08item1:   'Come Play with Xalingo',
+      // 09
+      cat09Title:   'News',
+      cat09Pages:   'New Releases',
+      cat09item1:   'Important Notices',
+      cat09item2:   'YouTube Videos',
+      cat09item3:   'TikTok',
+      cat09item4:   'Social Media',
+    },
+    es: {
+      pageTitle:    'Índice | Catálogo 2026 - Xalingo Juguetes',
+      langLabel:    'Idioma:',
+      backLink:     'Volver a la portada',
+      headerTitle:  'Índice',
+      headerSub:    'Explora nuestras categorías y encuentra el juguete ideal',
+      footerText:   'Catálogo Digital 2026 · 78 Años construyendo historias',
+      // 01
+      cat01Title:   'Bloques de Construcción',
+      cat01item1:   'Jugando al Ingeniero',
+      cat01item2:   'Bloques de Construcción',
+      cat01item3:   'Bloques Grandes',
+      cat01item4:   'Bloques Soft',
+      // 02
+      cat02Title:   'Educativos',
+      cat02item1:   'Desarrollo',
+      cat02item2:   'Steam',
+      cat02item3:   'Playset',
+      cat02item4:   'Pizarras para Colorear',
+      cat02item5:   'Rompecabezas',
+      cat02item6:   'Memoria',
+      cat02item7:   'Dominó',
+      cat02item8:   'Bloques Pedagógicos',
+      cat02item9:   'Juegos Educativos',
+      cat02item10:  'Sellos',
+      // 03
+      cat03Title:   'Juegos',
+      cat03item1:   'Ajedrez',
+      cat03item2:   'Juegos Clásicos',
+      cat03item3:   'Board Games',
+      // 04
+      cat04Title:   'Juego Simbólico',
+      cat04item1:   'Cocinas',
+      cat04item2:   'Juego Simbólico',
+      cat04item3:   'Juguetes de Agua',
+      // 05
+      cat05Title:   'Rodados',
+      cat05item1:   'Triciclos 12 meses',
+      cat05item2:   'Triciclos 24 meses',
+      // 06
+      cat06Title:   'Deportes',
+      cat06item1:   'Baloncesto',
+      cat06item2:   'Futbolín',
+      cat06item3:   'Tenis de Mesa',
+      // 07
+      cat07Title:   'Área de Juegos',
+      cat07item1:   'Columpios',
+      cat07item2:   'Balancines',
+      cat07item3:   'Complementos',
+      cat07item4:   'Toboganes',
+      cat07item5:   'Casitas',
+      cat07item6:   'Exterior Pequeño',
+      cat07item7:   'Exterior Grande',
+      // 08
+      cat08Title:   'Ofertas',
+      cat08Pages:   'Campañas Activas',
+      cat08item1:   'Ven a Jugar con Xalingo',
+      // 09
+      cat09Title:   'Noticias',
+      cat09Pages:   'Novedades',
+      cat09item1:   'Avisos Importantes',
+      cat09item2:   'Videos YouTube',
+      cat09item3:   'TikTok',
+      cat09item4:   'Redes Sociales',
+    }
+  };
+
+  let currentLang = 'pt';
+
+  function setLang(lang) {
+    if (!translations[lang]) return;
+    currentLang = lang;
+    const t = translations[lang];
+
+    // Update page title
+    document.title = t.pageTitle;
+
+    // Update html lang attribute
+    const langMap = { pt: 'pt-BR', en: 'en', es: 'es' };
+    document.documentElement.lang = langMap[lang];
+
+    // Update all data-i18n elements
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (t[key] !== undefined) el.textContent = t[key];
+    });
+
+    // Update active button
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+    });
+  }
 </script>
 
 </body>
