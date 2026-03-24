@@ -554,6 +554,47 @@
   .pm-stock-ok { color: #3a7520; }
   .pm-stock-zero { color: #c0392b; }
 
+
+  /* ===== ICMS SELECTOR ===== */
+  .sb-icms {
+    padding: 10px 10px 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    flex-shrink: 0;
+  }
+  .sb-icms-title {
+    font-size: 0.6rem; font-weight: 700; color: rgba(27,58,92,0.5);
+    letter-spacing: 0.6px; text-transform: uppercase;
+    margin-bottom: 7px; display: flex; align-items: center; gap: 5px;
+  }
+  .sb-icms-title::before {
+    content: ''; display: inline-block; width: 4px; height: 12px;
+    background: #1B3A5C; border-radius: 3px; opacity: 0.4; flex-shrink: 0;
+  }
+  .sb-icms-btns {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .sb-icms-btn {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.62rem; font-weight: 700;
+    padding: 5px 4px; border-radius: 8px;
+    border: 1.5px solid rgba(27,58,92,0.15);
+    background: rgba(255,255,255,0.6);
+    color: rgba(27,58,92,0.55);
+    cursor: pointer; transition: all 0.18s ease;
+    text-align: center; line-height: 1.2;
+  }
+  .sb-icms-btn:hover {
+    background: rgba(27,58,92,0.08);
+    color: #1B3A5C;
+    border-color: rgba(27,58,92,0.3);
+  }
+  .sb-icms-btn.active {
+    background: #1B3A5C;
+    color: #fff;
+    border-color: #1B3A5C;
+  }
+
 </style>
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HB9RN5N1J2"></script>
@@ -584,6 +625,17 @@
       <button class="sb-lang-btn" data-lang="pt" onclick="setLang('pt')"><span class="flag">🇧🇷</span> PT</button>
       <button class="sb-lang-btn" data-lang="en" onclick="setLang('en')"><span class="flag">🇺🇸</span> EN</button>
       <button class="sb-lang-btn" data-lang="es" onclick="setLang('es')"><span class="flag">🇦🇷</span> ES</button>
+    </div>
+
+    <!-- ICMS selector -->
+    <div class="sb-icms">
+      <div class="sb-icms-title">Tabela de Preços</div>
+      <div class="sb-icms-btns">
+        <button class="sb-icms-btn active" data-icms="p18"  onclick="setIcms('p18',this)">ICMS 18%</button>
+        <button class="sb-icms-btn"        data-icms="p12rs" onclick="setIcms('p12rs',this)">12% RS</button>
+        <button class="sb-icms-btn"        data-icms="p12"  onclick="setIcms('p12',this)">12% SC/PR/SP</button>
+        <button class="sb-icms-btn"        data-icms="p7"   onclick="setIcms('p7',this)">ICMS 7%</button>
+      </div>
     </div>
 
     <a href="sumario.html" class="sb-back">
@@ -1314,7 +1366,48 @@
     }
   })();
 
+
+  // ── ICMS selector ──────────────────────────────────────────────────────────
+  let currentIcms = localStorage.getItem('xalingo-icms') || 'p18';
+
+  const ICMS_LABELS = {
+    p18:  'ICMS 18%',
+    p12rs:'ICMS 12% RS',
+    p12:  'ICMS 12% SC/PR/SP/RJ/MG',
+    p7:   'ICMS 7%',
+  };
+
+  function setIcms(key, btn) {
+    currentIcms = key;
+    localStorage.setItem('xalingo-icms', key);
+    // Update button states
+    document.querySelectorAll('.sb-icms-btn').forEach(b =>
+      b.classList.toggle('active', b.getAttribute('data-icms') === key));
+    // Re-render all badge prices
+    document.querySelectorAll('.price-badge').forEach(badge => {
+      const ref = badge.dataset.ref;
+      const d = PRICE_CONFIG[ref];
+      if (!d) return;
+      const price = d[key];
+      const fmtPrice = v => 'R$ ' + v.toFixed(2).replace('.',',');
+      const launch = d.lancamento
+        ? `<div class="price-launch">🚀 Prev. ${d.lancamento}</div>` : '';
+      badge.querySelector('.price-tag').innerHTML = `
+        <div class="price-ref">${ref}</div>
+        <div class="price-main">${fmtPrice(price)}</div>
+        ${launch}
+      `;
+    });
+  }
+
+  function applyIcmsOnLoad() {
+    // Apply saved ICMS choice and activate correct button
+    document.querySelectorAll('.sb-icms-btn').forEach(b =>
+      b.classList.toggle('active', b.getAttribute('data-icms') === currentIcms));
+  }
+
   setLang(currentLang);
+  applyIcmsOnLoad();
 
   // ═══════════════════════════════════════════════════════
   // PRICE OVERLAYS CONFIG
@@ -1323,18 +1416,18 @@
   // ═══════════════════════════════════════════════════════
   const PRICE_CONFIG = {
     // ─── blocos-p0004.jpg (catalog page 9) ───
-    '52754': { img:'blocos-p0004', x:2, y:4,  p18:13.9,  p12rs:13.5, p12:13.5, p7:12.3, cx:6,  estoque:96,   disponivel:6035, nome:'Brincando de Engenheiro N1 - 42 PÇS',              ean:'7896640452759', dun:'17896640452756' },
-    '52765': { img:'blocos-p0004', x:2, y:25, p18:16.8,  p12rs:16.4, p12:16.4, p7:14.9, cx:6,  estoque:0,    disponivel:5606, nome:'Brincando de Engenheiro N2 - 53 PÇS',              ean:'7896640452766', dun:'17896640452763' },
-    '52776': { img:'blocos-p0004', x:2, y:46, p18:20.2,  p12rs:19.7, p12:19.7, p7:17.9, cx:6,  estoque:0,    disponivel:3898, nome:'Brincando de Engenheiro N3 - 73 PÇS',              ean:'7896640452773', dun:'17896640452770' },
-    '52798': { img:'blocos-p0004', x:2, y:67, p18:33.6,  p12rs:32.8, p12:32.8, p7:29.8, cx:6,  estoque:0,    disponivel:644,  nome:'Brincando de Engenheiro N4 - 120 PÇS',             ean:'7896640452797', dun:'17896640452794' },
-    '20509': { img:'blocos-p0004', x:2, y:88, p18:7.8,   p12rs:7.4,  p12:7.4,  p7:7.1,  cx:0,  estoque:0,    disponivel:0,    nome:'Brincando de Engenheiro - 20 PÇS',                 ean:'7896640426866', dun:'17896640426863', lancamento:'01/05/2026' },
+    '52754': { img:'blocos-p0004', x:2,  y:25, p18:13.9,  p12rs:13.5, p12:13.5, p7:12.3, cx:6, estoque:96,  disponivel:6035, nome:'Brincando de Engenheiro N1 - 42 PÇS',    ean:'7896640452759', dun:'17896640452756' },
+    '52765': { img:'blocos-p0004', x:80, y:25, p18:16.8,  p12rs:16.4, p12:16.4, p7:14.9, cx:6, estoque:0,   disponivel:5606, nome:'Brincando de Engenheiro N2 - 53 PÇS',    ean:'7896640452766', dun:'17896640452763' },
+    '52776': { img:'blocos-p0004', x:2,  y:60, p18:20.2,  p12rs:19.7, p12:19.7, p7:17.9, cx:6, estoque:0,   disponivel:3898, nome:'Brincando de Engenheiro N3 - 73 PÇS',    ean:'7896640452773', dun:'17896640452770' },
+    '52798': { img:'blocos-p0004', x:80, y:60, p18:33.6,  p12rs:32.8, p12:32.8, p7:29.8, cx:6, estoque:0,   disponivel:644,  nome:'Brincando de Engenheiro N4 - 120 PÇS',   ean:'7896640452797', dun:'17896640452794' },
+    '20509': { img:'blocos-p0004', x:80, y:3,  p18:7.8,   p12rs:7.4,  p12:7.4,  p7:7.1,  cx:0, estoque:0,   disponivel:0,    nome:'Brincando de Engenheiro - 20 PÇS',        ean:'7896640426866', dun:'17896640426863', lancamento:'01/05/2026' },
 
     // ─── blocos-p0005.jpg (catalog page 10) ───
-    '53054': { img:'blocos-p0005', x:2, y:4,  p18:40.9,  p12rs:39.9, p12:39.9, p7:36.2, cx:6,  estoque:207,  disponivel:1507, nome:'Brincando de Engenheiro N5 - 150 PÇS',             ean:'7896640430542', dun:'17896640430549' },
-    '53065': { img:'blocos-p0005', x:2, y:25, p18:52.3,  p12rs:51.0, p12:51.0, p7:46.4, cx:4,  estoque:100,  disponivel:1100, nome:'Brincando de Engenheiro N6 - 200 PÇS',             ean:'7896640430658', dun:'17896640430655' },
-    '67854': { img:'blocos-p0005', x:2, y:46, p18:78.1,  p12rs:76.1, p12:76.1, p7:69.2, cx:4,  estoque:24,   disponivel:24,   nome:'Brincando de Engenheiro N7 - 300 PÇS',             ean:'7896640410339', dun:'17896640410336' },
-    '67865': { img:'blocos-p0005', x:2, y:67, p18:131.0, p12rs:128.0,p12:128.0,p7:116.0,cx:2,  estoque:8,    disponivel:108,  nome:'Brincando de Engenheiro N8 - 500 PÇS',             ean:'7896640410346', dun:'17896640410343' },
-    '67876': { img:'blocos-p0005', x:2, y:88, p18:262.0, p12rs:255.0,p12:255.0,p7:232.0,cx:1,  estoque:0,    disponivel:22,   nome:'Brincando de Engenheiro N9 - 1000 PÇS',            ean:'7896640410353', dun:'17896640410350' },
+    '53054': { img:'blocos-p0005', x:2,  y:4,  p18:40.9,  p12rs:39.9, p12:39.9, p7:36.2, cx:6, estoque:207, disponivel:1507, nome:'Brincando de Engenheiro N5 - 150 PÇS',   ean:'7896640430542', dun:'17896640430549' },
+    '53065': { img:'blocos-p0005', x:80, y:4,  p18:52.3,  p12rs:51.0, p12:51.0, p7:46.4, cx:4, estoque:100, disponivel:1100, nome:'Brincando de Engenheiro N6 - 200 PÇS',   ean:'7896640430658', dun:'17896640430655' },
+    '67854': { img:'blocos-p0005', x:2,  y:40, p18:78.1,  p12rs:76.1, p12:76.1, p7:69.2, cx:4, estoque:24,  disponivel:24,   nome:'Brincando de Engenheiro N7 - 300 PÇS',   ean:'7896640410339', dun:'17896640410336' },
+    '67865': { img:'blocos-p0005', x:80, y:40, p18:131.0, p12rs:128.0,p12:128.0,p7:116.0,cx:2, estoque:8,   disponivel:108,  nome:'Brincando de Engenheiro N8 - 500 PÇS',   ean:'7896640410346', dun:'17896640410343' },
+    '67876': { img:'blocos-p0005', x:80, y:75, p18:262.0, p12rs:255.0,p12:255.0,p7:232.0,cx:1, estoque:0,   disponivel:22,   nome:'Brincando de Engenheiro N9 - 1000 PÇS',  ean:'7896640410353', dun:'17896640410350' },
 
     // ─── blocos-p0007.jpg (catalog page 12) ───
     '12998': { img:'blocos-p0007', x:2, y:4,  p18:115.0, p12rs:131.0,p12:115.0,p7:115.0,cx:4,  estoque:612,  disponivel:612,  nome:'Brincando de Engenheiro Carro - 78 PÇS',           ean:'7896640415877', dun:'17896640415874' },
@@ -1383,7 +1476,7 @@
       badge.innerHTML = `
         <div class="price-tag">
           <div class="price-ref">${ref}</div>
-          <div class="price-main">${fmtPrice(d.p18)} <span>ICMS 18%</span></div>
+          <div class="price-main">${fmtPrice(d[currentIcms])}</div>
           ${launch}
         </div>`;
 
