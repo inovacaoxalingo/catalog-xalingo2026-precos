@@ -480,6 +480,80 @@
   @keyframes flash-result { 0%{opacity:.4} 100%{opacity:1} }
   .sb-result-item.highlight-flash { animation: flash-result 0.5s ease; }
 
+
+  /* ===== PRICE OVERLAYS ===== */
+  .page-wrap { position: relative; display: block; line-height: 0; }
+
+  .price-badge {
+    position: absolute;
+    z-index: 20;
+    cursor: pointer;
+    font-family: 'Quicksand', sans-serif;
+    transform: scale(0.67); /* compensate for zoom:1.5 on .main */
+    transform-origin: top left;
+  }
+
+  .price-tag {
+    background: rgba(27,58,92,0.92);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: 10px;
+    padding: 5px 9px 4px;
+    min-width: 80px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .price-tag:hover { transform: scale(1.06); box-shadow: 0 6px 20px rgba(0,0,0,0.45); }
+
+  .price-ref {
+    font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.5);
+    letter-spacing: 0.4px; line-height: 1; margin-bottom: 2px;
+  }
+  .price-main {
+    font-size: 1rem; font-weight: 800; color: #fff;
+    line-height: 1; letter-spacing: -0.3px;
+  }
+  .price-main span { font-size: 0.62rem; font-weight: 600; opacity: 0.7; }
+  .price-launch {
+    margin-top: 3px;
+    font-size: 0.56rem; font-weight: 700;
+    background: #f89e1c; color: #3d1e00;
+    border-radius: 4px; padding: 1px 5px; display: inline-block;
+  }
+
+  /* Modal */
+  .price-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .price-modal-overlay.open { display: flex; }
+  .price-modal {
+    background: #fff; border-radius: 18px;
+    padding: 22px 24px 20px; width: 340px; max-width: 92vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    font-family: 'Quicksand', sans-serif;
+    position: relative;
+  }
+  .pm-close {
+    position: absolute; top: 12px; right: 14px;
+    background: none; border: none; font-size: 1.3rem;
+    cursor: pointer; color: #888; line-height: 1;
+  }
+  .pm-ref { font-size: 0.65rem; font-weight: 700; color: #999; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .pm-nome { font-size: 0.85rem; font-weight: 800; color: #1B3A5C; line-height: 1.3; margin-bottom: 14px; }
+  .pm-prices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .pm-price-box { background: #f3f6fb; border-radius: 10px; padding: 8px 10px; }
+  .pm-price-label { font-size: 0.58rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.4px; }
+  .pm-price-val { font-size: 1.05rem; font-weight: 800; color: #1B3A5C; }
+  .pm-info { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .pm-info-item { background: #f3f6fb; border-radius: 8px; padding: 5px 10px; font-size: 0.7rem; font-weight: 700; color: #1B3A5C; }
+  .pm-info-item span { font-weight: 500; color: #666; }
+  .pm-ean { font-size: 0.62rem; color: #aaa; margin-top: 6px; line-height: 1.6; }
+  .pm-launch { background: #fff3d8; border: 1.5px solid #f89e1c; border-radius: 8px; padding: 6px 10px; margin-top: 10px; font-size: 0.72rem; font-weight: 700; color: #8a5a0e; }
+  .pm-stock-ok { color: #3a7520; }
+  .pm-stock-zero { color: #c0392b; }
+
 </style>
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HB9RN5N1J2"></script>
@@ -1241,7 +1315,123 @@
   })();
 
   setLang(currentLang);
+
+  // ═══════════════════════════════════════════════════════
+  // PRICE OVERLAYS CONFIG
+  // x, y = position in % of image width/height (top-left of badge)
+  // Adjust these values to reposition each badge on the image
+  // ═══════════════════════════════════════════════════════
+  const PRICE_CONFIG = {
+    // ─── blocos-p0004.jpg (catalog page 9) ───
+    '52754': { img:'blocos-p0004', x:2, y:4,  p18:13.9,  p12rs:13.5, p12:13.5, p7:12.3, cx:6,  estoque:96,   disponivel:6035, nome:'Brincando de Engenheiro N1 - 42 PÇS',              ean:'7896640452759', dun:'17896640452756' },
+    '52765': { img:'blocos-p0004', x:2, y:25, p18:16.8,  p12rs:16.4, p12:16.4, p7:14.9, cx:6,  estoque:0,    disponivel:5606, nome:'Brincando de Engenheiro N2 - 53 PÇS',              ean:'7896640452766', dun:'17896640452763' },
+    '52776': { img:'blocos-p0004', x:2, y:46, p18:20.2,  p12rs:19.7, p12:19.7, p7:17.9, cx:6,  estoque:0,    disponivel:3898, nome:'Brincando de Engenheiro N3 - 73 PÇS',              ean:'7896640452773', dun:'17896640452770' },
+    '52798': { img:'blocos-p0004', x:2, y:67, p18:33.6,  p12rs:32.8, p12:32.8, p7:29.8, cx:6,  estoque:0,    disponivel:644,  nome:'Brincando de Engenheiro N4 - 120 PÇS',             ean:'7896640452797', dun:'17896640452794' },
+    '20509': { img:'blocos-p0004', x:2, y:88, p18:7.8,   p12rs:7.4,  p12:7.4,  p7:7.1,  cx:0,  estoque:0,    disponivel:0,    nome:'Brincando de Engenheiro - 20 PÇS',                 ean:'7896640426866', dun:'17896640426863', lancamento:'01/05/2026' },
+
+    // ─── blocos-p0005.jpg (catalog page 10) ───
+    '53054': { img:'blocos-p0005', x:2, y:4,  p18:40.9,  p12rs:39.9, p12:39.9, p7:36.2, cx:6,  estoque:207,  disponivel:1507, nome:'Brincando de Engenheiro N5 - 150 PÇS',             ean:'7896640430542', dun:'17896640430549' },
+    '53065': { img:'blocos-p0005', x:2, y:25, p18:52.3,  p12rs:51.0, p12:51.0, p7:46.4, cx:4,  estoque:100,  disponivel:1100, nome:'Brincando de Engenheiro N6 - 200 PÇS',             ean:'7896640430658', dun:'17896640430655' },
+    '67854': { img:'blocos-p0005', x:2, y:46, p18:78.1,  p12rs:76.1, p12:76.1, p7:69.2, cx:4,  estoque:24,   disponivel:24,   nome:'Brincando de Engenheiro N7 - 300 PÇS',             ean:'7896640410339', dun:'17896640410336' },
+    '67865': { img:'blocos-p0005', x:2, y:67, p18:131.0, p12rs:128.0,p12:128.0,p7:116.0,cx:2,  estoque:8,    disponivel:108,  nome:'Brincando de Engenheiro N8 - 500 PÇS',             ean:'7896640410346', dun:'17896640410343' },
+    '67876': { img:'blocos-p0005', x:2, y:88, p18:262.0, p12rs:255.0,p12:255.0,p7:232.0,cx:1,  estoque:0,    disponivel:22,   nome:'Brincando de Engenheiro N9 - 1000 PÇS',            ean:'7896640410353', dun:'17896640410350' },
+
+    // ─── blocos-p0007.jpg (catalog page 12) ───
+    '12998': { img:'blocos-p0007', x:2, y:4,  p18:115.0, p12rs:131.0,p12:115.0,p7:115.0,cx:4,  estoque:612,  disponivel:612,  nome:'Brincando de Engenheiro Carro - 78 PÇS',           ean:'7896640415877', dun:'17896640415874' },
+
+    // ─── blocos-p0008.jpg (catalog page 13) ───
+    '52773': { img:'blocos-p0008', x:2, y:4,  p18:41.6,  p12rs:40.5, p12:40.5, p7:36.8, cx:4,  estoque:1285, disponivel:1285, nome:'Brincando de Engenheiro Circuito de Corrida - 70 PÇS', ean:'7896640483746', dun:'17896640483743' },
+    '13287': { img:'blocos-p0008', x:2, y:54, p18:68.0,  p12rs:77.7, p12:68.0, p7:68.0, cx:6,  estoque:2339, disponivel:2339, nome:'Brincando de Engenheiro Livro Cenário Magnético - 46 PÇS', ean:'7896640415884', dun:'17896640415881', lancamento:'30/09/2026' },
+
+    // ─── blocos-p0009.jpg (catalog page 14) ───
+    '67887': { img:'blocos-p0009', x:2, y:4,  p18:41.0,  p12rs:40.0, p12:40.0, p7:36.3, cx:6,  estoque:377,  disponivel:377,  nome:'Brincando de Engenheiro Paint - 50 PÇS',           ean:'7896640410360', dun:'17896640410367' },
+    '11298': { img:'blocos-p0009', x:2, y:54, p18:47.6,  p12rs:46.4, p12:46.4, p7:42.2, cx:6,  estoque:872,  disponivel:872,  nome:'Brincando de Engenheiro Nova Iorque - 52 PÇS',      ean:'7896640415297', dun:'17896640415294' },
+
+    // ─── blocos-p0010.jpg (catalog page 15) ───
+    '53321': { img:'blocos-p0010', x:2, y:4,  p18:42.0,  p12rs:48.0, p12:48.0, p7:42.0, cx:6,  estoque:387,  disponivel:387,  nome:'Torre do Engenheiro - 54 PÇS',                     ean:'7896640482053', dun:'17896640482050' },
+    '13487': { img:'blocos-p0010', x:2, y:36, p18:80.0,  p12rs:84.0, p12:84.0, p7:80.0, cx:6,  estoque:841,  disponivel:841,  nome:'Brincando de Engenheiro Halloween - 60 PÇS',        ean:'7896640415907', dun:'17896640415904' },
+    '13476': { img:'blocos-p0010', x:2, y:68, p18:80.0,  p12rs:84.0, p12:84.0, p7:80.0, cx:6,  estoque:694,  disponivel:694,  nome:'Brincando de Engenheiro Natal - 60 PÇS',            ean:'7896640415891', dun:'17896640415898' },
+    '68176': { img:'blocos-p0010', x:52, y:4, p18:19.8,  p12rs:22.6, p12:19.8, p7:19.8, cx:1,  estoque:0,    disponivel:0,    nome:'BL Lançadores - Display 8 UN 68-71 PÇS',            ean:'7896640410971', dun:'17896640410978', lancamento:'30/09/2026' },
+  };
+
+  // ── Render all price badges ──────────────────────────────
+  function renderPriceBadges() {
+    Object.entries(PRICE_CONFIG).forEach(([ref, d]) => {
+      const img = document.querySelector(`img[src*="${d.img}"]`);
+      if (!img) return;
+
+      // Ensure parent is position:relative
+      let wrap = img.parentElement;
+      if (!wrap.classList.contains('page-wrap')) {
+        const newWrap = document.createElement('div');
+        newWrap.className = 'page-wrap';
+        img.parentNode.insertBefore(newWrap, img);
+        newWrap.appendChild(img);
+        wrap = newWrap;
+      }
+
+      const badge = document.createElement('div');
+      badge.className = 'price-badge';
+      badge.style.left = d.x + '%';
+      badge.style.top  = d.y + '%';
+      badge.dataset.ref = ref;
+
+      const launch = d.lancamento
+        ? `<div class="price-launch">🚀 Prev. ${d.lancamento}</div>` : '';
+      const fmtPrice = v => 'R$ ' + v.toFixed(2).replace('.',',');
+
+      badge.innerHTML = `
+        <div class="price-tag">
+          <div class="price-ref">${ref}</div>
+          <div class="price-main">${fmtPrice(d.p18)} <span>ICMS 18%</span></div>
+          ${launch}
+        </div>`;
+
+      badge.addEventListener('click', () => openPriceModal(ref, d));
+      wrap.appendChild(badge);
+    });
+  }
+
+  function openPriceModal(ref, d) {
+    const fmtPrice = v => 'R$ ' + v.toFixed(2).replace('.',',');
+    const stockClass = d.estoque > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
+    const stockLabel = d.estoque > 0 ? d.estoque + ' un.' : 'Sem estoque';
+    const dispClass  = d.disponivel > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
+    const launch = d.lancamento
+      ? `<div class="pm-launch">🚀 Previsão de lançamento: ${d.lancamento}</div>` : '';
+
+    document.getElementById('pmContent').innerHTML = `
+      <div class="pm-ref">REF ${ref}</div>
+      <div class="pm-nome">${d.nome}</div>
+      <div class="pm-prices">
+        <div class="pm-price-box"><div class="pm-price-label">ICMS 18%</div><div class="pm-price-val">${fmtPrice(d.p18)}</div></div>
+        <div class="pm-price-box"><div class="pm-price-label">ICMS 12% RS</div><div class="pm-price-val">${fmtPrice(d.p12rs)}</div></div>
+        <div class="pm-price-box"><div class="pm-price-label">ICMS 12% SC/PR/SP/RJ/MG</div><div class="pm-price-val">${fmtPrice(d.p12)}</div></div>
+        <div class="pm-price-box"><div class="pm-price-label">ICMS 7%</div><div class="pm-price-val">${fmtPrice(d.p7)}</div></div>
+      </div>
+      <div class="pm-info">
+        <div class="pm-info-item">CX: <span>${d.cx} un.</span></div>
+        <div class="pm-info-item">Estoque: <span class="${stockClass}">${stockLabel}</span></div>
+        <div class="pm-info-item">Disponível mar: <span class="${dispClass}">${d.disponivel} un.</span></div>
+      </div>
+      <div class="pm-ean">EAN: ${d.ean}<br>DUN: ${d.dun}</div>
+      ${launch}
+    `;
+    document.getElementById('priceModal').classList.add('open');
+  }
+
+  document.addEventListener('DOMContentLoaded', renderPriceBadges);
+
 </script>
+
+
+<!-- Price modal -->
+<div class="price-modal-overlay" id="priceModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="price-modal">
+    <button class="pm-close" onclick="document.getElementById('priceModal').classList.remove('open')">✕</button>
+    <div id="pmContent"></div>
+  </div>
+</div>
 
 </body>
 </html>
