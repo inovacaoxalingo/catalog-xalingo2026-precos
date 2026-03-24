@@ -495,31 +495,23 @@
 
   .price-tag {
     background: rgba(27,58,92,0.92);
-    border: 1.5px solid rgba(255,255,255,0.25);
-    border-radius: 10px;
-    padding: 5px 9px 4px;
-    min-width: 80px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.35);
-    backdrop-filter: blur(4px);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border-radius: 8px;
+    padding: 4px 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: transform 0.15s ease;
+    white-space: nowrap;
   }
-  .price-tag:hover { transform: scale(1.06); box-shadow: 0 6px 20px rgba(0,0,0,0.45); }
+  .price-tag:hover { transform: scale(1.05); }
 
   .price-ref {
-    font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.5);
-    letter-spacing: 0.4px; line-height: 1; margin-bottom: 2px;
+    font-size: 0.55rem; font-weight: 700; color: rgba(255,255,255,0.55);
+    letter-spacing: 0.3px; line-height: 1; margin-bottom: 1px;
   }
   .price-main {
-    font-size: 1rem; font-weight: 800; color: #fff;
-    line-height: 1; letter-spacing: -0.3px;
+    font-size: 0.9rem; font-weight: 800; color: #fff;
+    line-height: 1.1; letter-spacing: -0.2px;
   }
-  .price-main span { font-size: 0.62rem; font-weight: 600; opacity: 0.7; }
-  .price-launch {
-    margin-top: 3px;
-    font-size: 0.56rem; font-weight: 700;
-    background: #f89e1c; color: #3d1e00;
-    border-radius: 4px; padding: 1px 5px; display: inline-block;
-  }
+  .price-launch { display: none; }
 
   /* Modal */
   .price-modal-overlay {
