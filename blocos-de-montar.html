@@ -1654,9 +1654,7 @@
     '68476': { img:'blocos-p0068', x:4,  y:60, p18:100.0, p12rs:114.0,p12:100.0, p7:100.0, cx:4,  estoque:1214, disponivel:1214, nome:'Soft Blocos Big - 56 PÇS',                ean:'7896640411305', dun:'17896640411302' },
   };
 
-  // ── Render all price badges
-
-   ──────────────────────────────
+  // ── Render all price badges ──────────────────────────────
   function renderPriceBadges() {
     Object.entries(PRICE_CONFIG).forEach(([ref, d]) => {
       const img = document.querySelector(`img[src*="${d.img}"]`);
