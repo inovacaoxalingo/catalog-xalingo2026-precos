@@ -491,11 +491,33 @@
 
   /* ===== PRICE OVERLAYS ===== */
   .page-wrap { position:relative; display:block; line-height:0; }
-  .price-badge { position:absolute; z-index:20; cursor:pointer; font-family:'Quicksand',sans-serif; transform:scale(0.67); transform-origin:top left; }
-  .price-tag { background:rgba(27,58,92,0.92); border-radius:8px; padding:4px 8px; box-shadow:0 2px 8px rgba(0,0,0,0.3); transition:transform 0.15s ease; white-space:nowrap; }
-  .price-tag:hover { transform:scale(1.05); }
-  .price-ref { font-size:0.55rem; font-weight:700; color:rgba(255,255,255,0.55); letter-spacing:0.3px; line-height:1; margin-bottom:1px; }
-  .price-main { font-size:0.9rem; font-weight:800; color:#fff; line-height:1.1; }
+    .price-badge {
+    position: absolute;
+    z-index: 20;
+    cursor: pointer;
+    font-family: 'Quicksand', sans-serif;
+    transform: scale(0.67); /* compensate for zoom:1.5 on .main */
+    transform-origin: top left;
+  }
+
+  .price-tag {
+    background: rgba(160,30,30,0.86);
+    border-radius: 8px;
+    padding: 4px 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: transform 0.15s ease;
+    white-space: nowrap;
+  }
+  .price-tag:hover { transform: scale(1.05); }
+
+  .price-ref {
+    font-size: 0.55rem; font-weight: 700; color: rgba(255,255,255,0.55);
+    letter-spacing: 0.3px; line-height: 1; margin-bottom: 1px;
+  }
+  .price-main {
+    font-size: 0.9rem; font-weight: 800; color: #fff;
+    line-height: 1.1; letter-spacing: -0.2px;
+  }
   .price-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; }
   .price-modal-overlay.open { display:flex; }
   .price-modal { background:#fff; border-radius:18px; padding:22px 24px 20px; width:340px; max-width:92vw; box-shadow:0 20px 60px rgba(0,0,0,0.3); font-family:'Quicksand',sans-serif; position:relative; }
@@ -813,10 +835,10 @@
     [68210,'BL CRIATIVOS - 150 PÇS',19,'B'],
     [15332,'BL CRIATIVOS - 300 PÇS',19,'B'],
     [20165,'BRINCANDO DE ENGENHEIRO 70 ANOS',19,'B'],
-    [28398,'BL SUPER MÁQUINA NA PISTA - CARROS ESPORTIVOS - DISPLAY 8 UN 143 - 155 PÇS',19,'B'],
-    [28409,'BL SUPER MÁQUINA NA PISTA - CARROS DE CORRIDA - DISPLAY 8 UN 184 - 186 PÇS',19,'B'],
+    [28398,'BL SUPER MÁQUINA NA PISTA - CARROS ESPORTIVOS - DISPLAY 8 UN 143 - 155 PÇS',27,'B'],
+    [28409,'BL SUPER MÁQUINA NA PISTA - CARROS DE CORRIDA - DISPLAY 8 UN 184 - 186 PÇS',27,'B'],
     [68221,'BL CRIATIVOS - 400 PÇS',20,'B'],
-    [15243,'BL SUPER MÁQUINA - LANÇADOR DE CARROS DISPLAY 8 UN - 70 PÇS',20,'B'],
+    [15243,'BL SUPER MÁQUINA - LANÇADOR DE CARROS DISPLAY 8 UN - 70 PÇS',28,'B'],
     [17943,'BL CRIATIVOS - 800 PÇS',20,'B'],
     [16365,'BL CRIATIVOS - MAPA DO MUNDO - 684 PÇS',21,'B'],
     [15965,'BL CRIATIVOS - HALLOWEEN - 225 PÇS',22,'B'],
@@ -1244,7 +1266,7 @@
       const ref = badge.dataset.ref;
       const d = PRICE_CONFIG[ref];
       if (!d) return;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Consulte';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
       badge.querySelector('.price-tag').innerHTML = `<div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(d[key])}</div>`;
     });
   }
@@ -1284,7 +1306,7 @@
       badge.style.left = d.x + '%';
       badge.style.top  = d.y + '%';
       badge.dataset.ref = ref;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Consulte';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
       badge.innerHTML = `<div class="price-tag"><div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(d[currentIcms])}</div></div>`;
       badge.addEventListener('click', () => openPriceModal(ref, d));
       wrap.appendChild(badge);
@@ -1292,7 +1314,7 @@
   }
 
   function openPriceModal(ref, d) {
-    const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Consulte';
+    const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
     const stockClass = d.estoque > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
     const stockLabel = d.estoque > 0 ? d.estoque + ' un.' : 'Sem estoque';
     const dispClass  = d.disponivel > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
