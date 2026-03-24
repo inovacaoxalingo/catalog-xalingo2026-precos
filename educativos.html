@@ -927,7 +927,6 @@
   })();
 
   setLang(currentLang);
-  applyIcmsOnLoad();
 
 
   let currentIcms = localStorage.getItem('xalingo-icms') || 'p18';
@@ -1115,7 +1114,7 @@
     document.getElementById('priceModal').classList.add('open');
   }
 
-  document.addEventListener('DOMContentLoaded', renderPriceBadges);
+  document.addEventListener('DOMContentLoaded', () => { renderPriceBadges(); applyIcmsOnLoad(); });
 </script>
 
 <!-- Price modal -->
