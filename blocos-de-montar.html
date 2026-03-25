@@ -2098,9 +2098,76 @@
     document.getElementById('osTotals').innerHTML = totHtml;
   }
 
-  function printOrder() {
+  // ── Helpers para buscar imagem via WP API (roda no contexto do catálogo) ──
+  const WP_API = 'https://produtosxalingo.oneweb.com.br/wp-json/wp/v2';
+
+  function _extractImg(html) {
+    if (!html) return null;
+    for (const attr of ['src','data-src','data-lazy-src','data-original']) {
+      const m = html.match(new RegExp('<img[^>]+' + attr + '=["\']([^"\']*wp-content[^"\']+)["\']','i'));
+      if (m && m[1].startsWith('http')) return m[1];
+    }
+    const m2 = html.match(/https?:\/\/[^"'\s<>]+wp-content\/uploads\/[^"'\s<>]+\.(?:jpg|jpeg|png|webp)/i);
+    return m2 ? m2[0] : null;
+  }
+
+  function _tryLoad(src) {
+    return new Promise(res => {
+      const img = new Image();
+      img.onload  = () => res(src);
+      img.onerror = () => res(null);
+      img.src = src;
+    });
+  }
+
+  async function resolveImgUrl(slug) {
+    try {
+      const res  = await fetch(WP_API + '/posts?slug=' + slug + '&_embed=1&_fields=id,content,_links,_embedded', { signal: AbortSignal.timeout(8000) });
+      const data = await res.json();
+      const post = data[0];
+      if (!post) return '';
+
+      // 1) featured media
+      const feat = post?._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+      if (feat && await _tryLoad(feat)) return feat;
+
+      // 2) imagem no conteúdo
+      const fromContent = _extractImg(post?.content?.rendered || '');
+      if (fromContent && await _tryLoad(fromContent)) return fromContent;
+
+      // 3) mídias anexadas (até 4, testa cada uma)
+      const mRes   = await fetch(WP_API + '/media?parent=' + post.id + '&per_page=4&_fields=source_url,media_details', { signal: AbortSignal.timeout(8000) });
+      const medias = await mRes.json();
+      for (const m of medias) {
+        const src = m?.media_details?.sizes?.medium?.source_url
+                 || m?.media_details?.sizes?.thumbnail?.source_url
+                 || m?.source_url;
+        if (src && await _tryLoad(src)) return src;
+      }
+    } catch(e) { /* silencioso */ }
+    return '';
+  }
+
+  async function printOrder() {
     const items = Object.values(osCart);
     if (!items.length) { alert('Adicione produtos ao pedido primeiro.'); return; }
+
+    // Botão de feedback enquanto busca as imagens
+    const btn = document.querySelector('.os-btn-print');
+    if (btn) { btn.textContent = '⏳ Buscando imagens…'; btn.disabled = true; }
+
+    // Resolve URLs de imagem no contexto do catálogo (sem about:blank)
+    const imgCache = {};
+    await Promise.all(items.map(async item => {
+      const ref = item.data.ref || '';
+      const pageUrl = PRODUCT_URLS[ref] || '';
+      if (!pageUrl) return;
+      const slug = pageUrl.replace(/\/$/, '').split('/').pop();
+      imgCache[ref] = await resolveImgUrl(slug);
+    }));
+
+    if (btn) { btn.textContent = '📄 Gerar Pedido'; btn.disabled = false; }
+
     const linha = items.filter(i => !i.data.is_lanc);
     const lanc  = items.filter(i =>  i.data.is_lanc);
     const now = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
@@ -2128,10 +2195,9 @@
         ? `<span style="background:#fff0cc;color:#8a5000;padding:1px 5px;border-radius:3px;font-weight:700">${d.pedido_min}</span>`
         : `${d.pedido_min}`;
       const ref = d.ref || '';
-      const pageUrl = PRODUCT_URLS[ref] || '';
-      const slug = pageUrl ? pageUrl.replace(/\/$/, '').split('/').pop() : '';
-      const thumbCell = slug
-        ? `<img data-slug="${slug}" src="" alt="" style="width:54px;height:54px;object-fit:contain;border-radius:5px;background:#f5f5f5;display:block;margin:0 auto">`
+      const imgSrc = imgCache[ref] || '';
+      const thumbCell = imgSrc
+        ? `<img src="${imgSrc}" alt="" style="width:54px;height:54px;object-fit:contain;border-radius:5px;background:#f5f5f5;display:block;margin:0 auto">`
         : `<div style="width:54px;height:54px;background:#eee;border-radius:5px;margin:0 auto"></div>`;
       return `<tr>
         <td style="${tdS};text-align:center;padding:3px 6px">${thumbCell}</td>
@@ -2180,108 +2246,33 @@
         table { page-break-inside: auto; }
         tr { page-break-inside: avoid; page-break-after: auto; }
         thead { display: table-header-group; }
-        @media print {
-          body { padding: 12px 18px; }
-          @page { margin: 10mm 12mm; }
-        }
+        @media print { body { padding: 12px 18px; } @page { margin: 10mm 12mm; } }
       </style>
     </head><body>
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #1B3A5C">
         <div>
           <h1 style="color:#1B3A5C;font-size:1.3rem;font-weight:700;margin:0">Pedido de Venda — Xalingo</h1>
           <p style="color:#999;font-size:0.78rem;margin:4px 0 0">${now} &nbsp;·&nbsp; ${ICMS_NAMES[osIcms]}</p>
-          <p id="imgNote" style="color:#c07000;font-size:0.75rem;margin:6px 0 0;font-weight:600">⏳ Carregando miniaturas…</p>
         </div>
         <div style="display:flex;gap:8px">
-          <button onclick="window.print()" style="background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,Arial,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">
-            🖨 Imprimir / PDF
-          </button>
-          <button onclick="window.opener.exportExcel()" style="background:#1d6f42;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,Arial,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">
-            📊 Salvar Excel
-          </button>
+          <button onclick="window.print()" style="background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,Arial,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">🖨 Imprimir / PDF</button>
+          <button onclick="window.opener.exportExcel()" style="background:#1d6f42;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,Arial,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">📊 Salvar Excel</button>
         </div>
       </div>
       ${body}
       <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>
       <script>
-        // ── Miniaturas via WP REST API ──────────────────────────────────────
-        const WP_API = 'https://produtosxalingo.oneweb.com.br/wp-json/wp/v2';
-
-        function extractImg(html) {
-          if (!html) return null;
-          for (const attr of ['src','data-src','data-lazy-src','data-original']) {
-            const m = html.match(new RegExp('<img[^>]+' + attr + '=["\']([^"\']*wp-content[^"\']+)["\']','i'));
-            if (m && m[1].startsWith('http')) return m[1];
-          }
-          const m2 = html.match(/https?:\/\/[^"'\s<>]+wp-content\/uploads\/[^"'\s<>]+\.(?:jpg|jpeg|png|webp)/i);
-          return m2 ? m2[0] : null;
-        }
-
-        function tryLoad(imgEl, src) {
-          return new Promise(res => {
-            imgEl.onload  = () => res(true);
-            imgEl.onerror = () => res(false);
-            imgEl.src = src;
-          });
-        }
-
-        async function loadImg(imgEl, slug) {
-          try {
-            const res  = await fetch(WP_API + '/posts?slug=' + slug + '&_embed=1&_fields=id,content,_links,_embedded', { signal: AbortSignal.timeout(8000) });
-            const data = await res.json();
-            const post = data[0];
-            if (!post) return;
-
-            // 1) featured media
-            const feat = post?._embedded?.['wp:featuredmedia']?.[0]?.source_url;
-            if (feat && await tryLoad(imgEl, feat)) return;
-
-            // 2) imagem no conteúdo
-            const fromContent = extractImg(post?.content?.rendered || '');
-            if (fromContent && await tryLoad(imgEl, fromContent)) return;
-
-            // 3) mídias anexadas ao post (até 10, testa cada uma)
-            const mRes   = await fetch(WP_API + '/media?parent=' + post.id + '&per_page=10&_fields=source_url,media_details', { signal: AbortSignal.timeout(8000) });
-            const medias = await mRes.json();
-            for (const m of medias) {
-              const src = m?.media_details?.sizes?.medium?.source_url
-                       || m?.media_details?.sizes?.thumbnail?.source_url
-                       || m?.source_url;
-              if (src && await tryLoad(imgEl, src)) return;
-            }
-          } catch(e) { /* silencioso */ }
-        }
-
-        (async () => {
-          const imgs = Array.from(document.querySelectorAll('img[data-slug]'));
-          if (!imgs.length) { document.getElementById('imgNote').textContent = ''; return; }
-          await Promise.all(imgs.map(img => loadImg(img, img.dataset.slug)));
-          const note = document.getElementById('imgNote');
-          if (note) note.textContent = '✅ Imagens carregadas — pode imprimir agora.';
-        })();
+        document.getElementById('xlsxBtn') && document.getElementById('xlsxBtn').addEventListener('click', function() {
           const rows = [['REF','Produto','Origem','CX','Ped. Mínimo','Preço unit.','Qtd','Subtotal','Entrega','Tipo']];
           document.querySelectorAll('tbody tr').forEach(tr => {
             const cells = tr.querySelectorAll('td');
-            if (cells.length < 8) return;
-            rows.push([
-              cells[0].textContent.trim(),
-              cells[1].textContent.trim(),
-              cells[2].textContent.trim(),
-              cells[3].textContent.trim(),
-              cells[4].textContent.trim(),
-              cells[5].textContent.trim(),
-              cells[6].textContent.trim(),
-              cells[7].textContent.trim(),
-              cells[8] ? cells[8].textContent.trim() : '',
-              cells[9] ? cells[9].textContent.trim() : '',
-            ]);
+            if (cells.length < 9) return;
+            rows.push([cells[1].textContent.trim(),cells[2].textContent.trim(),cells[3].textContent.trim(),cells[4].textContent.trim(),cells[5].textContent.trim(),cells[6].textContent.trim(),cells[7].textContent.trim(),cells[8].textContent.trim(),cells[9]?cells[9].textContent.trim():'','']);
           });
           const wb = XLSX.utils.book_new();
           const ws = XLSX.utils.aoa_to_sheet(rows);
-          ws['!cols'] = [{wch:8},{wch:45},{wch:8},{wch:6},{wch:8},{wch:12},{wch:6},{wch:12},{wch:14},{wch:12}];
           XLSX.utils.book_append_sheet(wb, ws, 'Pedido');
-          const date = new Date().toLocaleDateString('pt-BR').replace(/[/]/g,'-');
-          XLSX.writeFile(wb, 'Pedido_Xalingo_' + date + '.xlsx');
+          XLSX.writeFile(wb, 'Pedido_Xalingo.xlsx');
         });
       <\/script>
     </body></html>`;
