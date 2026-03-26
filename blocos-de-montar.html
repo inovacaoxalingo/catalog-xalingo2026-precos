@@ -1805,7 +1805,134 @@
 
   document.addEventListener('DOMContentLoaded', renderPriceBadges);
 
-
+  // ── URLs das páginas de produto (para busca de imagens) ────────────────────
+  const PRODUCT_URLS = {
+    '20509':'https://produtosxalingo.oneweb.com.br/2026/03/20/2050-9-brincando-de-engenheiro-20-pcs/',
+    '52754':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-i/',
+    '52765':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-ii/',
+    '52776':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-iii/',
+    '52798':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-120-pecas/',
+    '53054':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-150-pecas/',
+    '53065':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-200-pecas/',
+    '67854':'https://produtosxalingo.oneweb.com.br/2024/01/23/brincando-de-engenheiro-no-7/',
+    '67865':'https://produtosxalingo.oneweb.com.br/2024/01/23/brincando-de-engenheiro-no8/',
+    '67876':'https://produtosxalingo.oneweb.com.br/2024/01/23/brincando-de-engenheiro-no9/',
+    '14565':'https://produtosxalingo.oneweb.com.br/2025/02/14/brincando-de-engenheiro-trem/',
+    '12998':'https://produtosxalingo.oneweb.com.br/2025/02/01/brincando-de-engenheiro-carro/',
+    '13287':'https://produtosxalingo.oneweb.com.br/2025/01/27/brincando-de-engenheiro-cenario-magnetico/',
+    '52773':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-circuito-de-corrida/',
+    '67887':'https://produtosxalingo.oneweb.com.br/2024/01/23/brincando-de-engenheiro-paint/',
+    '11298':'https://produtosxalingo.oneweb.com.br/2025/01/27/brincando-de-engenheiro-nova-iorque/',
+    '53321':'https://produtosxalingo.oneweb.com.br/2023/01/20/torre-do-engenheiro/',
+    '13487':'https://produtosxalingo.oneweb.com.br/2025/01/27/brincando-de-engenheiro-halloween/',
+    '13476':'https://produtosxalingo.oneweb.com.br/2025/02/13/brincando-de-engenheiro-natal/',
+    '17921':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-criativos-montanha-russa/',
+    '17910':'https://produtosxalingo.oneweb.com.br/2026/02/18/bl-criativos-acessorios-pirata/',
+    '68243':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-criativos-classicos/',
+    '15232':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-criativos-figuras-e-acessorios-display-15-unidades/',
+    '68232':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-criativos-mini-animais-25-pecas/',
+    '68265':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-criativos-animais-display/',
+    '68210':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-criativos-150-pecas/',
+    '15332':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-criativos-300-pecas/',
+    '68221':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-criativos-400-pecas/',
+    '17943':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-criativos-800-pcs/',
+    '16365':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-criativos-mapa-do-mundo/',
+    '15965':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-criativos-halloween/',
+    '15976':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-criativos-natal/',
+    '68176':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-lancadores-display-4-unidades/',
+    '16910':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-racing-car-carro-de-corrida-display-4-un/',
+    '16909':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-racing-car-mini-carro-de-corrida-display-10-un/',
+    '16965':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-racing-car-carro-esportivo-2-em-1/',
+    '17876':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-racing-car-carro-super-velocidade/',
+    '28409':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-super-maquina-na-pista-colecionaveis-1-unidade/',
+    '28398':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-super-maquina-na-cidade-colecionaveis-1-unidade/',
+    '15243':'https://produtosxalingo.oneweb.com.br/2025/02/17/super-maquina-lancador-de-carros-display-08-unidades/',
+    '17854':'https://produtosxalingo.oneweb.com.br/2026/02/19/12012/',
+    '16932':'https://produtosxalingo.oneweb.com.br/2026/02/19/12015/',
+    '16943':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-super-maquina-na-pista-truck-293-pcs/',
+    '28510':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-super-maquina-off-road-azul-305-pecas/',
+    '28521':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-super-maquina-na-pista-race-car-399-pecas/',
+    '17887':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-super-maquina-na-pista-sport-car-415-pcs/',
+    '16954':'https://produtosxalingo.oneweb.com.br/2026/02/19/12022/',
+    '28543':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-mundo-encantado-flores-display-62-198-pecas/',
+    '15310':'https://produtosxalingo.oneweb.com.br/2025/02/14/mundo-encantado-display-08-unidades/',
+    '16221':'https://produtosxalingo.oneweb.com.br/2025/02/14/mundo-encantado-montanha-russa/',
+    '28554':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-fazenda-galinheiro-71-pecas/',
+    '27498':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-fazenda-trator-hortifruti-80-pecas/',
+    '27487':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-fazenda-reboque-de-madeira-110-pecas/',
+    '68154':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-fazenda-pomar/',
+    '68143':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-fazenda-trator/',
+    '68165':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-fazenda-poco/',
+    '4087':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-fazenda-transporte-de-animais-215-pecas/',
+    '27998':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-fazenda-ultra-colheitadeira-540-pecas/',
+    '14976':'https://produtosxalingo.oneweb.com.br/2025/02/14/colecao-veiculos-de-resgate-bombeiros/',
+    '14998':'https://produtosxalingo.oneweb.com.br/2025/02/01/bloco-bombeiro-display-12-39-64-pecas/',
+    '15476':'https://produtosxalingo.oneweb.com.br/2025/02/14/bombeiros-motocicleta/',
+    '28165':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-bombeiros-caminhao-resgate-rapido-2-em-1-108-pecas/',
+    '15309':'https://produtosxalingo.oneweb.com.br/2025/02/14/bombeiros-helicoptero/',
+    '15576':'https://produtosxalingo.oneweb.com.br/2025/02/14/bombeiros-caminhao-de-bombeiro/',
+    '16209':'https://produtosxalingo.oneweb.com.br/2025/02/14/bombeiros-corpo-de-bombeiro/',
+    '16198':'https://produtosxalingo.oneweb.com.br/2025/02/14/bombeiros-caminhao-de-bombeiro-2/',
+    '28176':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-bombeiros-caminhao-de-apoio-439-pecas/',
+    '14987':'https://produtosxalingo.oneweb.com.br/2025/02/01/bloco-defensores-da-ordem/',
+    '15221':'https://produtosxalingo.oneweb.com.br/2025/02/03/bloco-policia-display-12-41-60-pecas/',
+    '16187':'https://produtosxalingo.oneweb.com.br/2025/02/04/bloco-defensores-da-ordem-helicoptero-48-pecas/',
+    '15465':'https://produtosxalingo.oneweb.com.br/2025/02/04/bloco-defensores-da-ordem-carro-64-pecas/',
+    '15321':'https://produtosxalingo.oneweb.com.br/2025/02/03/bloco-defensores-da-ordem-barco-90-pecas/',
+    '15454':'https://produtosxalingo.oneweb.com.br/2025/02/14/defensores-da-ordem-caminhao-de-transporte/',
+    '15265':'https://produtosxalingo.oneweb.com.br/2025/02/03/bloco-defensores-da-ordem-quartel-de-policia-113-pecas/',
+    '68198':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-operacoes-especiais-display-16-unidades/',
+    '28187':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-operacoes-especiais-carro-3-em-1-141-pecas/',
+    '68209':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-operacoes-especiais-helicoptero/',
+    '28354':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-operacoes-especiais-carro-mega-blindado-236-pecas/',
+    '28365':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-operacoes-especiais-onibus-279-pecas/',
+    '17843':'https://produtosxalingo.oneweb.com.br/2026/02/19/12034/',
+    '17865':'https://produtosxalingo.oneweb.com.br/2026/02/19/12037/',
+    '68254':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-alianca-justica-e-paz-display-8-unidades/',
+    '28110':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-alianca-justica-e-paz-tanque-de-guerra-120-pecas/',
+    '16976':'https://produtosxalingo.oneweb.com.br/2026/02/19/12040/',
+    '16987':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-alianca-justica-e-paz-blindado-de-transporte-258-pcs/',
+    '28098':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-alianca-justica-e-paz-super-tanque-317-pecas/',
+    '16998':'https://produtosxalingo.oneweb.com.br/2026/02/20/bl-alianca-justica-e-paz-helicoptero-de-combate-310-pcs/',
+    '17898':'https://produtosxalingo.oneweb.com.br/2026/02/20/bl-alianca-justica-e-paz-jato-268-pcs/',
+    '2654':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-cidade-em-obras-mini-patrola-60-pecas/',
+    '2676':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-cidade-em-obras-guincho-67-pecas/',
+    '15443':'https://produtosxalingo.oneweb.com.br/2025/02/14/cidade-em-obras-pa-carregadeira/',
+    '15432':'https://produtosxalingo.oneweb.com.br/2025/02/14/cidade-em-obras-rolo-compactador/',
+    '15565':'https://produtosxalingo.oneweb.com.br/2025/02/14/cidade-em-obras-caminhao/',
+    '15487':'https://produtosxalingo.oneweb.com.br/2025/02/17/cidade-em-obras-escavadeira/',
+    '15254':'https://produtosxalingo.oneweb.com.br/2025/02/17/barco-pirata/',
+    '15509':'https://produtosxalingo.oneweb.com.br/2025/02/17/piratas-navio/',
+    '28532':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-piratas-barco-4-em-1-297-pecas/',
+    '16376':'https://produtosxalingo.oneweb.com.br/2025/02/17/piratas-montanha-russa/',
+    '28509':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-nave-espacial-106-pecas/',
+    '28310':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-foguete-espacial-292-pecas/',
+    '28321':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-onibus-espacial-340-pecas/',
+    '15987':'https://produtosxalingo.oneweb.com.br/2025/02/17/quadrante-x-montanha-russa/',
+    '68421':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-mesa-interativa/',
+    '68365':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-box-2-em-1/',
+    '68276':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-trenzinho-em-numero/',
+    '68343':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-display-carros/',
+    '16232':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-grandes-natal/',
+    '68410':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-mundo-encantado/',
+    '68332':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-cidade-em-obras/',
+    '68309':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-bombeiros-2/',
+    '68298':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-bombeiros/',
+    '68321':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-policia-2/',
+    '68310':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-policia/',
+    '68398':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-circuito/',
+    '68354':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-circuito-play/',
+    '68376':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-floresta/',
+    '68387':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-dinos-park/',
+    '68287':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-mundo-dinos-2/',
+    '68409':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-mundo-dinos/',
+    '63109':'https://produtosxalingo.oneweb.com.br/2024/10/08/super-soft-blocos-22-pecas/',
+    '63110':'https://produtosxalingo.oneweb.com.br/2024/10/08/super-soft-blocos-30-pecas/',
+    '63121':'https://produtosxalingo.oneweb.com.br/2024/10/08/super-soft-blocos-58-pecas/',
+    '68454':'https://produtosxalingo.oneweb.com.br/2024/01/17/soft-blocos-3/',
+    '68465':'https://produtosxalingo.oneweb.com.br/2024/01/17/soft-blocos-big/',
+    '68476':'https://produtosxalingo.oneweb.com.br/2024/01/17/soft-blocos-big-2/',
+  };
 
   // ── WP API helpers — busca imagem pelo slug do post ────────────────────────
   const WP_API = 'https://produtosxalingo.oneweb.com.br/wp-json/wp/v2';
@@ -1889,18 +2016,19 @@
     } else {
       const d = PRICE_CONFIG[ref];
       if (!d) return;
-      const pm = d.pedido_min || 1; osCart[ref] = { data: d, qty: pm };
+      const pm = d.pedido_min || 1;
+      osCart[ref] = { data: d, qty: pm };
       document.querySelectorAll(`.price-badge[data-ref="${ref}"]`).forEach(b => b.classList.add('selected'));
-      // Pré-busca a imagem em background se ainda não estiver em cache
+      // Pré-busca imagem em background — nunca bloqueia o render
       if (!(ref in imgCache)) {
-        imgCache[ref] = null; // marca como "buscando"
-        const pageUrl = PRODUCT_URLS[ref] || '';
+        imgCache[ref] = null;
+        const pageUrl = (typeof PRODUCT_URLS !== 'undefined' && PRODUCT_URLS[ref]) || '';
         if (pageUrl) {
           const slug = pageUrl.replace(/\/$/, '').split('/').pop();
           resolveImgUrl(slug).then(url => {
             imgCache[ref] = url || '';
-            renderOrder(); // atualiza o item na sidebar com a imagem
-          });
+            renderOrder();
+          }).catch(() => { imgCache[ref] = ''; });
         } else {
           imgCache[ref] = '';
         }
