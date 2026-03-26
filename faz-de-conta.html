@@ -1545,15 +1545,19 @@
       const data = await res.json();
       const post = data[0];
       if (!post) return '';
-      const feat = post?._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+      // Prefer thumbnail size (150px) to keep PDF weight low
+      const featMedia = post?._embedded?.['wp:featuredmedia']?.[0];
+      const feat = featMedia?.media_details?.sizes?.thumbnail?.source_url
+                || featMedia?.media_details?.sizes?.medium?.source_url
+                || featMedia?.source_url;
       if (feat && await _tryLoad(feat)) return feat;
       const fromContent = _extractImg(post?.content?.rendered || '');
       if (fromContent && await _tryLoad(fromContent)) return fromContent;
       const mRes   = await fetch(WP_API + '/media?parent=' + post.id + '&per_page=4&_fields=source_url,media_details', { signal: AbortSignal.timeout(8000) });
       const medias = await mRes.json();
       for (const m of medias) {
-        const src = m?.media_details?.sizes?.medium?.source_url
-                 || m?.media_details?.sizes?.thumbnail?.source_url
+        const src = m?.media_details?.sizes?.thumbnail?.source_url
+                 || m?.media_details?.sizes?.medium?.source_url
                  || m?.source_url;
         if (src && await _tryLoad(src)) return src;
       }
@@ -1897,7 +1901,31 @@
       ${body}
       <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>
       <script>
-        document.getElementById('xlsxBtn').addEventListener('click', function() {
+        async function compressAndPrint() {
+          const imgs = Array.from(document.querySelectorAll('td img[src]'));
+          await Promise.all(imgs.map(img => new Promise(resolve => {
+            if (!img.src || img.src.startsWith('data:')) { resolve(); return; }
+            const tmp = new Image();
+            tmp.crossOrigin = 'anonymous';
+            tmp.onload = () => {
+              try {
+                const c = document.createElement('canvas');
+                c.width = 80; c.height = 80;
+                const ctx = c.getContext('2d');
+                ctx.fillStyle = '#f5f5f5'; ctx.fillRect(0,0,80,80);
+                const s = Math.min(80/tmp.naturalWidth, 80/tmp.naturalHeight);
+                const w = tmp.naturalWidth*s, h = tmp.naturalHeight*s;
+                ctx.drawImage(tmp, (80-w)/2, (80-h)/2, w, h);
+                img.src = c.toDataURL('image/jpeg', 0.35);
+              } catch(e) {}
+              resolve();
+            };
+            tmp.onerror = () => resolve();
+            tmp.src = img.src;
+          })));
+          window.print();
+        }
+        document.getElementById('xlsxBtn') && document.getElementById('xlsxBtn').addEventListener('click', function() {
           const rows = [['REF','Produto','Origem','CX','Ped. Mínimo','Preço unit.','Qtd','Subtotal','Entrega','Tipo']];
           document.querySelectorAll('tbody tr').forEach(tr => {
             const cells = tr.querySelectorAll('td');
@@ -2160,7 +2188,7 @@
     <button class="pm-close" onclick="document.getElementById('printModal').classList.remove('open')">✕</button>
     <div id="printContent"></div>
     <div style="margin-top:16px;display:flex;gap:8px">
-      <button onclick="window.print()" style="background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">🖨 Imprimir / PDF</button>
+      <button onclick="compressAndPrint()" style="background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">🖨 Imprimir / PDF</button>
       <button onclick="document.getElementById('printModal').classList.remove('open')" style="background:transparent;border:1px solid #ccc;border-radius:8px;padding:9px 20px;font-family:Quicksand,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">Fechar</button>
     </div>
   </div>
