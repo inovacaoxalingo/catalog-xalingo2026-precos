@@ -379,6 +379,21 @@
   .os-btn-print { flex: 2; background: #1B3A5C; color: #fff; border: none; border-radius: 8px; padding: 8px; font-family: 'Quicksand', sans-serif; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
   .os-btn-print:hover { opacity: 0.9; }
 
+
+  .price-badge.selected .price-tag {
+    background: rgba(27,100,27,0.88) !important;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.6), 0 2px 8px rgba(0,0,0,0.3) !important;
+  }
+  .price-badge .badge-info-btn {
+    position: absolute; top: -6px; right: -6px;
+    width: 16px; height: 16px; background: rgba(255,255,255,0.9);
+    border: none; border-radius: 50%; font-size: 0.6rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #1B3A5C; font-weight: 700; opacity: 0; transition: opacity 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .price-badge:hover .badge-info-btn { opacity: 1; }
+
 </style>
 </head>
 <body>
@@ -1225,6 +1240,7 @@
       badge.style.left = d.x + '%';
       badge.style.top  = d.y + '%';
       badge.dataset.ref = ref;
+      d.ref = ref;
       const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
       badge.innerHTML = `<div class="price-tag"><div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(d[currentIcms])}</div></div><button class="badge-info-btn" title="Ver detalhes">ⓘ</button>`;
       badge.querySelector('.price-tag').addEventListener('click', (e) => { e.stopPropagation(); toggleProduct(ref); });
@@ -1258,7 +1274,19 @@
     document.getElementById('priceModal').classList.add('open');
   }
 
-  document.addEventListener('DOMContentLoaded', () => { renderPriceBadges(); applyIcmsOnLoad(); });
+  document.addEventListener('DOMContentLoaded', () => {
+    renderPriceBadges();
+    applyIcmsOnLoad();
+    // Restore cart from localStorage
+    loadCart();
+    if (Object.keys(osCart).length) {
+      updateToggleBadge();
+      renderOrder();
+      Object.keys(osCart).forEach(ref => {
+        document.querySelectorAll(`.price-badge[data-ref="${ref}"]`).forEach(b => b.classList.add('selected'));
+      });
+    }
+  });
 
   // ── PRODUCT_URLS (preencher quando links disponíveis) ─────────────────────
   const PRODUCT_URLS = {
@@ -1382,6 +1410,7 @@
   // ── ORDER SIDEBAR ──────────────────────────────────────────────────────────
   let osIcms = localStorage.getItem('xalingo-icms') || 'p18';
   const osCart = {};     // ref -> {data, qty}
+  const imgCache = {};   // ref -> imageUrl (pre-fetched em background)
   // ── Cart persisted across pages via localStorage ──────────────────────────
   const CART_KEY = 'xalingo-cart';
   function saveCart() {
@@ -1400,7 +1429,6 @@
       });
     } catch(e){}
   }
-  const imgCache = {};   // ref -> imageUrl (pre-fetched em background)
 
   const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%'};
 
@@ -1455,6 +1483,7 @@
     }
     updateToggleBadge();
     renderOrder();
+    saveCart();
   }
 
   function updateToggleBadge() {
@@ -1470,7 +1499,7 @@
     const pm = osCart[ref].data.pedido_min || 1;
     // Round up to nearest multiple of pedido_min
     osCart[ref].qty = Math.max(pm, Math.ceil(n / pm) * pm);
-    renderOrder();
+    renderOrder(); saveCart();
   }
 
   function changeOrderQty(ref, delta) {
@@ -1489,6 +1518,7 @@
     });
     updateToggleBadge();
     renderOrder();
+    saveCart();
   }
 
   function fmtMoney(v) { return v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar'; }
@@ -1682,22 +1712,7 @@
           body { padding: 12px 18px; }
           @page { margin: 10mm 12mm; }
         }
-      
-  .price-badge.selected .price-tag {
-    background: rgba(27,100,27,0.88) !important;
-    box-shadow: 0 0 0 2px rgba(255,255,255,0.6), 0 2px 8px rgba(0,0,0,0.3) !important;
-  }
-  .price-badge .badge-info-btn {
-    position: absolute; top: -6px; right: -6px;
-    width: 16px; height: 16px; background: rgba(255,255,255,0.9);
-    border: none; border-radius: 50%; font-size: 0.6rem; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: #1B3A5C; font-weight: 700; opacity: 0; transition: opacity 0.2s;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  }
-  .price-badge:hover .badge-info-btn { opacity: 1; }
-
-</style>
+      </style>
     </head><body>
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #1B3A5C">
         <div>
@@ -1756,6 +1771,19 @@
     document.querySelectorAll('.os-icms-btn').forEach(b =>
       b.classList.toggle('active', b.getAttribute('data-icms') === saved));
   })();
+  // Restore cart from localStorage after badges are rendered
+  document.addEventListener('DOMContentLoaded', () => {
+    loadCart();
+    if (Object.keys(osCart).length) {
+      updateToggleBadge();
+      renderOrder();
+      Object.keys(osCart).forEach(ref => {
+        document.querySelectorAll(`.price-badge[data-ref="${ref}"]`).forEach(b => b.classList.add('selected'));
+      });
+    }
+  });
+
+
 
 
   async function exportExcel() {
