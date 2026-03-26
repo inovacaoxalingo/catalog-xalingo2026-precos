@@ -1412,17 +1412,17 @@
 
     const PRICE_CONFIG = {
     // ─── esportes-p2 (pág 144) ───
-    '20432': { img:'esportes-p2', x:55, y:4, p18:109.0, p12rs:103.0, p12:103.0, p7:98.4, cx:0, estoque:0, disponivel:0, nome:'TABELA DE BASQUETE PLAY', ean:'7896640426682', dun:'17896640426689', lancamento:'01/04/2026' },
+    '20432': { img:'esportes-p2', x:55, y:4, p18:109.0, p12rs:103.0, p12:103.0, p7:98.4, cx:0, estoque:0, disponivel:0, origem:'NAC', nome:'TABELA DE BASQUETE PLAY', ean:'7896640426682', dun:'17896640426689', lancamento:'01/04/2026' },
     // ─── esportes-p3 (pág 145) ───
-    '28665': { img:'esportes-p3', x:6, y:15, p18:58.5, p12rs:66.8, p12:58.5, p7:58.5, cx:6, estoque:1316, disponivel:1316, nome:'BOLA DE BASQUETE OFICIAL N 7 - COLORIDA', ean:'7896640491390', dun:'17896640491397' },
-    '67032': { img:'esportes-p3', x:80, y:70, p18:115.0, p12rs:112.0, p12:112.0, p7:102.0, cx:1, estoque:669, disponivel:2169, nome:'TABELA DE BASQUETE', ean:'7896640467036', dun:'17896640467033' },
+    '28665': { img:'esportes-p3', x:6, y:15, p18:58.5, p12rs:66.8, p12:58.5, p7:58.5, cx:6, estoque:1316, disponivel:1316, origem:'IMP', nome:'BOLA DE BASQUETE OFICIAL N 7 - COLORIDA', ean:'7896640491390', dun:'17896640491397' },
+    '67032': { img:'esportes-p3', x:80, y:70, p18:115.0, p12rs:112.0, p12:112.0, p7:102.0, cx:1, estoque:669, disponivel:2169, origem:'NAC', nome:'TABELA DE BASQUETE', ean:'7896640467036', dun:'17896640467033' },
     // ─── esportes-p4 (pág 146) ───
-    '7209': { img:'esportes-p4', x:4, y:15, p18:35.6, p12rs:34.8, p12:34.8, p7:31.6, cx:6, estoque:43, disponivel:43, nome:'JOGO DE BOTÕES BRASILEIRÃO', ean:'7896640407209', dun:'17896640407206' },
-    '67109': { img:'esportes-p4', x:85, y:15, p18:50.7, p12rs:49.5, p12:49.5, p7:44.9, cx:6, estoque:182, disponivel:1182, nome:'MESA PARA JOGO DE BOTÃO COM MARCADOR', ean:'7896640467104', dun:'17896640467101' },
-    '67354': { img:'esportes-p4', x:32, y:53, p18:440.0, p12rs:429.0, p12:429.0, p7:390.0, cx:1, estoque:0, disponivel:774, nome:'PEBOLIM SUPER COPA', ean:'7896640433901', dun:'17896640433908' },
+    '7209': { img:'esportes-p4', x:4, y:15, p18:35.6, p12rs:34.8, p12:34.8, p7:31.6, cx:6, estoque:43, disponivel:43, origem:'NAC', nome:'JOGO DE BOTÕES BRASILEIRÃO', ean:'7896640407209', dun:'17896640407206' },
+    '67109': { img:'esportes-p4', x:85, y:15, p18:50.7, p12rs:49.5, p12:49.5, p7:44.9, cx:6, estoque:182, disponivel:1182, origem:'NAC', nome:'MESA PARA JOGO DE BOTÃO COM MARCADOR', ean:'7896640467104', dun:'17896640467101' },
+    '67354': { img:'esportes-p4', x:32, y:53, p18:440.0, p12rs:429.0, p12:429.0, p7:390.0, cx:1, estoque:0, disponivel:774, origem:'NAC', nome:'PEBOLIM SUPER COPA', ean:'7896640433901', dun:'17896640433908' },
     // ─── esportes-p5 (pág 147) ───
-    '54509': { img:'esportes-p5', x:4, y:15, p18:58.1, p12rs:66.4, p12:66.4, p7:58.1, cx:6, estoque:498, disponivel:498, nome:'CONJUNTO TÊNIS DE MESA', ean:'7896640454500', dun:'17896640454507' },
-    '67287': { img:'esportes-p5', x:8, y:70, p18:1580.0, p12rs:1544.0, p12:1544.0, p7:1400.0, cx:1, estoque:0, disponivel:12, nome:'MESA DOBRÁVEL DE MADEIRA COM PÉS', ean:'7896640467289', dun:'17896640467286' },
+    '54509': { img:'esportes-p5', x:4, y:15, p18:58.1, p12rs:66.4, p12:66.4, p7:58.1, cx:6, estoque:498, disponivel:498, origem:'NAC', nome:'CONJUNTO TÊNIS DE MESA', ean:'7896640454500', dun:'17896640454507' },
+    '67287': { img:'esportes-p5', x:8, y:70, p18:1580.0, p12rs:1544.0, p12:1544.0, p7:1400.0, cx:1, estoque:0, disponivel:12, origem:'NAC', nome:'MESA DOBRÁVEL DE MADEIRA COM PÉS', ean:'7896640467289', dun:'17896640467286' },
   };
 
   function renderPriceBadges() {
@@ -1554,7 +1554,9 @@
   function saveCart() {
     try {
       const slim = {};
-      Object.keys(osCart).forEach(ref => { slim[ref] = { qty: osCart[ref].qty }; });
+      Object.keys(osCart).forEach(ref => {
+        slim[ref] = { qty: osCart[ref].qty, data: osCart[ref].data, img: imgCache[ref] || null };
+      });
       localStorage.setItem(CART_KEY, JSON.stringify(slim));
     } catch(e){}
   }
@@ -1562,8 +1564,18 @@
     try {
       const saved = JSON.parse(localStorage.getItem(CART_KEY) || '{}');
       Object.keys(saved).forEach(ref => {
-        const d = PRICE_CONFIG[ref];
-        if (d) { d.ref = ref; osCart[ref] = { data: d, qty: saved[ref].qty || 1 }; }
+        const item = saved[ref];
+        if (!item || !item.data) return;
+        // Use live PRICE_CONFIG data if available (same page), else use saved data
+        const d = PRICE_CONFIG[ref] || item.data;
+        d.ref = ref;
+        // Ensure is_lanc is set from lancamento if missing
+        if (d.lancamento && d.is_lanc === undefined) d.is_lanc = true;
+        if (!d.origem) d.origem = 'IMP';
+        if (!d.pedido_min) d.pedido_min = 1;
+        osCart[ref] = { data: d, qty: item.qty || 1 };
+        // Restore cached image URL
+        if (item.img) imgCache[ref] = item.img;
       });
     } catch(e){}
   }
@@ -1670,8 +1682,8 @@
       return;
     }
 
-    const linha = items.filter(i => !i.data.is_lanc);
-    const lanc  = items.filter(i =>  i.data.is_lanc);
+    const linha = items.filter(i => !i.data.is_lanc && !i.data.lancamento);
+    const lanc  = items.filter(i =>  i.data.is_lanc ||  i.data.lancamento);
 
     let html = '';
 
@@ -1768,8 +1780,8 @@
       if (btn2) { btn2.textContent = '📄 Gerar Pedido'; btn2.disabled = false; }
     }
 
-    const linha = items.filter(i => !i.data.is_lanc);
-    const lanc  = items.filter(i =>  i.data.is_lanc);
+    const linha = items.filter(i => !i.data.is_lanc && !i.data.lancamento);
+    const lanc  = items.filter(i =>  i.data.is_lanc ||  i.data.lancamento);
     const now = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 
     const tdS = 'padding:6px 8px;border-bottom:1px solid #eee;font-size:0.8rem';
@@ -1789,11 +1801,11 @@
 
     const renderRows = (arr) => arr.map(item => {
       const d = item.data; const price = d[osIcms]||0;
-      const origBg = d.origem==='NAC' ? '#e0f0e0' : '#dce8f5';
-      const origTx = d.origem==='NAC' ? '#2a6a2a' : '#1B3A5C';
-      const minBadge = d.pedido_min>1
+      const origBg = (d.origem||'IMP')==='NAC' ? '#e0f0e0' : '#dce8f5';
+      const origTx = (d.origem||'IMP')==='NAC' ? '#2a6a2a' : '#1B3A5C';
+      const minBadge = (d.pedido_min||1)>1
         ? `<span style="background:#fff0cc;color:#8a5000;padding:1px 5px;border-radius:3px;font-weight:700">${d.pedido_min}</span>`
-        : `${d.pedido_min}`;
+        : `${d.pedido_min||1}`;
       const ref = d.ref || '';
       const imgSrc = imgCache[ref] || '';
       const thumbCell = imgSrc
@@ -1803,7 +1815,7 @@
         <td style="${tdS};text-align:center;padding:3px 6px">${thumbCell}</td>
         <td style="${tdS}">${ref}</td>
         <td style="${tdS}">${d.nome}</td>
-        <td style="${tdS};text-align:center"><span style="background:${origBg};color:${origTx};padding:1px 5px;border-radius:3px;font-weight:700;font-size:0.72rem">${d.origem}</span></td>
+        <td style="${tdS};text-align:center"><span style="background:${origBg};color:${origTx};padding:1px 5px;border-radius:3px;font-weight:700;font-size:0.72rem">${d.origem||'IMP'}</span></td>
         <td style="${tdS};text-align:center">${d.cx}</td>
         <td style="${tdS};text-align:center">${minBadge}</td>
         <td style="${tdS};text-align:right">${fmtMoney(price)}</td>
@@ -1927,8 +1939,8 @@
   async function exportExcel() {
     const items = Object.values(osCart);
     if (!items.length) { alert('Adicione produtos ao pedido primeiro.'); return; }
-    const linha = items.filter(i => !i.data.is_lanc);
-    const lanc  = items.filter(i =>  i.data.is_lanc);
+    const linha = items.filter(i => !i.data.is_lanc && !i.data.lancamento);
+    const lanc  = items.filter(i =>  i.data.is_lanc ||  i.data.lancamento);
     const icmsLabel = ICMS_NAMES[osIcms];
     const date = new Date().toLocaleDateString('pt-BR').replace(/[/]/g,'-');
 
@@ -1968,9 +1980,9 @@
       const row = ws.addRow({
         ref:   d.ref || '',
         nome:  d.nome,
-        orig:  d.origem,
+        orig:  d.origem||'IMP',
         cx:    d.cx,
-        min:   d.pedido_min,
+        min:   d.pedido_min||1,
         price: price > 0 ? price : 0,
         qty:   item.qty,
         sub:   price > 0 ? parseFloat((price * item.qty).toFixed(2)) : 0,
@@ -1989,7 +2001,7 @@
 
       // Origem badge
       const origCell = row.getCell('orig');
-      const isNac = d.origem === 'NAC';
+      const isNac = (d.origem||'IMP') === 'NAC';
       origCell.font  = { bold:true, color:{argb: isNac ? 'FF1a5c1a' : 'FF1B3A5C'} };
       origCell.fill  = { type:'pattern', pattern:'solid', fgColor:{argb: isNac ? 'FFDCF5DC' : 'FFDCE8F5'} };
       origCell.alignment = { horizontal:'center', vertical:'middle' };
