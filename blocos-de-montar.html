@@ -1985,6 +1985,24 @@
   let osIcms = localStorage.getItem('xalingo-icms') || 'p18';
   const osCart = {};     // ref -> {data, qty}
   const imgCache = {};   // ref -> imageUrl (pre-fetched em background)
+  // ── Cart persisted across pages via localStorage ──────────────────────────
+  const CART_KEY = 'xalingo-cart';
+  function saveCart() {
+    try {
+      const slim = {};
+      Object.keys(osCart).forEach(ref => { slim[ref] = { qty: osCart[ref].qty }; });
+      localStorage.setItem(CART_KEY, JSON.stringify(slim));
+    } catch(e){}
+  }
+  function loadCart() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(CART_KEY) || '{}');
+      Object.keys(saved).forEach(ref => {
+        const d = PRICE_CONFIG[ref];
+        if (d) { d.ref = ref; osCart[ref] = { data: d, qty: saved[ref].qty || 1 }; }
+      });
+    } catch(e){}
+  }
 
   const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%'};
 
@@ -2039,6 +2057,7 @@
     }
     updateToggleBadge();
     renderOrder();
+    saveCart();
   }
 
   function updateToggleBadge() {
@@ -2054,7 +2073,7 @@
     const pm = osCart[ref].data.pedido_min || 1;
     // Round up to nearest multiple of pedido_min
     osCart[ref].qty = Math.max(pm, Math.ceil(n / pm) * pm);
-    renderOrder();
+    renderOrder(); saveCart();
   }
 
   function changeOrderQty(ref, delta) {
@@ -2063,7 +2082,7 @@
     const current = osCart[ref].qty;
     const next = current + (delta > 0 ? pm : -pm);
     osCart[ref].qty = Math.max(pm, next);
-    renderOrder();
+    renderOrder(); saveCart();
   }
 
   function clearOrder() {
@@ -2073,6 +2092,7 @@
     });
     updateToggleBadge();
     renderOrder();
+    saveCart();
   }
 
   function fmtMoney(v) { return v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar'; }
@@ -2115,7 +2135,7 @@
             <div class="os-nome" title="${d.nome}">${d.nome}</div>
             <div class="os-price">${fmtMoney(price)} <span style="font-size:0.68rem;color:#999">× ${item.qty} = ${fmtMoney(price*item.qty)}</span></div>
             <div class="os-meta">
-              <span class="os-badge ${d.origem==='NAC'?'nac':'imp'}">${d.origem}</span>
+              <span class="os-badge ${(d.origem||'IMP')==='NAC'?'nac':'imp'}">${d.origem||'IMP'}</span>
               <span class="os-badge">CX: ${d.cx}</span>
               ${d.pedido_min>1?`<span class="os-badge" style="background:#fff0cc;color:#8a5000">Mín: ${d.pedido_min}</span>`:''}
               ${estLabel}${lancDate}
@@ -2325,6 +2345,17 @@
     document.querySelectorAll('.os-icms-btn').forEach(b =>
       b.classList.toggle('active', b.getAttribute('data-icms') === saved));
   })();
+  // Restore cart from localStorage after badges are rendered
+  document.addEventListener('DOMContentLoaded', () => {
+    loadCart();
+    if (Object.keys(osCart).length) {
+      updateToggleBadge();
+      renderOrder();
+      Object.keys(osCart).forEach(ref => {
+        document.querySelectorAll(`.price-badge[data-ref="${ref}"]`).forEach(b => b.classList.add('selected'));
+      });
+    }
+  });
 
 
   async function exportExcel() {

@@ -1532,6 +1532,24 @@
   // ── ORDER SIDEBAR ──────────────────────────────────────────────────────────
   let osIcms = localStorage.getItem('xalingo-icms') || 'p18';
   const osCart = {};     // ref -> {data, qty}
+  // ── Cart persisted across pages via localStorage ──────────────────────────
+  const CART_KEY = 'xalingo-cart';
+  function saveCart() {
+    try {
+      const slim = {};
+      Object.keys(osCart).forEach(ref => { slim[ref] = { qty: osCart[ref].qty }; });
+      localStorage.setItem(CART_KEY, JSON.stringify(slim));
+    } catch(e){}
+  }
+  function loadCart() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(CART_KEY) || '{}');
+      Object.keys(saved).forEach(ref => {
+        const d = PRICE_CONFIG[ref];
+        if (d) { d.ref = ref; osCart[ref] = { data: d, qty: saved[ref].qty || 1 }; }
+      });
+    } catch(e){}
+  }
   const imgCache = {};   // ref -> imageUrl (pre-fetched em background)
 
   const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%'};
@@ -1611,7 +1629,7 @@
     const current = osCart[ref].qty;
     const next = current + (delta > 0 ? pm : -pm);
     osCart[ref].qty = Math.max(pm, next);
-    renderOrder();
+    renderOrder(); saveCart();
   }
 
   function clearOrder() {
@@ -1663,7 +1681,7 @@
             <div class="os-nome" title="${d.nome}">${d.nome}</div>
             <div class="os-price">${fmtMoney(price)} <span style="font-size:0.68rem;color:#999">× ${item.qty} = ${fmtMoney(price*item.qty)}</span></div>
             <div class="os-meta">
-              <span class="os-badge ${d.origem==='NAC'?'nac':'imp'}">${d.origem}</span>
+              <span class="os-badge ${(d.origem||'IMP')==='NAC'?'nac':'imp'}">${d.origem||'IMP'}</span>
               <span class="os-badge">CX: ${d.cx}</span>
               ${d.pedido_min>1?`<span class="os-badge" style="background:#fff0cc;color:#8a5000">Mín: ${d.pedido_min}</span>`:''}
               ${estLabel}${lancDate}
@@ -1814,7 +1832,22 @@
           body { padding: 12px 18px; }
           @page { margin: 10mm 12mm; }
         }
-      </style>
+      
+  .price-badge.selected .price-tag {
+    background: rgba(27,100,27,0.88) !important;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.6), 0 2px 8px rgba(0,0,0,0.3) !important;
+  }
+  .price-badge .badge-info-btn {
+    position: absolute; top: -6px; right: -6px;
+    width: 16px; height: 16px; background: rgba(255,255,255,0.9);
+    border: none; border-radius: 50%; font-size: 0.6rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #1B3A5C; font-weight: 700; opacity: 0; transition: opacity 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .price-badge:hover .badge-info-btn { opacity: 1; }
+
+</style>
     </head><body>
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #1B3A5C">
         <div>
