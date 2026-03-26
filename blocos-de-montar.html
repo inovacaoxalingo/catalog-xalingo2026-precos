@@ -608,7 +608,7 @@
   }
 
   .order-sidebar {
-    position: fixed; right: -420px; top: 0; bottom: 0; width: 400px;
+    position: fixed; right: -540px; top: 0; bottom: 0; width: 520px;
     background: #fff; box-shadow: -4px 0 24px rgba(0,0,0,0.15);
     z-index: 150; display: flex; flex-direction: column;
     transition: right 0.3s ease; border-left: 1px solid rgba(0,0,0,0.1);
@@ -657,9 +657,11 @@
   .os-item {
     border: 1px solid rgba(0,0,0,0.09); border-radius: 10px;
     padding: 9px 10px; margin-bottom: 6px; display: grid;
-    grid-template-columns: 1fr auto; gap: 8px;
+    grid-template-columns: 52px 1fr auto; gap: 8px;
   }
   .os-item.is-lanc { border-color: #f0a030; background: #fffbf2; }
+  .os-item-thumb { width: 52px; height: 52px; object-fit: contain; border-radius: 6px; background: #f5f5f5; align-self: center; }
+  .os-item-thumb-empty { width: 52px; height: 52px; border-radius: 6px; background: #eee; align-self: center; }
   .os-item-left { min-width: 0; }
   .os-ref { font-size: 0.6rem; font-weight: 700; color: #aaa; }
   .os-nome { font-size: 0.75rem; font-weight: 700; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1764,9 +1766,6 @@
       badge.querySelector('.price-tag').addEventListener('click', (e) => {
         e.stopPropagation();
         toggleProduct(ref);
-        if (!document.getElementById('orderSidebar').classList.contains('open')) {
-          toggleOrderSidebar();
-        }
       });
       badge.querySelector('.badge-info-btn').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1808,138 +1807,54 @@
 
 
 
-  // ── PRODUCT PAGE URLs para miniaturas no relatório ─────────────────────────
-  const PRODUCT_URLS = {
-    '20509':'https://produtosxalingo.oneweb.com.br/2026/03/20/2050-9-brincando-de-engenheiro-20-pcs/',
-    '52754':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-i/',
-    '52765':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-ii/',
-    '52776':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-iii/',
-    '52798':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-120-pecas/',
-    '53054':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-150-pecas/',
-    '53065':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-200-pecas/',
-    '67854':'https://produtosxalingo.oneweb.com.br/2024/01/23/brincando-de-engenheiro-no-7/',
-    '67865':'https://produtosxalingo.oneweb.com.br/2024/01/23/brincando-de-engenheiro-no8/',
-    '67876':'https://produtosxalingo.oneweb.com.br/2024/01/23/brincando-de-engenheiro-no9/',
-    '14565':'https://produtosxalingo.oneweb.com.br/2025/02/14/brincando-de-engenheiro-trem/',
-    '12998':'https://produtosxalingo.oneweb.com.br/2025/02/01/brincando-de-engenheiro-carro/',
-    '13287':'https://produtosxalingo.oneweb.com.br/2025/01/27/brincando-de-engenheiro-cenario-magnetico/',
-    '52773':'https://produtosxalingo.oneweb.com.br/2023/01/20/brincando-de-engenheiro-circuito-de-corrida/',
-    '67887':'https://produtosxalingo.oneweb.com.br/2024/01/23/brincando-de-engenheiro-paint/',
-    '11298':'https://produtosxalingo.oneweb.com.br/2025/01/27/brincando-de-engenheiro-nova-iorque/',
-    '53321':'https://produtosxalingo.oneweb.com.br/2023/01/20/torre-do-engenheiro/',
-    '13487':'https://produtosxalingo.oneweb.com.br/2025/01/27/brincando-de-engenheiro-halloween/',
-    '13476':'https://produtosxalingo.oneweb.com.br/2025/02/13/brincando-de-engenheiro-natal/',
-    '17921':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-criativos-montanha-russa/',
-    '17910':'https://produtosxalingo.oneweb.com.br/2026/02/18/bl-criativos-acessorios-pirata/',
-    '68243':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-criativos-classicos/',
-    '15232':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-criativos-figuras-e-acessorios-display-15-unidades/',
-    '68232':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-criativos-mini-animais-25-pecas/',
-    '68265':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-criativos-animais-display/',
-    '68210':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-criativos-150-pecas/',
-    '15332':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-criativos-300-pecas/',
-    '68221':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-criativos-400-pecas/',
-    '17943':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-criativos-800-pcs/',
-    '16365':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-criativos-mapa-do-mundo/',
-    '15965':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-criativos-halloween/',
-    '15976':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-criativos-natal/',
-    '68176':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-lancadores-display-4-unidades/',
-    '16910':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-racing-car-carro-de-corrida-display-4-un/',
-    '16909':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-racing-car-mini-carro-de-corrida-display-10-un/',
-    '16965':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-racing-car-carro-esportivo-2-em-1/',
-    '17876':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-racing-car-carro-super-velocidade/',
-    '28409':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-super-maquina-na-pista-colecionaveis-1-unidade/',
-    '28398':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-super-maquina-na-cidade-colecionaveis-1-unidade/',
-    '15243':'https://produtosxalingo.oneweb.com.br/2025/02/17/super-maquina-lancador-de-carros-display-08-unidades/',
-    '17854':'https://produtosxalingo.oneweb.com.br/2026/02/19/12012/',
-    '16932':'https://produtosxalingo.oneweb.com.br/2026/02/19/12015/',
-    '16943':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-super-maquina-na-pista-truck-293-pcs/',
-    '28510':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-super-maquina-off-road-azul-305-pecas/',
-    '28521':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-super-maquina-na-pista-race-car-399-pecas/',
-    '17887':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-super-maquina-na-pista-sport-car-415-pcs/',
-    '16954':'https://produtosxalingo.oneweb.com.br/2026/02/19/12022/',
-    '28543':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-mundo-encantado-flores-display-62-198-pecas/',
-    '15310':'https://produtosxalingo.oneweb.com.br/2025/02/14/mundo-encantado-display-08-unidades/',
-    '16221':'https://produtosxalingo.oneweb.com.br/2025/02/14/mundo-encantado-montanha-russa/',
-    '28554':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-fazenda-galinheiro-71-pecas/',
-    '27498':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-fazenda-trator-hortifruti-80-pecas/',
-    '27487':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-fazenda-reboque-de-madeira-110-pecas/',
-    '68154':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-fazenda-pomar/',
-    '68143':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-fazenda-trator/',
-    '68165':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-fazenda-poco/',
-    '4087':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-fazenda-transporte-de-animais-215-pecas/',
-    '27998':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-fazenda-ultra-colheitadeira-540-pecas/',
-    '14976':'https://produtosxalingo.oneweb.com.br/2025/02/14/colecao-veiculos-de-resgate-bombeiros/',
-    '14998':'https://produtosxalingo.oneweb.com.br/2025/02/01/bloco-bombeiro-display-12-39-64-pecas/',
-    '15476':'https://produtosxalingo.oneweb.com.br/2025/02/14/bombeiros-motocicleta/',
-    '28165':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-bombeiros-caminhao-resgate-rapido-2-em-1-108-pecas/',
-    '15309':'https://produtosxalingo.oneweb.com.br/2025/02/14/bombeiros-helicoptero/',
-    '15576':'https://produtosxalingo.oneweb.com.br/2025/02/14/bombeiros-caminhao-de-bombeiro/',
-    '16209':'https://produtosxalingo.oneweb.com.br/2025/02/14/bombeiros-corpo-de-bombeiro/',
-    '16198':'https://produtosxalingo.oneweb.com.br/2025/02/14/bombeiros-caminhao-de-bombeiro-2/',
-    '28176':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-bombeiros-caminhao-de-apoio-439-pecas/',
-    '14987':'https://produtosxalingo.oneweb.com.br/2025/02/01/bloco-defensores-da-ordem/',
-    '15221':'https://produtosxalingo.oneweb.com.br/2025/02/03/bloco-policia-display-12-41-60-pecas/',
-    '16187':'https://produtosxalingo.oneweb.com.br/2025/02/04/bloco-defensores-da-ordem-helicoptero-48-pecas/',
-    '15465':'https://produtosxalingo.oneweb.com.br/2025/02/04/bloco-defensores-da-ordem-carro-64-pecas/',
-    '15321':'https://produtosxalingo.oneweb.com.br/2025/02/03/bloco-defensores-da-ordem-barco-90-pecas/',
-    '15454':'https://produtosxalingo.oneweb.com.br/2025/02/14/defensores-da-ordem-caminhao-de-transporte/',
-    '15265':'https://produtosxalingo.oneweb.com.br/2025/02/03/bloco-defensores-da-ordem-quartel-de-policia-113-pecas/',
-    '68198':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-operacoes-especiais-display-16-unidades/',
-    '28187':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-operacoes-especiais-carro-3-em-1-141-pecas/',
-    '68209':'https://produtosxalingo.oneweb.com.br/2024/01/17/blocos-operacoes-especiais-helicoptero/',
-    '28354':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-operacoes-especiais-carro-mega-blindado-236-pecas/',
-    '28365':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-operacoes-especiais-onibus-279-pecas/',
-    '17843':'https://produtosxalingo.oneweb.com.br/2026/02/19/12034/',
-    '17865':'https://produtosxalingo.oneweb.com.br/2026/02/19/12037/',
-    '68254':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-alianca-justica-e-paz-display-8-unidades/',
-    '28110':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-alianca-justica-e-paz-tanque-de-guerra-120-pecas/',
-    '16976':'https://produtosxalingo.oneweb.com.br/2026/02/19/12040/',
-    '16987':'https://produtosxalingo.oneweb.com.br/2026/02/19/bl-alianca-justica-e-paz-blindado-de-transporte-258-pcs/',
-    '28098':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-alianca-justica-e-paz-super-tanque-317-pecas/',
-    '16998':'https://produtosxalingo.oneweb.com.br/2026/02/20/bl-alianca-justica-e-paz-helicoptero-de-combate-310-pcs/',
-    '17898':'https://produtosxalingo.oneweb.com.br/2026/02/20/bl-alianca-justica-e-paz-jato-268-pcs/',
-    '2654':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-cidade-em-obras-mini-patrola-60-pecas/',
-    '2676':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-cidade-em-obras-guincho-67-pecas/',
-    '15443':'https://produtosxalingo.oneweb.com.br/2025/02/14/cidade-em-obras-pa-carregadeira/',
-    '15432':'https://produtosxalingo.oneweb.com.br/2025/02/14/cidade-em-obras-rolo-compactador/',
-    '15565':'https://produtosxalingo.oneweb.com.br/2025/02/14/cidade-em-obras-caminhao/',
-    '15487':'https://produtosxalingo.oneweb.com.br/2025/02/17/cidade-em-obras-escavadeira/',
-    '15254':'https://produtosxalingo.oneweb.com.br/2025/02/17/barco-pirata/',
-    '15509':'https://produtosxalingo.oneweb.com.br/2025/02/17/piratas-navio/',
-    '28532':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-piratas-barco-4-em-1-297-pecas/',
-    '16376':'https://produtosxalingo.oneweb.com.br/2025/02/17/piratas-montanha-russa/',
-    '28509':'https://produtosxalingo.oneweb.com.br/2023/01/25/blocos-de-montar-nave-espacial-106-pecas/',
-    '28310':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-foguete-espacial-292-pecas/',
-    '28321':'https://produtosxalingo.oneweb.com.br/2023/01/20/blocos-de-montar-onibus-espacial-340-pecas/',
-    '15987':'https://produtosxalingo.oneweb.com.br/2025/02/17/quadrante-x-montanha-russa/',
-    '68421':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-mesa-interativa/',
-    '68365':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-box-2-em-1/',
-    '68276':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-trenzinho-em-numero/',
-    '68343':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-display-carros/',
-    '16232':'https://produtosxalingo.oneweb.com.br/2025/02/14/blocos-grandes-natal/',
-    '68410':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-mundo-encantado/',
-    '68332':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-cidade-em-obras/',
-    '68309':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-bombeiros-2/',
-    '68298':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-bombeiros/',
-    '68321':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-policia-2/',
-    '68310':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-policia/',
-    '68398':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-circuito/',
-    '68354':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-circuito-play/',
-    '68376':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-floresta/',
-    '68387':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-dinos-park/',
-    '68287':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-mundo-dinos-2/',
-    '68409':'https://produtosxalingo.oneweb.com.br/2024/01/17/bloco-grande-mundo-dinos/',
-    '63109':'https://produtosxalingo.oneweb.com.br/2024/10/08/super-soft-blocos-22-pecas/',
-    '63110':'https://produtosxalingo.oneweb.com.br/2024/10/08/super-soft-blocos-30-pecas/',
-    '63121':'https://produtosxalingo.oneweb.com.br/2024/10/08/super-soft-blocos-58-pecas/',
-    '68454':'https://produtosxalingo.oneweb.com.br/2024/01/17/soft-blocos-3/',
-    '68465':'https://produtosxalingo.oneweb.com.br/2024/01/17/soft-blocos-big/',
-    '68476':'https://produtosxalingo.oneweb.com.br/2024/01/17/soft-blocos-big-2/',
-  };
+  // ── WP API helpers — busca imagem pelo slug do post ────────────────────────
+  const WP_API = 'https://produtosxalingo.oneweb.com.br/wp-json/wp/v2';
+
+  function _extractImg(html) {
+    if (!html) return null;
+    for (const attr of ['src','data-src','data-lazy-src','data-original']) {
+      const m = html.match(new RegExp('<img[^>]+' + attr + '=["\']([^"\']*wp-content[^"\']+)["\']','i'));
+      if (m && m[1].startsWith('http')) return m[1];
+    }
+    const m2 = html.match(/https?:\/\/[^"'\s<>]+wp-content\/uploads\/[^"'\s<>]+\.(?:jpg|jpeg|png|webp)/i);
+    return m2 ? m2[0] : null;
+  }
+
+  function _tryLoad(src) {
+    return new Promise(res => {
+      const img = new Image();
+      img.onload  = () => res(src);
+      img.onerror = () => res(null);
+      img.src = src;
+    });
+  }
+
+  async function resolveImgUrl(slug) {
+    try {
+      const res  = await fetch(WP_API + '/posts?slug=' + slug + '&_embed=1&_fields=id,content,_links,_embedded', { signal: AbortSignal.timeout(8000) });
+      const data = await res.json();
+      const post = data[0];
+      if (!post) return '';
+      const feat = post?._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+      if (feat && await _tryLoad(feat)) return feat;
+      const fromContent = _extractImg(post?.content?.rendered || '');
+      if (fromContent && await _tryLoad(fromContent)) return fromContent;
+      const mRes   = await fetch(WP_API + '/media?parent=' + post.id + '&per_page=4&_fields=source_url,media_details', { signal: AbortSignal.timeout(8000) });
+      const medias = await mRes.json();
+      for (const m of medias) {
+        const src = m?.media_details?.sizes?.medium?.source_url
+                 || m?.media_details?.sizes?.thumbnail?.source_url
+                 || m?.source_url;
+        if (src && await _tryLoad(src)) return src;
+      }
+    } catch(e) { /* silencioso */ }
+    return '';
+  }
 
   // ── ORDER SIDEBAR ──────────────────────────────────────────────────────────
   let osIcms = localStorage.getItem('xalingo-icms') || 'p18';
-  const osCart = {};  // ref -> {data, qty}
+  const osCart = {};     // ref -> {data, qty}
+  const imgCache = {};   // ref -> imageUrl (pre-fetched em background)
 
   const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%'};
 
@@ -1976,6 +1891,20 @@
       if (!d) return;
       const pm = d.pedido_min || 1; osCart[ref] = { data: d, qty: pm };
       document.querySelectorAll(`.price-badge[data-ref="${ref}"]`).forEach(b => b.classList.add('selected'));
+      // Pré-busca a imagem em background se ainda não estiver em cache
+      if (!(ref in imgCache)) {
+        imgCache[ref] = null; // marca como "buscando"
+        const pageUrl = PRODUCT_URLS[ref] || '';
+        if (pageUrl) {
+          const slug = pageUrl.replace(/\/$/, '').split('/').pop();
+          resolveImgUrl(slug).then(url => {
+            imgCache[ref] = url || '';
+            renderOrder(); // atualiza o item na sidebar com a imagem
+          });
+        } else {
+          imgCache[ref] = '';
+        }
+      }
     }
     updateToggleBadge();
     renderOrder();
@@ -2034,38 +1963,41 @@
     const renderItem = (item) => {
       const d = item.data;
       const price = d[osIcms] || 0;
-      const sub = price * item.qty;
       const belowMin = d.pedido_min > 1 && item.qty < d.pedido_min;
       const estLabel = d.estoque > 0
         ? `<span class="os-badge est-ok">Est: ${d.estoque}</span>`
         : `<span class="os-badge est-zero">Sem estoque</span>`;
-      const dispLabel = d.disponivel > 0
-        ? `<span class="os-badge" style="background:#e8f0ff;color:#1B3A5C">Prev: ${d.disponivel}</span>` : '';
       const lancDate = d.lancamento
         ? `<span class="os-badge lanc-date">🚀 ${d.lancamento}</span>` : '';
       const warnMin = belowMin
         ? `<div class="os-warn">⚠️ Ped. mín: ${d.pedido_min} un.</div>` : '';
+      const ref = d.ref || item.data.ref || '';
+      const cachedImg = imgCache[ref];
+      const thumbHtml = cachedImg
+        ? `<img class="os-item-thumb" src="${cachedImg}" alt="">`
+        : `<div class="os-item-thumb-empty"></div>`;
       return `
         <div class="os-item${d.is_lanc?' is-lanc':''}">
+          ${thumbHtml}
           <div class="os-item-left">
-            <div class="os-ref">REF ${d.ref || item.data.ref || ''}</div>
+            <div class="os-ref">REF ${ref}</div>
             <div class="os-nome" title="${d.nome}">${d.nome}</div>
             <div class="os-price">${fmtMoney(price)} <span style="font-size:0.68rem;color:#999">× ${item.qty} = ${fmtMoney(price*item.qty)}</span></div>
             <div class="os-meta">
               <span class="os-badge ${d.origem==='NAC'?'nac':'imp'}">${d.origem}</span>
               <span class="os-badge">CX: ${d.cx}</span>
               ${d.pedido_min>1?`<span class="os-badge" style="background:#fff0cc;color:#8a5000">Mín: ${d.pedido_min}</span>`:''}
-              ${estLabel}${dispLabel}${lancDate}
+              ${estLabel}${lancDate}
             </div>
             ${warnMin}
           </div>
           <div class="os-item-right">
             <div class="os-qty-row">
-              <button class="os-qty-btn" onclick="changeOrderQty('${d.ref||''}', -1)">−</button>
-              <input class="os-qty-input" type="number" value="${item.qty}" min="1" onchange="setOrderQty('${d.ref||''}', this.value)">
-              <button class="os-qty-btn" onclick="changeOrderQty('${d.ref||''}', 1)">+</button>
+              <button class="os-qty-btn" onclick="changeOrderQty('${ref}', -1)">−</button>
+              <input class="os-qty-input" type="number" value="${item.qty}" min="1" onchange="setOrderQty('${ref}', this.value)">
+              <button class="os-qty-btn" onclick="changeOrderQty('${ref}', 1)">+</button>
             </div>
-            <button class="os-del" onclick="toggleProduct('${d.ref||''}')">✕ remover</button>
+            <button class="os-del" onclick="toggleProduct('${ref}')">✕ remover</button>
           </div>
         </div>`;
     };
@@ -2098,75 +2030,28 @@
     document.getElementById('osTotals').innerHTML = totHtml;
   }
 
-  // ── Helpers para buscar imagem via WP API (roda no contexto do catálogo) ──
-  const WP_API = 'https://produtosxalingo.oneweb.com.br/wp-json/wp/v2';
-
-  function _extractImg(html) {
-    if (!html) return null;
-    for (const attr of ['src','data-src','data-lazy-src','data-original']) {
-      const m = html.match(new RegExp('<img[^>]+' + attr + '=["\']([^"\']*wp-content[^"\']+)["\']','i'));
-      if (m && m[1].startsWith('http')) return m[1];
-    }
-    const m2 = html.match(/https?:\/\/[^"'\s<>]+wp-content\/uploads\/[^"'\s<>]+\.(?:jpg|jpeg|png|webp)/i);
-    return m2 ? m2[0] : null;
-  }
-
-  function _tryLoad(src) {
-    return new Promise(res => {
-      const img = new Image();
-      img.onload  = () => res(src);
-      img.onerror = () => res(null);
-      img.src = src;
-    });
-  }
-
-  async function resolveImgUrl(slug) {
-    try {
-      const res  = await fetch(WP_API + '/posts?slug=' + slug + '&_embed=1&_fields=id,content,_links,_embedded', { signal: AbortSignal.timeout(8000) });
-      const data = await res.json();
-      const post = data[0];
-      if (!post) return '';
-
-      // 1) featured media
-      const feat = post?._embedded?.['wp:featuredmedia']?.[0]?.source_url;
-      if (feat && await _tryLoad(feat)) return feat;
-
-      // 2) imagem no conteúdo
-      const fromContent = _extractImg(post?.content?.rendered || '');
-      if (fromContent && await _tryLoad(fromContent)) return fromContent;
-
-      // 3) mídias anexadas (até 4, testa cada uma)
-      const mRes   = await fetch(WP_API + '/media?parent=' + post.id + '&per_page=4&_fields=source_url,media_details', { signal: AbortSignal.timeout(8000) });
-      const medias = await mRes.json();
-      for (const m of medias) {
-        const src = m?.media_details?.sizes?.medium?.source_url
-                 || m?.media_details?.sizes?.thumbnail?.source_url
-                 || m?.source_url;
-        if (src && await _tryLoad(src)) return src;
-      }
-    } catch(e) { /* silencioso */ }
-    return '';
-  }
-
   async function printOrder() {
     const items = Object.values(osCart);
     if (!items.length) { alert('Adicione produtos ao pedido primeiro.'); return; }
 
-    // Botão de feedback enquanto busca as imagens
-    const btn = document.querySelector('.os-btn-print');
-    if (btn) { btn.textContent = '⏳ Buscando imagens…'; btn.disabled = true; }
-
-    // Resolve URLs de imagem no contexto do catálogo (sem about:blank)
-    const imgCache = {};
-    await Promise.all(items.map(async item => {
-      const ref = item.data.ref || '';
-      const pageUrl = PRODUCT_URLS[ref] || '';
-      if (!pageUrl) return;
-      const slug = pageUrl.replace(/\/$/, '').split('/').pop();
-      imgCache[ref] = await resolveImgUrl(slug);
-    }));
-
-    if (btn) { btn.textContent = '📄 Gerar Pedido'; btn.disabled = false; }
+    // Busca só os que ainda não estão em cache
+    const pendentes = items.filter(i => {
+      const ref = i.data.ref || '';
+      return PRODUCT_URLS[ref] && !(ref in imgCache && imgCache[ref] !== null);
+    });
+    if (pendentes.length) {
+      const btn = document.querySelector('.os-btn-print');
+      if (btn) { btn.textContent = '⏳ Buscando imagens…'; btn.disabled = true; }
+      await Promise.all(pendentes.map(async item => {
+        const ref = item.data.ref || '';
+        const pageUrl = PRODUCT_URLS[ref] || '';
+        if (!pageUrl) return;
+        const slug = pageUrl.replace(/\/$/, '').split('/').pop();
+        imgCache[ref] = await resolveImgUrl(slug);
+      }));
+      const btn2 = document.querySelector('.os-btn-print');
+      if (btn2) { btn2.textContent = '📄 Gerar Pedido'; btn2.disabled = false; }
+    }
 
     const linha = items.filter(i => !i.data.is_lanc);
     const lanc  = items.filter(i =>  i.data.is_lanc);
@@ -2246,7 +2131,10 @@
         table { page-break-inside: auto; }
         tr { page-break-inside: avoid; page-break-after: auto; }
         thead { display: table-header-group; }
-        @media print { body { padding: 12px 18px; } @page { margin: 10mm 12mm; } }
+        @media print {
+          body { padding: 12px 18px; }
+          @page { margin: 10mm 12mm; }
+        }
       </style>
     </head><body>
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #1B3A5C">
@@ -2255,24 +2143,41 @@
           <p style="color:#999;font-size:0.78rem;margin:4px 0 0">${now} &nbsp;·&nbsp; ${ICMS_NAMES[osIcms]}</p>
         </div>
         <div style="display:flex;gap:8px">
-          <button onclick="window.print()" style="background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,Arial,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">🖨 Imprimir / PDF</button>
-          <button onclick="window.opener.exportExcel()" style="background:#1d6f42;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,Arial,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">📊 Salvar Excel</button>
+          <button onclick="window.print()" style="background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,Arial,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">
+            🖨 Imprimir / PDF
+          </button>
+          <button onclick="window.opener.exportExcel()" style="background:#1d6f42;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,Arial,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">
+            📊 Salvar Excel
+          </button>
         </div>
       </div>
       ${body}
       <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>
       <script>
-        document.getElementById('xlsxBtn') && document.getElementById('xlsxBtn').addEventListener('click', function() {
+        document.getElementById('xlsxBtn').addEventListener('click', function() {
           const rows = [['REF','Produto','Origem','CX','Ped. Mínimo','Preço unit.','Qtd','Subtotal','Entrega','Tipo']];
           document.querySelectorAll('tbody tr').forEach(tr => {
             const cells = tr.querySelectorAll('td');
-            if (cells.length < 9) return;
-            rows.push([cells[1].textContent.trim(),cells[2].textContent.trim(),cells[3].textContent.trim(),cells[4].textContent.trim(),cells[5].textContent.trim(),cells[6].textContent.trim(),cells[7].textContent.trim(),cells[8].textContent.trim(),cells[9]?cells[9].textContent.trim():'','']);
+            if (cells.length < 8) return;
+            rows.push([
+              cells[0].textContent.trim(),
+              cells[1].textContent.trim(),
+              cells[2].textContent.trim(),
+              cells[3].textContent.trim(),
+              cells[4].textContent.trim(),
+              cells[5].textContent.trim(),
+              cells[6].textContent.trim(),
+              cells[7].textContent.trim(),
+              cells[8] ? cells[8].textContent.trim() : '',
+              cells[9] ? cells[9].textContent.trim() : '',
+            ]);
           });
           const wb = XLSX.utils.book_new();
           const ws = XLSX.utils.aoa_to_sheet(rows);
+          ws['!cols'] = [{wch:8},{wch:45},{wch:8},{wch:6},{wch:8},{wch:12},{wch:6},{wch:12},{wch:14},{wch:12}];
           XLSX.utils.book_append_sheet(wb, ws, 'Pedido');
-          XLSX.writeFile(wb, 'Pedido_Xalingo.xlsx');
+          const date = new Date().toLocaleDateString('pt-BR').replace(/[/]/g,'-');
+          XLSX.writeFile(wb, 'Pedido_Xalingo_' + date + '.xlsx');
         });
       <\/script>
     </body></html>`;
