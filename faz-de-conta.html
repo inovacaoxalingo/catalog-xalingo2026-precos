@@ -1436,6 +1436,7 @@
       badge.style.left = d.x + '%';
       badge.style.top  = d.y + '%';
       badge.dataset.ref = ref;
+      d.ref = ref;
       const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
       badge.innerHTML = `<div class="price-tag"><div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(d[currentIcms])}</div></div><button class="badge-info-btn" title="Ver detalhes">ⓘ</button>`;
       badge.querySelector('.price-tag').addEventListener('click', (e) => { e.stopPropagation(); toggleProduct(ref); });
