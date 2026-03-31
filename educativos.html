@@ -399,6 +399,336 @@
   }
   .price-badge:hover .badge-info-btn { opacity: 1; }
 
+
+  /* ===== DISCOUNT SYSTEM ===== */
+  .os-discount-trigger {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 8px; cursor: pointer;
+    transition: all 0.2s; flex-shrink: 0;
+    position: relative;
+  }
+  .os-discount-trigger svg { width: 13px; height: 13px; fill: none; stroke: rgba(255,255,255,0.35); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s; }
+  .os-discount-trigger:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+  .os-discount-trigger:hover svg { stroke: rgba(255,255,255,0.7); }
+  .os-discount-trigger.active { background: rgba(240,192,64,0.15); border-color: rgba(240,192,64,0.5); }
+  .os-discount-trigger.active svg { stroke: #f0c040; }
+  .os-disc-pct-badge {
+    position: absolute; top: -6px; right: -7px;
+    background: #f0c040; color: #3a2800;
+    font-family: 'Quicksand', sans-serif; font-size: 0.5rem; font-weight: 800;
+    padding: 1px 4px; border-radius: 20px; white-space: nowrap;
+    display: none; line-height: 1.4;
+  }
+  .os-discount-trigger.active .os-disc-pct-badge { display: block; }
+
+  .os-discount-bar {
+    display: none; padding: 14px 14px 12px;
+    background: #f0f4f8;
+    border-bottom: 2px solid #1B3A5C;
+    flex-shrink: 0; animation: discSlideIn 0.2s ease;
+  }
+  @keyframes discSlideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .os-discount-bar.open { display: block; }
+
+  .os-disc-section-label {
+    font-size: 0.55rem; font-weight: 800; color: #1B3A5C;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px; opacity: 0.5;
+  }
+  .os-disc-section-label::after {
+    content: ''; flex: 1; height: 1px; background: #1B3A5C; opacity: 0.2;
+  }
+
+  .os-discount-clusters {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 5px; margin-bottom: 12px;
+  }
+  .os-dc-btn {
+    font-family: 'Quicksand', sans-serif; font-size: 0.62rem; font-weight: 700;
+    padding: 6px 10px; border-radius: 8px;
+    border: 1.5px solid rgba(27,58,92,0.15);
+    background: #fff; color: #1B3A5C;
+    cursor: pointer; transition: all 0.16s; white-space: nowrap;
+    text-align: left; line-height: 1.3; display: flex; align-items: center; justify-content: space-between;
+  }
+  .os-dc-btn .dc-pct { font-size: 0.68rem; font-weight: 800; color: rgba(27,58,92,0.4); transition: color 0.16s; }
+  .os-dc-btn:hover { background: rgba(27,58,92,0.06); border-color: rgba(27,58,92,0.3); }
+  .os-dc-btn:hover .dc-pct { color: #1B3A5C; }
+  .os-dc-btn.active { background: #1B3A5C; border-color: #1B3A5C; color: #fff; }
+  .os-dc-btn.active .dc-pct { color: rgba(255,255,255,0.7); }
+  .os-dc-btn.dc-none { grid-column: 1/-1; justify-content: center; }
+  .os-dc-btn.dc-none.active { background: rgba(27,58,92,0.08); border-color: rgba(27,58,92,0.2); color: rgba(27,58,92,0.55); }
+
+  .os-disc-manual-row {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 1.5px solid rgba(27,58,92,0.15);
+    border-radius: 8px; padding: 6px 10px;
+  }
+  .os-disc-manual-row label {
+    font-size: 0.6rem; font-weight: 700; color: rgba(27,58,92,0.5);
+    white-space: nowrap; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .os-disc-manual-row input {
+    flex: 1; min-width: 0; padding: 2px 4px; border-radius: 5px;
+    border: none; background: transparent; color: #1B3A5C;
+    font-family: 'Quicksand', sans-serif; font-size: 0.9rem; font-weight: 800;
+    outline: none; text-align: center; width: 40px;
+  }
+  .os-disc-manual-row input::-webkit-inner-spin-button { opacity: 0; }
+  .os-disc-manual-unit { font-size: 0.7rem; font-weight: 700; color: rgba(27,58,92,0.4); flex-shrink: 0; }
+  .os-disc-manual-btns { display: flex; gap: 3px; flex-shrink: 0; }
+  .os-disc-manual-btns button {
+    width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid rgba(27,58,92,0.15);
+    background: rgba(27,58,92,0.05); color: #1B3A5C;
+    font-size: 0.85rem; font-weight: 700; cursor: pointer; line-height: 1;
+    transition: all 0.15s; font-family: 'Quicksand', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .os-disc-manual-btns button:hover { background: #1B3A5C; border-color: #1B3A5C; color: #fff; }
+
+  /* Password modal */
+  .disc-pwd-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 500;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .disc-pwd-overlay.open { display: flex; }
+  .disc-pwd-box {
+    background: #0f1c2a;
+    border: 1px solid rgba(240,192,64,0.2);
+    border-radius: 20px; padding: 28px 28px 24px;
+    width: 310px; max-width: 92vw;
+    font-family: 'Quicksand', sans-serif;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04) inset;
+    animation: pwdPop 0.22s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes pwdPop { from { opacity:0; transform: scale(0.9) translateY(10px); } to { opacity:1; transform: scale(1) translateY(0); } }
+  .disc-pwd-lock {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(240,192,64,0.12); border: 1.5px solid rgba(240,192,64,0.25);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+  }
+  .disc-pwd-lock svg { width: 20px; height: 20px; fill: none; stroke: #f0c040; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .disc-pwd-title { font-size: 1rem; font-weight: 800; color: #fff; margin-bottom: 3px; }
+  .disc-pwd-sub { font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-bottom: 18px; line-height: 1.5; }
+  .disc-pwd-err {
+    font-size: 0.68rem; color: #ff8080; font-weight: 700;
+    margin-bottom: 10px; display: none; padding: 7px 11px;
+    background: rgba(255,80,80,0.08); border-radius: 8px;
+    border: 1px solid rgba(255,80,80,0.18); line-height: 1.4;
+  }
+  .disc-pwd-err.show { display: block; }
+  .disc-pwd-input {
+    width: 100%; padding: 11px 14px; border-radius: 11px;
+    border: 1.5px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05); color: #fff;
+    font-family: 'Quicksand', sans-serif; font-size: 1.1rem; font-weight: 700;
+    outline: none; letter-spacing: 4px; margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+  .disc-pwd-input:focus { border-color: rgba(240,192,64,0.5); box-shadow: 0 0 0 3px rgba(240,192,64,0.08); }
+  .disc-pwd-btns { display: flex; gap: 8px; }
+  .disc-pwd-ok {
+    flex: 1; padding: 11px; border-radius: 11px; border: none;
+    background: #f0c040; color: #3a2800;
+    font-family: 'Quicksand', sans-serif; font-size: 0.82rem; font-weight: 800;
+    cursor: pointer; transition: all 0.18s; letter-spacing: 0.2px;
+  }
+  .disc-pwd-ok:hover { background: #f5ce5a; transform: translateY(-1px); }
+  .disc-pwd-ok:active { transform: scale(0.98); }
+  .disc-pwd-cancel {
+    padding: 11px 16px; border-radius: 11px;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    background: transparent; color: rgba(255,255,255,0.3);
+    font-family: 'Quicksand', sans-serif; font-size: 0.78rem; font-weight: 700;
+    cursor: pointer; transition: all 0.18s;
+  }
+  .disc-pwd-cancel:hover { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); }
+
+
+  /* ===== ICMS SELECTOR ===== */
+  .sb-icms {
+    padding: 10px 10px 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    flex-shrink: 0;
+  }
+  .sb-icms-title {
+    font-size: 0.6rem; font-weight: 700; color: rgba(27,58,92,0.5);
+    letter-spacing: 0.6px; text-transform: uppercase;
+    margin-bottom: 7px; display: flex; align-items: center; gap: 5px;
+  }
+  .sb-icms-title::before {
+    content: ''; display: inline-block; width: 4px; height: 12px;
+    background: #1B3A5C; border-radius: 3px; opacity: 0.4; flex-shrink: 0;
+  }
+  .sb-icms-btns {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .sb-icms-btn {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.62rem; font-weight: 700;
+    padding: 5px 4px; border-radius: 8px;
+    border: 1.5px solid rgba(27,58,92,0.15);
+    background: rgba(255,255,255,0.6);
+    color: rgba(27,58,92,0.55);
+    cursor: pointer; transition: all 0.18s ease;
+    text-align: center; line-height: 1.2;
+  }
+  .sb-icms-btn:hover {
+    background: rgba(27,58,92,0.08);
+    color: #1B3A5C;
+    border-color: rgba(27,58,92,0.3);
+  }
+  .sb-icms-btn.active {
+    background: #1B3A5C;
+    color: #fff;
+    border-color: #1B3A5C;
+  }
+
+
+  /* ===== RIGHT ORDER SIDEBAR ===== */
+  .order-toggle {
+    position: fixed; right: 0; top: 50%; transform: translateY(-50%);
+    z-index: 90; background: #1B3A5C; color: #fff;
+    border: none; border-radius: 12px 0 0 12px;
+    padding: 14px 10px; cursor: pointer;
+    font-family: 'Quicksand', sans-serif; font-weight: 700;
+    writing-mode: vertical-rl; font-size: 0.75rem;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    transition: background 0.2s;
+  }
+  .order-toggle:hover { background: #2a5080; }
+  .order-toggle-badge {
+    background: #A01E1E; color: #fff; border-radius: 50%;
+    width: 22px; height: 22px; font-size: 0.7rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    writing-mode: horizontal-tb;
+  }
+
+  .order-sidebar {
+    position: fixed; right: -540px; top: 0; bottom: 0; width: 520px;
+    background: #fff; box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+    z-index: 150; display: flex; flex-direction: column;
+    transition: right 0.3s ease; border-left: 1px solid rgba(0,0,0,0.1);
+  }
+  @media (max-width: 560px) {
+    .order-sidebar { width: 100vw; right: -100vw; }
+  }
+  .order-sidebar.open { right: 0; }
+  .order-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+    z-index: 140;
+  }
+  .order-overlay.open { display: block; }
+
+  .os-header {
+    background: #1B3A5C; color: #fff; padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .os-title { font-size: 0.95rem; font-weight: 700; }
+  .os-subtitle { font-size: 0.7rem; opacity: 0.65; margin-top: 2px; }
+  .os-close { background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; opacity: 0.7; }
+  .os-close:hover { opacity: 1; }
+
+  .os-icms-bar {
+    padding: 8px 12px; border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex-shrink: 0;
+    background: #f7f5f2;
+  }
+  .os-icms-label { font-size: 0.62rem; font-weight: 700; color: #888; text-transform: uppercase; }
+  .os-icms-btn {
+    font-family: 'Quicksand', sans-serif; font-size: 0.65rem; font-weight: 700;
+    padding: 3px 9px; border-radius: 6px; border: 1.5px solid rgba(0,0,0,0.12);
+    background: transparent; color: #888; cursor: pointer; transition: all 0.15s;
+  }
+  .os-icms-btn:hover { border-color: #1B3A5C; color: #1B3A5C; }
+  .os-icms-btn.active { background: #1B3A5C; color: #fff; border-color: #1B3A5C; }
+
+  .os-body { flex: 1; overflow-y: auto; padding: 10px; }
+  .os-empty { text-align: center; padding: 40px 16px; color: #aaa; font-size: 0.85rem; }
+
+  .os-section-label {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: #888; padding: 6px 4px 4px;
+    border-bottom: 1px solid rgba(0,0,0,0.08); margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .os-section-sub { font-weight: 700; font-size: 0.78rem; color: #A01E1E; }
+
+  .os-item {
+    border: 1px solid rgba(0,0,0,0.09); border-radius: 10px;
+    padding: 9px 10px; margin-bottom: 6px; display: grid;
+    grid-template-columns: 52px 1fr auto; gap: 8px;
+  }
+  .os-item.is-lanc { border-color: #f0a030; background: #fffbf2; }
+  .os-item-thumb { width: 52px; height: 52px; object-fit: contain; border-radius: 6px; background: #f5f5f5; align-self: center; }
+  .os-item-thumb-empty { width: 52px; height: 52px; border-radius: 6px; background: #eee; align-self: center; }
+  .os-item-left { min-width: 0; }
+  .os-ref { font-size: 0.6rem; font-weight: 700; color: #aaa; }
+  .os-nome { font-size: 0.75rem; font-weight: 700; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .os-price { font-size: 0.8rem; color: #A01E1E; font-weight: 700; margin-top: 2px; }
+  .os-meta { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+  .os-badge {
+    font-size: 0.58rem; font-weight: 700; padding: 1px 6px; border-radius: 4px;
+    background: #eee; color: #555;
+  }
+  .os-badge.nac { background: #e0f0e0; color: #2a6a2a; }
+  .os-badge.imp { background: #e0e8f5; color: #1B3A5C; }
+  .os-badge.est-ok { background: #e0f0e0; color: #2a6a2a; }
+  .os-badge.est-zero { background: #fde8e8; color: #A01E1E; }
+  .os-badge.lanc-date { background: #fff0cc; color: #7a5000; border: 1px solid #f0a030; }
+  .os-warn { font-size: 0.62rem; color: #c05000; font-weight: 700; margin-top: 3px; }
+
+  .os-item-right { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+  .os-qty-row { display: flex; align-items: center; gap: 3px; }
+  .os-qty-btn {
+    width: 22px; height: 22px; border: 1px solid rgba(0,0,0,0.12);
+    background: #f4f1ed; border-radius: 5px; font-size: 0.85rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: #1B3A5C; transition: background 0.1s;
+  }
+  .os-qty-btn:hover { background: #e0dcd6; }
+  .os-qty-input {
+    width: 38px; height: 22px; border: 1px solid rgba(0,0,0,0.12); border-radius: 5px;
+    text-align: center; font-family: 'Quicksand', sans-serif; font-size: 0.78rem; font-weight: 700;
+  }
+  .os-qty-input:focus { outline: none; border-color: #1B3A5C; }
+  .os-del { background: none; border: none; color: #ccc; cursor: pointer; font-size: 0.75rem; padding: 2px; }
+  .os-del:hover { color: #A01E1E; }
+
+  .os-footer { border-top: 1px solid rgba(0,0,0,0.1); padding: 12px 14px; flex-shrink: 0; background: #f7f5f2; }
+  .os-totals { font-size: 0.8rem; margin-bottom: 10px; }
+  .os-total-row { display: flex; justify-content: space-between; padding: 2px 0; }
+  .os-total-row .lbl { color: #888; }
+  .os-total-row .val { font-weight: 700; }
+  .os-total-main { border-top: 1px solid rgba(0,0,0,0.12); margin-top: 6px; padding-top: 6px; font-size: 0.95rem; }
+  .os-total-main .val { color: #A01E1E; font-size: 1rem; }
+  .os-action-btns { display: flex; gap: 6px; }
+  .os-btn-clear { flex: 1; background: transparent; border: 1px solid rgba(0,0,0,0.12); border-radius: 8px; padding: 8px; font-family: 'Quicksand', sans-serif; font-size: 0.75rem; font-weight: 700; cursor: pointer; color: #A01E1E; }
+  .os-btn-print { flex: 2; background: #1B3A5C; color: #fff; border: none; border-radius: 8px; padding: 8px; font-family: 'Quicksand', sans-serif; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+  .os-btn-print:hover { opacity: 0.9; }
+
+  /* Badge selected state */
+  .price-badge.selected .price-tag {
+    background: rgba(27,100,27,0.88) !important;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.6), 0 2px 8px rgba(0,0,0,0.3) !important;
+  }
+  .price-badge .badge-info-btn {
+    position: absolute; top: -6px; right: -6px;
+    width: 16px; height: 16px; background: rgba(255,255,255,0.9);
+    border: none; border-radius: 50%; cursor: pointer; font-size: 0.6rem;
+    font-weight: 700; color: #1B3A5C; display: flex; align-items: center;
+    justify-content: center; opacity: 0; transition: opacity 0.15s;
+    z-index: 5;
+  }
+  .price-badge:hover .badge-info-btn { opacity: 1; }
+
 </style>
 </head>
 <body>
@@ -1113,7 +1443,7 @@
       const d = PRICE_CONFIG[ref];
       if (!d) return;
       const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
-      badge.querySelector('.price-tag').innerHTML = `<div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(d[key])}</div>`;
+      badge.querySelector('.price-tag').innerHTML = `<div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(getDiscountedPrice(d[key]))}</div>`;
     });
   }
   function applyIcmsOnLoad() {
@@ -1478,7 +1808,7 @@
       const d = PRICE_CONFIG[ref];
       if (!d) return;
       const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
-      badge.querySelector('.price-main').textContent = fmtPrice(d[key]);
+      badge.querySelector('.price-main').textContent = fmtPrice(getDiscountedPrice(d[key]));
     });
     renderOrder();
   }
@@ -1571,7 +1901,8 @@
 
     const renderItem = (item) => {
       const d = item.data;
-      const price = d[osIcms] || 0;
+      const priceOrig = d[osIcms] || 0;
+      const price = getDiscountedPrice(priceOrig);
       const belowMin = d.pedido_min > 1 && item.qty < d.pedido_min;
       const estLabel = d.estoque > 0
         ? `<span class="os-badge est-ok">Est: ${d.estoque}</span>`
@@ -1591,7 +1922,7 @@
           <div class="os-item-left">
             <div class="os-ref">REF ${ref}</div>
             <div class="os-nome" title="${d.nome}">${d.nome}</div>
-            <div class="os-price">${fmtMoney(price)} <span style="font-size:0.68rem;color:#999">× ${item.qty} = ${fmtMoney(price*item.qty)}</span></div>
+            <div class="os-price">${globalDiscount > 0 && priceOrig !== price ? '<span style="text-decoration:line-through;opacity:0.35;font-size:0.75rem;font-weight:400;margin-right:3px">R$ ' + priceOrig.toFixed(2).replace('.',',') + '</span> ' : ''}${fmtMoney(price)} <span style="font-size:0.68rem;color:#999">× ${item.qty} = ${fmtMoney(price*item.qty)}</span></div>
             <div class="os-meta">
               <span class="os-badge ${(d.origem||'IMP')==='NAC'?'nac':'imp'}">${d.origem||'IMP'}</span>
               <span class="os-badge">CX: ${d.cx}</span>
@@ -1612,13 +1943,13 @@
     };
 
     if (linha.length) {
-      const subLinha = linha.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
+      const subLinha = linha.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
       html += `<div class="os-section-label">Linha <span class="os-section-sub">${fmtMoney(subLinha)}</span></div>`;
       html += linha.map(renderItem).join('');
     }
 
     if (lanc.length) {
-      const subLanc = lanc.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
+      const subLanc = lanc.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
       html += `<div class="os-section-label" style="margin-top:10px">Lançamentos <span class="os-section-sub">${fmtMoney(subLanc)}</span></div>`;
       html += lanc.map(renderItem).join('');
     }
@@ -1626,8 +1957,8 @@
     body.innerHTML = html;
 
     // Totals
-    const totalLinha = linha.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
-    const totalLanc  = lanc.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
+    const totalLinha = linha.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
+    const totalLanc  = lanc.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
     const totalQtd   = items.reduce((s,i)=>s+i.qty,0);
     const totalGeral = totalLinha + totalLanc;
 
@@ -1636,6 +1967,12 @@
     if (lanc.length)  totHtml += `<div class="os-total-row"><span class="lbl">Subtotal lançamentos</span><span class="val">${fmtMoney(totalLanc)}</span></div>`;
     totHtml += `<div class="os-total-row"><span class="lbl">Qtd total</span><span class="val">${totalQtd} un.</span></div>`;
     totHtml += `<div class="os-total-row os-total-main"><span class="lbl" style="font-weight:700">TOTAL GERAL</span><span class="val">${fmtMoney(totalGeral)}</span></div>`;
+    if (globalDiscount > 0) {
+      const totalOrigLinha = linha.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
+      const totalOrigLanc  = lanc.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
+      const economia = (totalOrigLinha + totalOrigLanc) - totalGeral;
+      totHtml += `<div class="os-total-row" style="color:#0E8A5F;border-top:1px dashed rgba(14,138,95,0.3);margin-top:4px;padding-top:4px"><span class="lbl">🏷️ Economia (${globalDiscount}%)</span><span class="val">- ${fmtMoney(economia)}</span></div>`;
+    }
     document.getElementById('osTotals').innerHTML = totHtml;
   }
 
@@ -1665,6 +2002,7 @@
     const linha = items.filter(i => !i.data.is_lanc && !i.data.lancamento);
     const lanc  = items.filter(i =>  i.data.is_lanc ||  i.data.lancamento);
     const now = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const discBadge = globalDiscount > 0 ? ' &nbsp;&middot;&nbsp; <span style="background:#f0c040;color:#3a2800;padding:1px 7px;border-radius:10px;font-weight:700">Desconto: ' + globalDiscount + '%</span>' : '';
 
     const tdS = 'padding:6px 8px;border-bottom:1px solid #eee;font-size:0.8rem';
     const thS = 'background:#1B3A5C;color:#fff;padding:7px 8px;font-size:0.78rem;font-weight:700';
@@ -1682,7 +2020,8 @@
     </tr></thead>`;
 
     const renderRows = (arr) => arr.map(item => {
-      const d = item.data; const price = d[osIcms]||0;
+      const d = item.data; const priceOrig = d[osIcms]||0;
+      const price = getDiscountedPrice(priceOrig);
       const origBg = (d.origem||'IMP')==='NAC' ? '#e0f0e0' : '#dce8f5';
       const origTx = (d.origem||'IMP')==='NAC' ? '#2a6a2a' : '#1B3A5C';
       const minBadge = (d.pedido_min||1)>1
@@ -1707,8 +2046,8 @@
       </tr>`;
     }).join('');
 
-    const totalLinha = linha.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
-    const totalLanc  = lanc.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
+    const totalLinha = linha.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
+    const totalLanc  = lanc.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
     const totalQtd   = items.reduce((s,i)=>s+i.qty,0);
     const totalGeral = totalLinha + totalLanc;
 
@@ -1879,7 +2218,8 @@
 
     const addRows = (arr, tipo) => arr.forEach((item, ri) => {
       const d = item.data;
-      const price = d[osIcms] || 0;
+      const priceOrig = d[osIcms] || 0;
+      const price = getDiscountedPrice(priceOrig);
       const isEven = (ws.rowCount % 2 === 0);
       const rowBg = isEven ? 'FFF0F4F8' : 'FFFFFFFF';
 
@@ -1948,8 +2288,8 @@
     if (lanc.length)  addRows(lanc,  'Lançamento');
 
     // Totals
-    const totalLinha = linha.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty, 0);
-    const totalLanc  = lanc.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,  0);
+    const totalLinha = linha.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty, 0);
+    const totalLanc  = lanc.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,  0);
     const totalGeral = totalLinha + totalLanc;
 
     ws.addRow([]);
@@ -1992,6 +2332,137 @@
   }
 
 
+
+  // ===== DISCOUNT SYSTEM =====
+  // Senha protegida por SHA-256 — não é possível reverter o hash para descobrir a senha original
+  const DISC_HASH = '5cde9ad8cf249b61dd22ca81ab3a79915e4d43755c151855e1f3fb4f3de33f70';
+  let globalDiscount = 0;
+  let discountUnlocked = false;
+
+  async function hashString(str) {
+    const enc = new TextEncoder().encode(str);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  function getDiscountedPrice(v) {
+    if (!v || v <= 0 || globalDiscount <= 0) return v;
+    return parseFloat((v * (1 - globalDiscount / 100)).toFixed(2));
+  }
+
+  function openDiscountAuth() {
+    const bar = document.getElementById('osDiscountBar');
+    if (bar && bar.classList.contains('open')) {
+      // Fecha barra e trava novamente
+      bar.classList.remove('open');
+      discountUnlocked = false;
+      return;
+    }
+    // Sempre exige senha para abrir/editar
+    const overlay = document.getElementById('discPwdOverlay');
+    overlay.classList.add('open');
+    setTimeout(function() { var el = document.getElementById('discPwdInput'); if(el) el.focus(); }, 120);
+  }
+
+  function closeDiscPwd() {
+    document.getElementById('discPwdOverlay').classList.remove('open');
+    document.getElementById('discPwdInput').value = '';
+    document.getElementById('discPwdErr').classList.remove('show');
+  }
+
+  function checkDiscPwd() {
+    var val = document.getElementById('discPwdInput').value;
+    hashString(val).then(function(h) {
+      if (h === DISC_HASH) {
+        discountUnlocked = true;
+        closeDiscPwd();
+        document.getElementById('osDiscountBar').classList.add('open');
+        // Restaurar botão ativo conforme desconto salvo
+        document.querySelectorAll('.os-dc-btn').forEach(function(b) {
+          var m = (b.getAttribute('onclick')||'').match(/setCluster\(this,(\d+(?:\.\d+)?)\)/);
+          var pct = m ? parseFloat(m[1]) : -1;
+          b.classList.toggle('active', pct === globalDiscount || (!m && globalDiscount === 0));
+        });
+        if (!document.getElementById('orderSidebar').classList.contains('open')) {
+          toggleOrderSidebar();
+        }
+      } else {
+        document.getElementById('discPwdErr').classList.add('show');
+        document.getElementById('discPwdInput').value = '';
+        document.getElementById('discPwdInput').focus();
+      }
+    });
+  }
+
+  function setCluster(btn, pct) {
+    globalDiscount = pct;
+    document.getElementById('osDiscountInput').value = pct;
+    document.querySelectorAll('.os-dc-btn').forEach(function(b) { b.classList.toggle('active', b === btn); });
+    localStorage.setItem('xalingo-disc-pct', pct);
+    _applyDiscount();
+  }
+
+  function setManualDiscount(val) {
+    var pct = Math.min(100, Math.max(0, parseFloat(val) || 0));
+    globalDiscount = pct;
+    document.querySelectorAll('.os-dc-btn').forEach(function(b) { b.classList.remove('active'); });
+    localStorage.setItem('xalingo-disc-pct', pct);
+    _applyDiscount();
+  }
+
+  function stepDiscount(delta) {
+    var cur = parseFloat(document.getElementById('osDiscountInput').value) || 0;
+    var next = Math.min(100, Math.max(0, cur + delta));
+    document.getElementById('osDiscountInput').value = next;
+    setManualDiscount(next);
+  }
+
+  function _updateDiscTrigger() {
+    var trigger = document.getElementById('osDiscTrigger');
+    var badge = document.getElementById('osDiscPctBadge');
+    if (!trigger) return;
+    if (globalDiscount > 0) {
+      trigger.classList.add('active');
+      if (badge) badge.textContent = '-' + globalDiscount + '%';
+    } else {
+      trigger.classList.remove('active');
+      if (badge) badge.textContent = '0%';
+    }
+  }
+
+  function _applyDiscount() {
+    _updateDiscTrigger();
+    renderOrder();
+    var icmsKey = currentIcms || osIcms;
+    document.querySelectorAll('.price-badge').forEach(function(badge) {
+      var ref = badge.dataset.ref;
+      var d = PRICE_CONFIG[ref];
+      if (!d) return;
+      var orig = d[icmsKey] || 0;
+      var v = getDiscountedPrice(orig);
+      var mainEl = badge.querySelector('.price-main');
+      if (!mainEl) return;
+      if (globalDiscount > 0 && orig !== v) {
+        mainEl.innerHTML =
+          '<span style="display:block;text-decoration:line-through;opacity:0.4;font-size:0.72rem;font-weight:400;line-height:1.2">R$ ' + orig.toFixed(2).replace('.',',') + '</span>' +
+          (v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar');
+      } else {
+        mainEl.textContent = v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      }
+    });
+  }
+
+  // ── Restaurar desconto salvo no localStorage (sem pedir senha) ───────────
+  (function() {
+    var saved = parseFloat(localStorage.getItem('xalingo-disc-pct') || '0');
+    if (saved > 0) {
+      globalDiscount = saved;
+      var inp = document.getElementById('osDiscountInput');
+      if (inp) inp.value = saved;
+    }
+  })();
+
+
 </script>
 
 <!-- Price modal -->
@@ -2019,7 +2490,37 @@
       <div class="os-title">📋 Pedido de Venda</div>
       <div class="os-subtitle" id="osSubtitle">Nenhum produto selecionado</div>
     </div>
-    <button class="os-close" onclick="toggleOrderSidebar()">✕</button>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="os-discount-trigger" id="osDiscTrigger" onclick="openDiscountAuth()" title="Desconto comercial">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span class="os-disc-pct-badge" id="osDiscPctBadge">0%</span>
+      </button>
+      <button class="os-close" onclick="toggleOrderSidebar()">✕</button>
+    </div>
+  </div>
+  <div class="os-discount-bar" id="osDiscountBar">
+    <div class="os-disc-section-label">Cluster / Segmento</div>
+    <div class="os-discount-clusters">
+      <button class="os-dc-btn dc-none active" onclick="setCluster(this,0)">Sem desconto <span class="dc-pct">—</span></button>
+      <button class="os-dc-btn" onclick="setCluster(this,31)"><span>Atacado</span><span class="dc-pct">31%</span></button>
+      <button class="os-dc-btn" onclick="setCluster(this,25)"><span>E-commerce</span><span class="dc-pct">25%</span></button>
+      <button class="os-dc-btn" onclick="setCluster(this,25)"><span>Var. Especializado</span><span class="dc-pct">25%</span></button>
+      <button class="os-dc-btn" onclick="setCluster(this,25)"><span>Var. Geral</span><span class="dc-pct">25%</span></button>
+      <button class="os-dc-btn" onclick="setCluster(this,20)"><span>Var. Redes</span><span class="dc-pct">20%</span></button>
+      <button class="os-dc-btn" onclick="setCluster(this,20)"><span>Var. Supermercados</span><span class="dc-pct">20%</span></button>
+      <button class="os-dc-btn" onclick="setCluster(this,22)"><span>Licitação</span><span class="dc-pct">22%</span></button>
+    </div>
+    <div class="os-disc-section-label" style="margin-top:4px">% manual</div>
+    <div class="os-disc-manual-row">
+      <label>Desconto</label>
+      <div class="os-disc-manual-btns">
+        <button onclick="stepDiscount(-1)">−</button>
+        <button onclick="stepDiscount(1)">+</button>
+      </div>
+      <input type="number" id="osDiscountInput" min="0" max="100" step="0.5" value="0"
+        oninput="setManualDiscount(this.value)" onchange="setManualDiscount(this.value)">
+      <span class="os-disc-manual-unit">%</span>
+    </div>
   </div>
 
   <div class="os-icms-bar">
@@ -2051,6 +2552,25 @@
     <div style="margin-top:16px;display:flex;gap:8px">
       <button onclick="compressAndPrint()" style="background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">🖨 Imprimir / PDF</button>
       <button onclick="document.getElementById('printModal').classList.remove('open')" style="background:transparent;border:1px solid #ccc;border-radius:8px;padding:9px 20px;font-family:Quicksand,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">Fechar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Discount password modal -->
+<div class="disc-pwd-overlay" id="discPwdOverlay" onclick="if(event.target===this)closeDiscPwd()">
+  <div class="disc-pwd-box">
+    <div class="disc-pwd-lock">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div class="disc-pwd-title">Acesso Comercial</div>
+    <div class="disc-pwd-sub">Área restrita. Insira a senha para liberar os descontos por cluster.</div>
+    <div class="disc-pwd-err" id="discPwdErr">Senha incorreta. Tente novamente.</div>
+    <input class="disc-pwd-input" type="password" id="discPwdInput" placeholder="••••••"
+      onkeydown="if(event.key==='Enter')checkDiscPwd()">
+    <div class="disc-pwd-btns">
+      <button class="disc-pwd-ok" onclick="checkDiscPwd()">🔓 Entrar</button>
+      <button class="disc-pwd-cancel" onclick="closeDiscPwd()">Cancelar</button>
     </div>
   </div>
 </div>
