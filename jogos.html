@@ -729,7 +729,22 @@
   }
   .price-badge:hover .badge-info-btn { opacity: 1; }
 
-</style>
+
+  @media print {
+    .price-tag {
+      background: #a01e1e !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+    .price-badge {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .price-main { color: #fff !important; }
+    .price-ref  { color: rgba(255,255,255,0.8) !important; }
+  }
+  </style>
 </head>
 <body>
 
@@ -1465,8 +1480,7 @@
     '60576': { img:'jogos-p0014', x:4, y:60, p18:80.5, p12rs:75.0, p12:75.0, p7:71.0, cx:6, estoque:949, disponivel:949, origem:'NAC', nome:'JOGO DE TABULEIRO PANGEIA', ean:'7896640499273', dun:'17896640499270' },
     // ─── jogos-p0015 (pág 127) ───
     '12732': { img:'jogos-p0015', x:4, y:15, p18:76.2, p12rs:71.0, p12:71.0, p7:67.2, cx:6, estoque:707, disponivel:707, origem:'NAC', nome:'JOGO DE TABULEIRO CAMPOS DA FORTUNA', ean:'7896640489533', dun:'17896640489530' },
-    '60565': { img:'jogos-p0015', x:4, y:60, p18:84.4, p12rs:78.6, p12:78.6, p7:74.4, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'JOGO DE TABULEIRO XALINGÓPOLIS', ean:'7896640499266', dun:'17896640499263' },
-    '12810': { img:'jogos-p0016', x:4, y:20, p18:86.9, p12rs:81.0, p12:81.0, p7:76.6, cx:6, estoque:169, disponivel:169, origem:'NAC', nome:'JOGO DE TABULEIRO PISANDO FUNDO', ean:'7896640489601', dun:'17896640489608' },
+    '12810': { img:'jogos-p0015', x:4, y:60, p18:86.9, p12rs:81.0, p12:81.0, p7:76.6, cx:6, estoque:169, disponivel:169, origem:'NAC', nome:'JOGO DE TABULEIRO PISANDO FUNDO', ean:'7896640489601', dun:'17896640489608' },
   };
 
   function renderPriceBadges() {

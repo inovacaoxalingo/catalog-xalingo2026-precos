@@ -729,7 +729,22 @@
   }
   .price-badge:hover .badge-info-btn { opacity: 1; }
 
-</style>
+
+  @media print {
+    .price-tag {
+      background: #a01e1e !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+    .price-badge {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .price-main { color: #fff !important; }
+    .price-ref  { color: rgba(255,255,255,0.8) !important; }
+  }
+  </style>
 </head>
 <body>
 
