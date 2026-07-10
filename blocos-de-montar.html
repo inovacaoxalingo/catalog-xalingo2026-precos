@@ -1914,10 +1914,18 @@
     '68476': { img:'blocos-p0068', x:4, y:60, p18:88.3, p12rs:96.0, p12:88.3, p7:90.8, cx:4, pedido_min:1, estoque:1214, disponivel:1214, origem:'IMP', nome:'SOFT BLOCOS  BIG - 56 PÇS', ean:'', dun:'' },
   };
 
+  // ── Refs com tag de preço desativada (ocultas) ───────────
+  const REFS_OCULTAS = new Set([
+    '16910','16921','16932','16943','16965','16976','16987','16998',
+    '17854','17876','17887','17898','17910','17921','17932','17943',
+    '15221','14998','16187','15465','15321','15454','15265'
+  ]);
+
   // ── Render all price badges ──────────────────────────────
   
   function renderPriceBadges() {
     Object.entries(PRICE_CONFIG).forEach(([ref, d]) => {
+      if (REFS_OCULTAS.has(ref)) return;
       const img = document.querySelector(`img[src*="${d.img}"]`);
       if (!img) return;
       let wrap = img.parentElement;
