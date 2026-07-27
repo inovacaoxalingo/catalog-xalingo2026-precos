@@ -1789,8 +1789,14 @@
     '62554': { img:'fazdeconta-p8', x:4, y:15, p18:170.0, p12rs:183.0, p12:170.0, p7:170.0, cx:6, estoque:568, disponivel:568, origem:'IMP', nome:'MESA DE ÁGUA AREIA PLAY', ean:'7896640412487', dun:'17896640412484' },
   };
 
+  // ── Refs com tag de preço desativada (ocultas) ───────────
+  const REFS_OCULTAS = new Set([
+    '55025'
+  ]);
+
   function renderPriceBadges() {
     Object.entries(PRICE_CONFIG).forEach(([ref, d]) => {
+      if (REFS_OCULTAS.has(ref)) return;
       const img = document.querySelector(`img[src*="${d.img}"]`);
       if (!img) return;
       let wrap = img.parentElement;

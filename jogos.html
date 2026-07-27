@@ -1479,8 +1479,14 @@
     '12810': { img:'jogos-p0016', x:4, y:20, p18:85.4, p12rs:81.0, p12:81.0, p7:77.4, cx:6, estoque:86, disponivel:86, origem:'NAC', nome:'JOGO DE TABULEIRO PISANDO FUNDO', ean:'7896640489601', dun:'17896640489608' },
   };
 
+  // ── Refs com tag de preço desativada (ocultas) ───────────
+  const REFS_OCULTAS = new Set([
+    '16687'
+  ]);
+
   function renderPriceBadges() {
     Object.entries(PRICE_CONFIG).forEach(([ref, d]) => {
+      if (REFS_OCULTAS.has(ref)) return;
       const img = document.querySelector(`img[src*="${d.img}"]`);
       if (!img) return;
       let wrap = img.parentElement;
