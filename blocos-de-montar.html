@@ -516,10 +516,6 @@
     font-size: 0.9rem; font-weight: 800; color: #fff;
     line-height: 1.1; letter-spacing: -0.2px;
   }
-  .price-old {
-    font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.62);
-    text-decoration: line-through; line-height: 1.15; margin-bottom: 1px;
-  }
   .price-launch { display: none; }
 
   /* Modal */
@@ -897,7 +893,6 @@
       print-color-adjust: exact !important;
     }
     .price-main { color: #fff !important; }
-    .price-old { color: rgba(255,255,255,0.75) !important; }
     .price-ref  { color: rgba(255,255,255,0.8) !important; }
   }
   </style>
@@ -1703,7 +1698,11 @@
       const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
       const launch = d.lancamento
         ? `<div class="price-launch">🚀 Prev. ${d.lancamento}</div>` : '';
-      badge.querySelector('.price-tag').innerHTML = precoTagHTML(ref, d, key, launch);
+      badge.querySelector('.price-tag').innerHTML = `
+        <div class="price-ref">${ref}</div>
+        <div class="price-main">${fmtPrice(price)}</div>
+        ${launch}
+      `;
     });
   }
 
@@ -1723,36 +1722,36 @@
   // ═══════════════════════════════════════════════════════
     const PRICE_CONFIG = {
     // ─── blocos-p0004 ───
-    '52754': { img:'blocos-p0004', x:2, y:25, p18:14.2, p12rs:13.5, p12:13.5, p7:12.9, cx:6, pedido_min:1, estoque:0, disponivel:1312, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N1 - 42 PÇS', ean:'', dun:'' },
-    '52765': { img:'blocos-p0004', x:80, y:25, p18:17.9, p12rs:16.9, p12:16.9, p7:16.2, cx:6, pedido_min:1, estoque:1131, disponivel:4131, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N2 - 53 PÇS', ean:'', dun:'' },
-    '52776': { img:'blocos-p0004', x:2, y:60, p18:21.5, p12rs:20.35, p12:20.35, p7:19.5, cx:6, pedido_min:1, estoque:0, disponivel:2444, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N3 - 73 PÇS', ean:'', dun:'' },
-    '52798': { img:'blocos-p0004', x:80, y:60, p18:34.5, p12rs:32.8, p12:32.8, p7:31.3, cx:6, pedido_min:1, estoque:0, disponivel:2412, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N4 - 120 PÇS', ean:'', dun:'' },
-    '20509': { img:'blocos-p0004', x:80, y:3, p18:7.2, p12rs:6.8, p12:6.8, p7:6.5, cx:0, pedido_min:1, estoque:1860, disponivel:2360, origem:'NAC', lancamento:'01/05/2026', is_lanc:true, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO - 20 PÇS', ean:'', dun:'' },
+    '52754': { img:'blocos-p0004', x:2, y:25, p18:14.2, p12rs:13.5, p12:13.5, p7:12.9, cx:6, pedido_min:1, estoque:0, disponivel:1661, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N1 - 42 PÇS', ean:'', dun:'' },
+    '52765': { img:'blocos-p0004', x:80, y:25, p18:17.9, p12rs:16.9, p12:16.9, p7:16.2, cx:6, pedido_min:1, estoque:0, disponivel:2790, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N2 - 53 PÇS', ean:'', dun:'' },
+    '52776': { img:'blocos-p0004', x:2, y:60, p18:21.5, p12rs:20.35, p12:20.35, p7:19.5, cx:6, pedido_min:1, estoque:0, disponivel:2327, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N3 - 73 PÇS', ean:'', dun:'' },
+    '52798': { img:'blocos-p0004', x:80, y:60, p18:34.5, p12rs:32.8, p12:32.8, p7:31.3, cx:6, pedido_min:1, estoque:626, disponivel:3626, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N4 - 120 PÇS', ean:'', dun:'' },
+    '20509': { img:'blocos-p0004', x:80, y:3, p18:7.2, p12rs:6.8, p12:6.8, p7:6.5, cx:20, pedido_min:1, estoque:1602, disponivel:2102, origem:'NAC', lancamento:'01/05/2026', is_lanc:true, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO - 20 PÇS', ean:'', dun:'' },
     // ─── blocos-p0005 ───
-    '53054': { img:'blocos-p0005', x:2, y:4, p18:42.0, p12rs:39.9, p12:39.9, p7:38.1, cx:6, pedido_min:1, estoque:160, disponivel:1160, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N5 - 150 PÇS', ean:'', dun:'' },
-    '53065': { img:'blocos-p0005', x:80, y:4, p18:53.8, p12rs:51.1, p12:51.1, p7:48.82, cx:4, pedido_min:1, estoque:0, disponivel:795, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N6 - 200 PÇS', ean:'', dun:'' },
-    '67854': { img:'blocos-p0005', x:2, y:40, p18:80.3, p12rs:76.2, p12:76.2, p7:72.8, cx:4, pedido_min:1, estoque:0, disponivel:203, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N7 - 300 PÇS', ean:'', dun:'' },
-    '67865': { img:'blocos-p0005', x:80, y:40, p18:134.8, p12rs:128.0, p12:128.0, p7:122.3, cx:2, pedido_min:1, estoque:0, disponivel:180, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N8 - 500 PÇS', ean:'', dun:'' },
-    '67876': { img:'blocos-p0005', x:80, y:75, p18:266.5, p12rs:253.0, p12:253.0, p7:241.7, cx:1, pedido_min:1, estoque:0, disponivel:39, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N9 - 1000 PÇS', ean:'', dun:'' },
+    '53054': { img:'blocos-p0005', x:2, y:4, p18:42, p12rs:39.9, p12:39.9, p7:38.1, cx:6, pedido_min:1, estoque:0, disponivel:994, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N5 - 150 PÇS', ean:'', dun:'' },
+    '53065': { img:'blocos-p0005', x:80, y:4, p18:53.8, p12rs:51.1, p12:51.1, p7:48.82, cx:4, pedido_min:1, estoque:98, disponivel:2098, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N6 - 200 PÇS', ean:'', dun:'' },
+    '67854': { img:'blocos-p0005', x:2, y:40, p18:80.3, p12rs:76.2, p12:76.2, p7:72.8, cx:4, pedido_min:1, estoque:16, disponivel:516, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N7 - 300 PÇS', ean:'', dun:'' },
+    '67865': { img:'blocos-p0005', x:80, y:40, p18:134.8, p12rs:128, p12:128, p7:122.3, cx:2, pedido_min:1, estoque:8, disponivel:208, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N8 - 500 PÇS', ean:'', dun:'' },
+    '67876': { img:'blocos-p0005', x:80, y:75, p18:266.5, p12rs:253, p12:253, p7:241.7, cx:1, pedido_min:1, estoque:7, disponivel:57, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO N9 - 1000 PÇS', ean:'', dun:'' },
     // ─── blocos-p0006 ───
-    '20165': { img:'blocos-p0006', x:40, y:20, p18:31.5, p12rs:29.9, p12:29.9, p7:28.5, cx:6, pedido_min:1, estoque:402, disponivel:752, origem:'NAC', lancamento:'15/05/2026', is_lanc:true, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO 70 ANOS', ean:'', dun:'' },
+    '20165': { img:'blocos-p0006', x:40, y:20, p18:31.5, p12rs:29.9, p12:29.9, p7:28.5, cx:6, pedido_min:1, estoque:368, disponivel:718, origem:'NAC', lancamento:'15/05/2026', is_lanc:true, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO 70 ANOS', ean:'', dun:'' },
     // ─── blocos-p0007 ───
     '14565': { img:'blocos-p0007', x:4, y:20, p18:0, p12rs:0, p12:0, p7:0, cx:0, pedido_min:0, estoque:0, disponivel:0, origem:'NAC', nome:'', ean:'', dun:'' },
-    '12998': { img:'blocos-p0007', x:4, y:60, p18:138.0, p12rs:148.6, p12:138.0, p7:138.0, cx:4, pedido_min:1, estoque:468, disponivel:468, origem:'IMP', nome:'BRINCANDO DE ENGENHEIRO CARRO - 78 PÇS', ean:'', dun:'' },
+    '12998': { img:'blocos-p0007', x:4, y:60, p18:138, p12rs:148.6, p12:138, p7:138, cx:4, pedido_min:1, estoque:404, disponivel:404, origem:'IMP', nome:'BRINCANDO DE ENGENHEIRO CARRO - 78 PÇS', ean:'', dun:'' },
     // ─── blocos-p0008 ───
-    '52773': { img:'blocos-p0008', x:4, y:60, p18:45.5, p12rs:43.2, p12:43.2, p7:41.3, cx:4, pedido_min:1, estoque:0, disponivel:0, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO CIRCUITO DE CORRIDA - 70 PÇS', ean:'', dun:'' },
-    '13287': { img:'blocos-p0008', x:4, y:20, p18:68.0, p12rs:73.2, p12:68.0, p7:68.0, cx:6, pedido_min:1, estoque:1851, disponivel:1851, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BRINCANDO DE ENGENHEIRO LIVRO CENÁRIO MAGNÉTICO - 46 PÇS', ean:'', dun:'' },
+    '52773': { img:'blocos-p0008', x:4, y:60, p18:45.5, p12rs:43.2, p12:43.2, p7:41.3, cx:4, pedido_min:1, estoque:936, disponivel:936, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO CIRCUITO DE CORRIDA - 70 PÇS', ean:'', dun:'' },
+    '13287': { img:'blocos-p0008', x:4, y:20, p18:68, p12rs:73.2, p12:68, p7:68, cx:6, pedido_min:1, estoque:1770, disponivel:1770, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BRINCANDO DE ENGENHEIRO LIVRO CENÁRIO MAGNÉTICO - 46 PÇS', ean:'', dun:'' },
     // ─── blocos-p0009 ───
-    '67887': { img:'blocos-p0009', x:2, y:4, p18:42.2, p12rs:40.0, p12:40.0, p7:38.2, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO PAINT - 50 PÇS', ean:'', dun:'' },
-    '11298': { img:'blocos-p0009', x:2, y:60, p18:42.0, p12rs:39.9, p12:39.9, p7:38.1, cx:6, pedido_min:1, estoque:768, disponivel:768, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO NOVA IORQUE- 52 PÇS', ean:'', dun:'' },
+    '67887': { img:'blocos-p0009', x:2, y:4, p18:42.2, p12rs:40, p12:40, p7:38.2, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO PAINT - 50 PÇS', ean:'', dun:'' },
+    '11298': { img:'blocos-p0009', x:2, y:60, p18:42, p12rs:39.9, p12:39.9, p7:38.1, cx:6, pedido_min:1, estoque:757, disponivel:757, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO NOVA IORQUE- 52 PÇS', ean:'', dun:'' },
     // ─── blocos-p0010 ───
-    '53321': { img:'blocos-p0010', x:2, y:4, p18:46.0, p12rs:43.7, p12:43.7, p7:41.7, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'NAC', nome:'TORRE DO ENGENHEIRO - 54 PÇS', ean:'', dun:'' },
-    '13487': { img:'blocos-p0010', x:2, y:50, p18:30.0, p12rs:28.5, p12:28.5, p7:27.2, cx:6, pedido_min:1, estoque:792, disponivel:792, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO HALLOWEEN - 60 PÇS', ean:'', dun:'' },
-    '13476': { img:'blocos-p0010', x:2, y:80, p18:38.0, p12rs:36.0, p12:36.0, p7:34.4, cx:6, pedido_min:1, estoque:565, disponivel:565, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO NATAL - 60 PÇS', ean:'', dun:'' },
+    '53321': { img:'blocos-p0010', x:2, y:4, p18:46, p12rs:43.7, p12:43.7, p7:41.7, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'NAC', nome:'TORRE DO ENGENHEIRO - 54 PÇS', ean:'', dun:'' },
+    '13487': { img:'blocos-p0010', x:2, y:50, p18:30, p12rs:28.5, p12:28.5, p7:27.2, cx:6, pedido_min:1, estoque:745, disponivel:745, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO HALLOWEEN - 60 PÇS', ean:'', dun:'' },
+    '13476': { img:'blocos-p0010', x:2, y:80, p18:38, p12rs:36, p12:36, p7:34.4, cx:6, pedido_min:1, estoque:534, disponivel:534, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO NATAL - 60 PÇS', ean:'', dun:'' },
     // ─── blocos-p0012 ───
-    '17921': { img:'blocos-p0012', x:2, y:15, p18:33.3, p12rs:35.9, p12:33.3, p7:33.3, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CRIATIVOS - MONTANHA RUSSA 56 PÇS', ean:'', dun:'' },
-    '17910': { img:'blocos-p0012', x:2, y:60, p18:34.1, p12rs:36.7, p12:34.1, p7:34.1, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CRIATIVOS - ACESSORIOS PIRATA 51 PÇS', ean:'', dun:'' },
-    '68243': { img:'blocos-p0012', x:2, y:80, p18:11.1, p12rs:11.9, p12:11.1, p7:11.1, cx:20, pedido_min:1, estoque:4131, disponivel:4131, origem:'IMP', nome:'BL CRIATIVOS - CLÁSSICOS - 25 PÇS', ean:'', dun:'' },
+    '17921': { img:'blocos-p0012', x:2, y:15, p18:33.3, p12rs:35.9, p12:33.3, p7:33.3, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CRIATIVOS - MONTANHA RUSSA 56 PÇS', ean:'', dun:'' },
+    '17910': { img:'blocos-p0012', x:2, y:60, p18:34.1, p12rs:36.7, p12:34.1, p7:34.1, cx:20, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CRIATIVOS - ACESSORIOS PIRATA 51 PÇS', ean:'', dun:'' },
+    '68243': { img:'blocos-p0012', x:2, y:80, p18:11.1, p12rs:11.9, p12:11.1, p7:11.1, cx:20, pedido_min:1, estoque:3816, disponivel:3816, origem:'IMP', nome:'BL CRIATIVOS - CLÁSSICOS - 25 PÇS', ean:'', dun:'' },
     // ─── blocos-p0013 ───
     '15232': { img:'blocos-p0013', x:4, y:15, p18:9.9, p12rs:10.7, p12:9.9, p7:9.9, cx:15, pedido_min:15, estoque:0, disponivel:0, origem:'IMP', nome:'BL CRIATIVOS - COLEÇÃO DE BONECOS - DISPLAY 15 UN 13 - 15 PÇS', ean:'', dun:'' },
     '68232': { img:'blocos-p0013', x:4, y:60, p18:11.1, p12rs:11.9, p12:11.1, p7:11.1, cx:20, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', nome:'BL CRIATIVOS - MINI ANIMAIS - 25 PÇS', ean:'', dun:'' },
@@ -1761,18 +1760,18 @@
     '68210': { img:'blocos-p0014', x:4, y:15, p18:37.6, p12rs:40.5, p12:37.6, p7:37.6, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CRIATIVOS - 150 PÇS', ean:'', dun:'' },
     '15332': { img:'blocos-p0014', x:4, y:60, p18:71.3, p12rs:76.8, p12:71.3, p7:71.3, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CRIATIVOS - 300 PÇS', ean:'', dun:'' },
     // ─── blocos-p0022 ───
-    '28398': { img:'blocos-p0022', x:4, y:60, p18:48.9, p12rs:52.7, p12:48.9, p7:48.9, cx:8, pedido_min:8, estoque:2441, disponivel:2441, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - CARROS ESPORTIVOS - DISPLAY 8 UN 143 - 155 PÇS', ean:'', dun:'' },
-    '28409': { img:'blocos-p0022', x:4, y:15, p18:49.0, p12rs:52.8, p12:49.0, p7:49.0, cx:8, pedido_min:8, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - CARROS DE CORRIDA - DISPLAY 8 UN 184 - 186 PÇS', ean:'', dun:'' },
+    '28398': { img:'blocos-p0022', x:4, y:60, p18:48.9, p12rs:52.7, p12:48.9, p7:48.9, cx:8, pedido_min:8, estoque:2073, disponivel:2073, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - CARROS ESPORTIVOS - DISPLAY 8 UN 143 - 155 PÇS', ean:'', dun:'' },
+    '28409': { img:'blocos-p0022', x:4, y:15, p18:49, p12rs:52.8, p12:49, p7:49, cx:8, pedido_min:8, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - CARROS DE CORRIDA - DISPLAY 8 UN 184 - 186 PÇS', ean:'', dun:'' },
     // ─── blocos-p0015 ───
-    '68221': { img:'blocos-p0015', x:4, y:15, p18:85.0, p12rs:91.5, p12:85.0, p7:85.0, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CRIATIVOS - 400 PÇS', ean:'', dun:'' },
+    '68221': { img:'blocos-p0015', x:4, y:15, p18:85, p12rs:91.5, p12:85, p7:85, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CRIATIVOS - 400 PÇS', ean:'', dun:'' },
     '17943': { img:'blocos-p0015', x:4, y:60, p18:319.0, p12rs:347.0, p12:319.0, p7:328.0, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CRIATIVOS - 800 PÇS', ean:'', dun:'' },
     // ─── blocos-p0023 ───
-    '15243': { img:'blocos-p0023', x:4, y:15, p18:35.6, p12rs:38.3, p12:35.6, p7:35.6, cx:8, pedido_min:8, estoque:5773, disponivel:5773, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA - LANÇADOR DE CARROS DISPLAY 8 UN - 70 PÇS', ean:'', dun:'' },
+    '15243': { img:'blocos-p0023', x:4, y:15, p18:35.6, p12rs:38.3, p12:35.6, p7:35.6, cx:8, pedido_min:8, estoque:5757, disponivel:5757, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA - LANÇADOR DE CARROS DISPLAY 8 UN - 70 PÇS', ean:'', dun:'' },
     // ─── blocos-p0016 ───
-    '16365': { img:'blocos-p0016', x:4, y:15, p18:257.0, p12rs:276.8, p12:257.0, p7:257.0, cx:2, pedido_min:1, estoque:1238, disponivel:1238, origem:'IMP', nome:'BL CRIATIVOS - MAPA DO MUNDO - 684 PÇS', ean:'', dun:'' },
+    '16365': { img:'blocos-p0016', x:4, y:15, p18:257, p12rs:276.8, p12:257, p7:257, cx:2, pedido_min:1, estoque:1220, disponivel:1220, origem:'IMP', nome:'BL CRIATIVOS - MAPA DO MUNDO - 684 PÇS', ean:'', dun:'' },
     // ─── blocos-p0017 ───
-    '15965': { img:'blocos-p0017', x:4, y:15, p18:56.0, p12rs:60.3, p12:56.0, p7:56.0, cx:6, pedido_min:1, estoque:1236, disponivel:1236, origem:'IMP', nome:'BL CRIATIVOS - HALLOWEEN - 225 PÇS', ean:'', dun:'' },
-    '15976': { img:'blocos-p0017', x:4, y:60, p18:62.0, p12rs:66.8, p12:62.0, p7:62.0, cx:6, pedido_min:1, estoque:709, disponivel:709, origem:'IMP', nome:'BL CRIATIVOS - NATAL - 218 PÇS', ean:'', dun:'' },
+    '15965': { img:'blocos-p0017', x:4, y:15, p18:56, p12rs:60.3, p12:56, p7:56, cx:6, pedido_min:1, estoque:1234, disponivel:1234, origem:'IMP', nome:'BL CRIATIVOS - HALLOWEEN - 225 PÇS', ean:'', dun:'' },
+    '15976': { img:'blocos-p0017', x:4, y:60, p18:62, p12rs:66.8, p12:62, p7:62, cx:6, pedido_min:1, estoque:664, disponivel:664, origem:'IMP', nome:'BL CRIATIVOS - NATAL - 218 PÇS', ean:'', dun:'' },
     // ─── blocos-p0018 ───
     '68176': { img:'blocos-p0018', x:40, y:5, p18:27.6, p12rs:29.7, p12:27.6, p7:27.6, cx:8, pedido_min:8, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL LANÇADORES - DISPLAY 8 UN 68 - 71 PÇS', ean:'', dun:'' },
     // ─── blocos-p0019 ───
@@ -1782,53 +1781,53 @@
     '16909': { img:'blocos-p0020', x:40, y:10, p18:30.2, p12rs:32.5, p12:30.2, p7:30.2, cx:10, pedido_min:10, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL RACING CAR - MINI CARRO DE CORRIDA - DISPLAY 10 UN 62 - 69 PÇS', ean:'', dun:'' },
     // ─── blocos-p0021 ───
     '16965': { img:'blocos-p0021', x:4, y:15, p18:98.4, p12rs:107.0, p12:98.4, p7:101.0, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL RACING CAR - CARRO ESPORTIVO 2 EM 1 - 203 PÇS', ean:'', dun:'' },
-    '17876': { img:'blocos-p0021', x:4, y:60, p18:131.0, p12rs:141.1, p12:131.0, p7:131.0, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL RACING CAR - CARRO SUPER VELOCIDADE 277 PÇS', ean:'', dun:'' },
+    '17876': { img:'blocos-p0021', x:4, y:60, p18:131, p12rs:141.1, p12:131, p7:131, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL RACING CAR - CARRO SUPER VELOCIDADE 277 PÇS', ean:'', dun:'' },
     // ─── blocos-p0023 ───
     '17854': { img:'blocos-p0023', x:4, y:60, p18:111.0, p12rs:121.0, p12:111.0, p7:114.0, cx:4, pedido_min:4, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - SPEED CAR - DISPLAY 4 UN 261 - 305 PÇS', ean:'', dun:'' },
     // ─── blocos-p0024 ───
     '16932': { img:'blocos-p0024', x:4, y:15, p18:152.0, p12rs:165.0, p12:152.0, p7:156.0, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - EXPEDITION - 246 PÇS', ean:'', dun:'' },
-    '16943': { img:'blocos-p0024', x:4, y:60, p18:172.0, p12rs:185.2, p12:172.0, p7:172.0, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - TRUCK - 293 PÇS', ean:'', dun:'' },
+    '16943': { img:'blocos-p0024', x:4, y:60, p18:172, p12rs:185.2, p12:172, p7:172, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - TRUCK - 293 PÇS', ean:'', dun:'' },
     // ─── blocos-p0025 ───
-    '28510': { img:'blocos-p0025', x:4, y:15, p18:166.0, p12rs:178.8, p12:166.0, p7:166.0, cx:2, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - OFF ROAD AZUL - 305 PÇS', ean:'', dun:'' },
-    '28521': { img:'blocos-p0025', x:4, y:60, p18:191.0, p12rs:205.7, p12:191.0, p7:191.0, cx:2, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - RACE CAR - 399 PÇS', ean:'', dun:'' },
+    '28510': { img:'blocos-p0025', x:4, y:15, p18:166, p12rs:178.8, p12:166, p7:166, cx:2, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - OFF ROAD AZUL - 305 PÇS', ean:'', dun:'' },
+    '28521': { img:'blocos-p0025', x:4, y:60, p18:191, p12rs:205.7, p12:191, p7:191, cx:2, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - RACE CAR - 399 PÇS', ean:'', dun:'' },
     // ─── blocos-p0026 ───
-    '17887': { img:'blocos-p0026', x:40, y:4, p18:235.0, p12rs:253.1, p12:235.0, p7:235.0, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - SPORT CAR - 415 PÇS', ean:'', dun:'' },
+    '17887': { img:'blocos-p0026', x:40, y:4, p18:235, p12rs:253.1, p12:235, p7:235, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL SUPER MÁQUINA NA PISTA - SPORT CAR - 415 PÇS', ean:'', dun:'' },
     // ─── blocos-p0027 ───
     '16954': { img:'blocos-p0027', x:40, y:30, p18:54.6, p12rs:58.8, p12:54.6, p7:54.6, cx:8, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL MUNDO ENCANTADO - FLOR DOS SONHOS - DISPLAY 8/72 - 92 PÇS', ean:'', dun:'' },
     // ─── blocos-p0028 ───
     '15310': { img:'blocos-p0028', x:4, y:60, p18:28.6, p12rs:30.8, p12:28.6, p7:28.6, cx:8, pedido_min:8, estoque:0, disponivel:0, origem:'IMP', nome:'BL MUNDO ENCANTADO - DISPLAY 8 UN  78 - 87 PÇS', ean:'', dun:'' },
-    '28543': { img:'blocos-p0028', x:4, y:15, p18:38.3, p12rs:41.3, p12:38.3, p7:38.3, cx:6, pedido_min:6, estoque:1748, disponivel:1748, origem:'IMP', nome:'BL MUNDO ENCANTADO - FLORES - DISPLAY 6 CAIXAS / 62 - 198 PÇS', ean:'', dun:'' },
+    '28543': { img:'blocos-p0028', x:4, y:15, p18:38.3, p12rs:41.3, p12:38.3, p7:38.3, cx:6, pedido_min:6, estoque:1472, disponivel:1472, origem:'IMP', nome:'BL MUNDO ENCANTADO - FLORES - DISPLAY 6 CAIXAS / 62 - 198 PÇS', ean:'', dun:'' },
     // ─── blocos-p0029 ───
-    '16221': { img:'blocos-p0029', x:40, y:4, p18:118.0, p12rs:127.0, p12:118.0, p7:118.0, cx:4, pedido_min:1, estoque:737, disponivel:737, origem:'IMP', nome:'BL MUNDO ENCANTADO - MONTANHA RUSSA - 479 PÇS', ean:'', dun:'' },
+    '16221': { img:'blocos-p0029', x:40, y:4, p18:118, p12rs:127, p12:118, p7:118, cx:4, pedido_min:1, estoque:625, disponivel:625, origem:'IMP', nome:'BL MUNDO ENCANTADO - MONTANHA RUSSA - 479 PÇS', ean:'', dun:'' },
     // ─── blocos-p0030 ───
     '28554': { img:'blocos-p0030', x:4, y:20, p18:31.7, p12rs:34.1, p12:31.7, p7:31.7, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', nome:'BL FAZENDA - GALINHEIRO - 71 PÇS', ean:'', dun:'' },
-    '27498': { img:'blocos-p0030', x:4, y:50, p18:34.9, p12rs:37.6, p12:34.9, p7:34.9, cx:6, pedido_min:1, estoque:2448, disponivel:2448, origem:'IMP', nome:'BL FAZENDA - TRATOR HORTI FRUTI - 80 PÇS', ean:'', dun:'' },
+    '27498': { img:'blocos-p0030', x:4, y:50, p18:34.9, p12rs:37.6, p12:34.9, p7:34.9, cx:6, pedido_min:1, estoque:2330, disponivel:2330, origem:'IMP', nome:'BL FAZENDA - TRATOR HORTI FRUTI - 80 PÇS', ean:'', dun:'' },
     '27487': { img:'blocos-p0030', x:4, y:80, p18:38.3, p12rs:41.2, p12:38.3, p7:38.3, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL FAZENDA - REBOQUE DE MADEIRA - 110 PÇS', ean:'', dun:'' },
     // ─── blocos-p0031 ───
     '68154': { img:'blocos-p0031', x:4, y:20, p18:43.2, p12rs:46.5, p12:43.2, p7:43.2, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', nome:'BL FAZENDA - POMAR - 130 PÇS', ean:'', dun:'' },
     '68143': { img:'blocos-p0031', x:4, y:50, p18:44.4, p12rs:47.8, p12:44.4, p7:44.4, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', nome:'BL FAZENDA - TRATOR - 134 PÇS', ean:'', dun:'' },
     '68165': { img:'blocos-p0031', x:4, y:80, p18:58.3, p12rs:62.8, p12:58.3, p7:58.3, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL FAZENDA - POÇO - 177 PÇS', ean:'', dun:'' },
     // ─── blocos-p0032 ───
-    '4087': { img:'blocos-p0032', x:4, y:20, p18:89.6, p12rs:96.5, p12:89.6, p7:89.6, cx:6, pedido_min:1, estoque:131, disponivel:131, origem:'IMP', nome:'BL FAZENDA - TRANSPORTE DE ANIMAIS - 215 PÇS', ean:'', dun:'' },
-    '27998': { img:'blocos-p0032', x:4, y:60, p18:179.0, p12rs:192.8, p12:179.0, p7:179.0, cx:2, pedido_min:1, estoque:2261, disponivel:2261, origem:'IMP', nome:'BL FAZENDA - ULTRA COLHEITADEIRA - 567 PÇS', ean:'', dun:'' },
+    '4087': { img:'blocos-p0032', x:4, y:20, p18:89.6, p12rs:96.5, p12:89.6, p7:89.6, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', nome:'BL FAZENDA - TRANSPORTE DE ANIMAIS - 215 PÇS', ean:'', dun:'' },
+    '27998': { img:'blocos-p0032', x:4, y:60, p18:179, p12rs:192.8, p12:179, p7:179, cx:2, pedido_min:1, estoque:2261, disponivel:2261, origem:'IMP', nome:'BL FAZENDA - ULTRA COLHEITADEIRA - 567 PÇS', ean:'', dun:'' },
     // ─── blocos-p0033 ───
-    '14976': { img:'blocos-p0033', x:4, y:20, p18:13.5, p12rs:14.5, p12:13.5, p7:13.5, cx:6, pedido_min:18, estoque:6413, disponivel:6413, origem:'IMP', nome:'BL BOMBEIROS - COLEÇÃO VEÍCULOS DE RESGATE - DISPLAY 18 UN 26 - 29 PÇS', ean:'', dun:'' },
-    '14998': { img:'blocos-p0033', x:4, y:60, p18:21.4, p12rs:23.0, p12:21.4, p7:21.4, cx:12, pedido_min:12, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/05/2026', is_lanc:true, origem:'IMP', nome:'BL BOMBEIROS - DISPLAY 12 UN 39 - 64 PÇS', ean:'', dun:'' },
+    '14976': { img:'blocos-p0033', x:4, y:20, p18:13.5, p12rs:14.5, p12:13.5, p7:13.5, cx:18, pedido_min:18, estoque:5854, disponivel:5854, origem:'IMP', nome:'BL BOMBEIROS - COLEÇÃO VEÍCULOS DE RESGATE - DISPLAY 18 UN 26 - 29 PÇS', ean:'', dun:'' },
+    '14998': { img:'blocos-p0033', x:4, y:60, p18:21.4, p12rs:23, p12:21.4, p7:21.4, cx:12, pedido_min:12, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/05/2026', is_lanc:true, origem:'IMP', nome:'BL BOMBEIROS - DISPLAY 12 UN 39 - 64 PÇS', ean:'', dun:'' },
     // ─── blocos-p0034 ───
-    '15476': { img:'blocos-p0034', x:4, y:20, p18:28.6, p12rs:30.8, p12:28.6, p7:28.6, cx:6, pedido_min:1, estoque:967, disponivel:967, origem:'IMP', nome:'BL BOMBEIROS - MOTOCICLETA - 60 PÇS', ean:'', dun:'' },
+    '15476': { img:'blocos-p0034', x:4, y:20, p18:28.6, p12rs:30.8, p12:28.6, p7:28.6, cx:6, pedido_min:1, estoque:955, disponivel:955, origem:'IMP', nome:'BL BOMBEIROS - MOTOCICLETA - 60 PÇS', ean:'', dun:'' },
     '15309': { img:'blocos-p0034', x:4, y:80, p18:37.5, p12rs:40.4, p12:37.5, p7:37.5, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL BOMBEIROS - HELICÓPTERO - 140 PÇS', ean:'', dun:'' },
     '28165': { img:'blocos-p0034', x:4, y:50, p18:41.5, p12rs:44.7, p12:41.5, p7:41.5, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', nome:'BL BOMBEIROS - CAMINHÃO RESGATE RÁPIDO 2 EM 1 - 108 PÇS', ean:'', dun:'' },
     // ─── blocos-p0035 ───
-    '15576': { img:'blocos-p0035', x:4, y:20, p18:62.2, p12rs:67.0, p12:62.2, p7:62.2, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', nome:'BL BOMBEIROS - CAMINHÃO DE BOMBEIRO - 160 PÇS', ean:'', dun:'' },
-    '16209': { img:'blocos-p0035', x:4, y:60, p18:62.0, p12rs:66.9, p12:62.0, p7:62.0, cx:6, pedido_min:1, estoque:1007, disponivel:1007, origem:'IMP', nome:'BL BOMBEIROS - CORPO DE BOMBEIROS - 250 PÇS', ean:'', dun:'' },
+    '15576': { img:'blocos-p0035', x:4, y:20, p18:62.2, p12rs:67, p12:62.2, p7:62.2, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', nome:'BL BOMBEIROS - CAMINHÃO DE BOMBEIRO - 160 PÇS', ean:'', dun:'' },
+    '16209': { img:'blocos-p0035', x:4, y:60, p18:62, p12rs:66.9, p12:62, p7:62, cx:6, pedido_min:1, estoque:758, disponivel:758, origem:'IMP', nome:'BL BOMBEIROS - CORPO DE BOMBEIROS - 250 PÇS', ean:'', dun:'' },
     // ─── blocos-p0036 ───
-    '16198': { img:'blocos-p0036', x:4, y:20, p18:90.0, p12rs:96.9, p12:90.0, p7:90.0, cx:6, pedido_min:1, estoque:362, disponivel:362, origem:'IMP', nome:'BL BOMBEIROS - CAMINHÃO DE BOMBEIRO - 260 PÇS', ean:'', dun:'' },
-    '28176': { img:'blocos-p0036', x:4, y:60, p18:169.0, p12rs:182.0, p12:169.0, p7:169.0, cx:2, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL BOMBEIROS - CAMINHÃO DE APOIO - 441 PÇS', ean:'', dun:'' },
+    '16198': { img:'blocos-p0036', x:4, y:20, p18:90, p12rs:96.9, p12:90, p7:90, cx:6, pedido_min:1, estoque:279, disponivel:279, origem:'IMP', nome:'BL BOMBEIROS - CAMINHÃO DE BOMBEIRO - 260 PÇS', ean:'', dun:'' },
+    '28176': { img:'blocos-p0036', x:4, y:60, p18:169, p12rs:182, p12:169, p7:169, cx:2, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL BOMBEIROS - CAMINHÃO DE APOIO - 441 PÇS', ean:'', dun:'' },
     // ─── blocos-p0037 ───
-    '14987': { img:'blocos-p0037', x:4, y:15, p18:13.5, p12rs:14.5, p12:13.5, p7:13.5, cx:18, pedido_min:18, estoque:7708, disponivel:7708, origem:'IMP', nome:'BL DEFENSORES DA ORDEM - COLEÇÃO VEÍCULOS DE DEFESA - DISPLAY 18 UN 25 - 29 PÇS', ean:'', dun:'' },
-    '15221': { img:'blocos-p0037', x:4, y:70, p18:21.4, p12rs:23.0, p12:21.4, p7:21.4, cx:12, pedido_min:12, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/05/2026', is_lanc:true, origem:'IMP', nome:'BL DEFENSORES DA ORDEM POLÍCIA - DISPLAY 12 UN 41 - 60 PÇS', ean:'', dun:'' },
+    '14987': { img:'blocos-p0037', x:4, y:15, p18:13.5, p12rs:14.5, p12:13.5, p7:13.5, cx:18, pedido_min:18, estoque:7358, disponivel:7358, origem:'IMP', nome:'BL DEFENSORES DA ORDEM - COLEÇÃO VEÍCULOS DE DEFESA - DISPLAY 18 UN 25 - 29 PÇS', ean:'', dun:'' },
+    '15221': { img:'blocos-p0037', x:4, y:70, p18:21.4, p12rs:23, p12:21.4, p7:21.4, cx:12, pedido_min:12, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/05/2026', is_lanc:true, origem:'IMP', nome:'BL DEFENSORES DA ORDEM POLÍCIA - DISPLAY 12 UN 41 - 60 PÇS', ean:'', dun:'' },
     // ─── blocos-p0038 ───
-    '16187': { img:'blocos-p0038', x:4, y:20, p18:24.2, p12rs:26.0, p12:24.2, p7:24.2, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/05/2026', is_lanc:true, origem:'IMP', nome:'BL DEFENSORES DA ORDEM - HELICÓPTERO DA POLÍCIA - 51 PÇS', ean:'', dun:'' },
+    '16187': { img:'blocos-p0038', x:4, y:20, p18:24.2, p12rs:26, p12:24.2, p7:24.2, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/05/2026', is_lanc:true, origem:'IMP', nome:'BL DEFENSORES DA ORDEM - HELICÓPTERO DA POLÍCIA - 51 PÇS', ean:'', dun:'' },
     '15465': { img:'blocos-p0038', x:4, y:50, p18:28.6, p12rs:30.8, p12:28.6, p7:28.6, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/05/2026', is_lanc:true, origem:'IMP', nome:'BL DEFENSORES DA ORDEM - VIATURA DE POLÍCIA - 66 PÇS', ean:'', dun:'' },
     '15321': { img:'blocos-p0038', x:4, y:80, p18:35.7, p12rs:38.5, p12:35.7, p7:35.7, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/05/2026', is_lanc:true, origem:'IMP', nome:'BL DEFENSORES DA ORDEM - BARCO DE OPERAÇÕES - 92 PÇS', ean:'', dun:'' },
     // ─── blocos-p0039 ───
@@ -1838,81 +1837,81 @@
     '68198': { img:'blocos-p0040', x:8, y:55, p18:26.2, p12rs:28.2, p12:26.2, p7:26.2, cx:16, pedido_min:16, estoque:0, disponivel:0, origem:'IMP', nome:'BL OPERAÇÕES ESPECIAIS - DISPLAY 16 UN 39 - 50 PÇS', ean:'', dun:'' },
     // ─── blocos-p0041 ───
     '68209': { img:'blocos-p0041', x:4, y:60, p18:58.3, p12rs:62.8, p12:58.3, p7:58.3, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL OPERAÇÕES ESPECIAIS - HELICÓPTERO - 175 PÇS', ean:'', dun:'' },
-    '28187': { img:'blocos-p0041', x:4, y:20, p18:61.0, p12rs:65.7, p12:61.0, p7:61.0, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL OPERAÇÕES ESPECIAIS - CARRO 3 EM 1 - 141 PÇS', ean:'', dun:'' },
+    '28187': { img:'blocos-p0041', x:4, y:20, p18:61, p12rs:65.7, p12:61, p7:61, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL OPERAÇÕES ESPECIAIS - CARRO 3 EM 1 - 141 PÇS', ean:'', dun:'' },
     // ─── blocos-p0042 ───
     '28354': { img:'blocos-p0042', x:4, y:20, p18:92.8, p12rs:99.9, p12:92.8, p7:92.8, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL OPERACOES ESPECIAIS - CARRO MEGA BLINDADO - 238 PÇS', ean:'', dun:'' },
-    '28365': { img:'blocos-p0042', x:4, y:60, p18:106.0, p12rs:114.2, p12:106.0, p7:106.0, cx:4, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL OPERAÇÕES ESPECIAIS - ÔNIBUS - 279 PÇS', ean:'', dun:'' },
+    '28365': { img:'blocos-p0042', x:4, y:60, p18:106, p12rs:114.2, p12:106, p7:106, cx:4, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL OPERAÇÕES ESPECIAIS - ÔNIBUS - 279 PÇS', ean:'', dun:'' },
     // ─── blocos-p0043 ───
     '17843': { img:'blocos-p0043', x:8, y:30, p18:37.7, p12rs:40.6, p12:37.7, p7:37.7, cx:8, pedido_min:8, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - PORTA AVIÕES - DISPLAY 8 UN 71 - 93 PÇS', ean:'', dun:'' },
     // ─── blocos-p0044 ───
     '17865': { img:'blocos-p0044', x:8, y:35, p18:22.7, p12rs:24.5, p12:22.7, p7:22.7, cx:8, pedido_min:8, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - ROBÔS DE COMBATE - DISPLAY 8 UN 71 - 93 PÇS', ean:'', dun:'' },
     // ─── blocos-p0045 ───
-    '68254': { img:'blocos-p0045', x:4, y:20, p18:24.2, p12rs:26.0, p12:24.2, p7:24.2, cx:8, pedido_min:8, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - DISPLAY 8 UN 83 - 89 PÇS', ean:'', dun:'' },
-    '28110': { img:'blocos-p0045', x:4, y:60, p18:56.64, p12rs:52.7, p12:48.9, p7:48.9, cx:6, pedido_min:1, estoque:270, disponivel:270, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - TANQUE DE GUERRA - 121 PÇS', ean:'', dun:'' },
+    '68254': { img:'blocos-p0045', x:4, y:20, p18:24.2, p12rs:26, p12:24.2, p7:24.2, cx:8, pedido_min:8, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - DISPLAY 8 UN 83 - 89 PÇS', ean:'', dun:'' },
+    '28110': { img:'blocos-p0045', x:4, y:60, p18:56.64, p12rs:52.7, p12:48.9, p7:48.9, cx:6, pedido_min:1, estoque:165, disponivel:165, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - TANQUE DE GUERRA - 121 PÇS', ean:'', dun:'' },
     // ─── blocos-p0046 ───
     '16976': { img:'blocos-p0046', x:4, y:20, p18:106.0, p12rs:115.0, p12:106.0, p7:109.0, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - AVIÃO DE ATAQUE - 223 PÇS', ean:'', dun:'' },
     '16987': { img:'blocos-p0046', x:4, y:60, p18:120.0, p12rs:130.0, p12:120.0, p7:123.0, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - BLINDADO DE TRANSPORTE - 258 PÇS', ean:'', dun:'' },
     // ─── blocos-p0047 ───
-    '28098': { img:'blocos-p0047', x:4, y:20, p18:114.0, p12rs:122.8, p12:114.0, p7:114.0, cx:4, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - SUPER TANQUE - 318 PÇS', ean:'', dun:'' },
+    '28098': { img:'blocos-p0047', x:4, y:20, p18:114, p12rs:122.8, p12:114, p7:114, cx:4, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - SUPER TANQUE - 318 PÇS', ean:'', dun:'' },
     '16998': { img:'blocos-p0047', x:4, y:60, p18:153.0, p12rs:166.0, p12:153.0, p7:157.0, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - HELICÓPTERO DE COMBATE - 310 PÇS', ean:'', dun:'' },
     // ─── blocos-p0048 ───
     '17898': { img:'blocos-p0048', x:20, y:5, p18:138.0, p12rs:150.0, p12:138.0, p7:142.0, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL ALIANÇA JUSTIÇA E PAZ - JATO 268 PÇS', ean:'', dun:'' },
     // ─── blocos-p0049 ───
     '2654': { img:'blocos-p0049', x:4, y:20, p18:27.5, p12rs:29.6, p12:27.5, p7:27.5, cx:12, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CIDADE EM OBRAS - MINI PATROLA - 60 PÇS', ean:'', dun:'' },
     '2676': { img:'blocos-p0049', x:4, y:50, p18:23.7, p12rs:25.5, p12:23.7, p7:23.7, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', nome:'BL CIDADE EM OBRAS - GUINCHO - 67 PÇS', ean:'', dun:'' },
-    '15443': { img:'blocos-p0049', x:4, y:80, p18:50.0, p12rs:53.9, p12:50.0, p7:50.0, cx:6, pedido_min:1, estoque:233, disponivel:233, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CIDADE EM OBRAS - PÁ CARREGADEIRA - 120 PÇS', ean:'', dun:'' },
+    '15443': { img:'blocos-p0049', x:4, y:80, p18:50, p12rs:53.9, p12:50, p7:50, cx:6, pedido_min:1, estoque:154, disponivel:154, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CIDADE EM OBRAS - PÁ CARREGADEIRA - 120 PÇS', ean:'', dun:'' },
     // ─── blocos-p0050 ───
-    '15432': { img:'blocos-p0050', x:4, y:20, p18:57.1, p12rs:61.5, p12:57.1, p7:57.1, cx:6, pedido_min:1, estoque:1659, disponivel:1659, origem:'IMP', nome:'BL CIDADE EM OBRAS - ROLO COMPACTADOR - 140 PÇS', ean:'', dun:'' },
-    '15565': { img:'blocos-p0050', x:4, y:50, p18:59.0, p12rs:63.5, p12:59.0, p7:59.0, cx:6, pedido_min:1, estoque:717, disponivel:717, origem:'IMP', nome:'BL CIDADE EM OBRAS - CAMINHÃO - 170 PÇS', ean:'', dun:'' },
+    '15432': { img:'blocos-p0050', x:4, y:20, p18:57.1, p12rs:61.5, p12:57.1, p7:57.1, cx:6, pedido_min:1, estoque:1639, disponivel:1639, origem:'IMP', nome:'BL CIDADE EM OBRAS - ROLO COMPACTADOR - 140 PÇS', ean:'', dun:'' },
+    '15565': { img:'blocos-p0050', x:4, y:50, p18:59, p12rs:63.5, p12:59, p7:59, cx:6, pedido_min:1, estoque:632, disponivel:632, origem:'IMP', nome:'BL CIDADE EM OBRAS - CAMINHÃO - 170 PÇS', ean:'', dun:'' },
     '15487': { img:'blocos-p0050', x:4, y:80, p18:71.4, p12rs:76.9, p12:71.4, p7:71.4, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL CIDADE EM OBRAS - ESCAVADEIRA - 190 PÇS', ean:'', dun:'' },
     // ─── blocos-p0051 ───
     '15254': { img:'blocos-p0051', x:4, y:20, p18:28.6, p12rs:30.8, p12:28.6, p7:28.6, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL PIRATAS - BARCO PIRATA - 60 PÇS', ean:'', dun:'' },
-    '15509': { img:'blocos-p0051', x:4, y:50, p18:54.0, p12rs:58.2, p12:54.0, p7:54.0, cx:6, pedido_min:1, estoque:675, disponivel:675, origem:'IMP', nome:'BL PIRATAS - NAVIO - 200 PÇS', ean:'', dun:'' },
+    '15509': { img:'blocos-p0051', x:4, y:50, p18:54, p12rs:58.2, p12:54, p7:54, cx:6, pedido_min:1, estoque:622, disponivel:622, origem:'IMP', nome:'BL PIRATAS - NAVIO - 200 PÇS', ean:'', dun:'' },
     '28532': { img:'blocos-p0051', x:4, y:80, p18:73.3, p12rs:78.9, p12:73.3, p7:73.3, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', nome:'BL PIRATAS - BARCO 4 EM 1 - 297 PÇS', ean:'', dun:'' },
     // ─── blocos-p0052 ───
-    '16376': { img:'blocos-p0052', x:50, y:10, p18:229.0, p12rs:246.6, p12:229.0, p7:229.0, cx:2, pedido_min:1, estoque:797, disponivel:797, origem:'IMP', nome:'BL PIRATAS - MONTANHA RUSSA - 671 PÇS', ean:'', dun:'' },
+    '16376': { img:'blocos-p0052', x:50, y:10, p18:229, p12rs:246.6, p12:229, p7:229, cx:2, pedido_min:1, estoque:783, disponivel:783, origem:'IMP', nome:'BL PIRATAS - MONTANHA RUSSA - 671 PÇS', ean:'', dun:'' },
     // ─── blocos-p0053 ───
     '28509': { img:'blocos-p0053', x:4, y:20, p18:42.6, p12rs:45.9, p12:42.6, p7:42.6, cx:6, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL QUADRANTE X - NAVE ESPACIAL - 106 PÇS', ean:'', dun:'' },
-    '28310': { img:'blocos-p0053', x:4, y:60, p18:124.0, p12rs:133.5, p12:124.0, p7:124.0, cx:4, pedido_min:1, estoque:1208, disponivel:1208, origem:'IMP', nome:'BL QUADRANTE X - FOGUETE ESPACIAL - 292 PÇS', ean:'', dun:'' },
+    '28310': { img:'blocos-p0053', x:4, y:60, p18:124, p12rs:133.5, p12:124, p7:124, cx:4, pedido_min:1, estoque:1034, disponivel:1034, origem:'IMP', nome:'BL QUADRANTE X - FOGUETE ESPACIAL - 292 PÇS', ean:'', dun:'' },
     // ─── blocos-p0054 ───
-    '28321': { img:'blocos-p0054', x:4, y:20, p18:104.0, p12rs:112.0, p12:104.0, p7:104.0, cx:4, pedido_min:1, estoque:1276, disponivel:1276, origem:'IMP', nome:'BL QUADRANTE X - ÔNIBUS ESPACIAL - 342 PÇS', ean:'', dun:'' },
+    '28321': { img:'blocos-p0054', x:4, y:20, p18:104, p12rs:112, p12:104, p7:104, cx:4, pedido_min:1, estoque:1244, disponivel:1244, origem:'IMP', nome:'BL QUADRANTE X - ÔNIBUS ESPACIAL - 342 PÇS', ean:'', dun:'' },
     '17932': { img:'blocos-p0054', x:4, y:75, p18:199.0, p12rs:216.0, p12:199.0, p7:204.0, cx:0, pedido_min:1, estoque:0, disponivel:0, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, nome:'BL QUADRANTE X - PLATAFORMA DE LANÇAMENTO 461 PÇS', ean:'', dun:'' },
     // ─── blocos-p0055 ───
-    '15987': { img:'blocos-p0055', x:4, y:15, p18:167.0, p12rs:179.8, p12:167.0, p7:167.0, cx:4, pedido_min:1, estoque:1733, disponivel:1733, origem:'IMP', nome:'BL QUADRANTE X - MONTANHA RUSSA - 832 PÇS', ean:'', dun:'' },
+    '15987': { img:'blocos-p0055', x:4, y:15, p18:167, p12rs:179.8, p12:167, p7:167, cx:2, pedido_min:1, estoque:1695, disponivel:1695, origem:'IMP', nome:'BL QUADRANTE X - MONTANHA RUSSA - 832 PÇS', ean:'', dun:'' },
     // ─── blocos-p0057 ───
-    '68421': { img:'blocos-p0057', x:4, y:20, p18:187.0, p12rs:201.4, p12:187.0, p7:187.0, cx:2, pedido_min:1, estoque:1391, disponivel:1391, origem:'IMP', nome:'BL GRANDES - MESA INTERATIVA - 58 PÇS', ean:'', dun:'' },
-    '68365': { img:'blocos-p0057', x:4, y:60, p18:290.0, p12rs:312.3, p12:290.0, p7:290.0, cx:2, pedido_min:1, estoque:353, disponivel:353, origem:'IMP', nome:'BL GRANDES - BOX 2 E 1 - 100 PÇS', ean:'', dun:'' },
+    '68421': { img:'blocos-p0057', x:4, y:20, p18:187, p12rs:201.4, p12:187, p7:187, cx:2, pedido_min:1, estoque:1374, disponivel:1374, origem:'IMP', nome:'BL GRANDES - MESA INTERATIVA - 58 PÇS', ean:'', dun:'' },
+    '68365': { img:'blocos-p0057', x:4, y:60, p18:290, p12rs:312.3, p12:290, p7:290, cx:2, pedido_min:1, estoque:332, disponivel:332, origem:'IMP', nome:'BL GRANDES - BOX 2 E 1 - 100 PÇS', ean:'', dun:'' },
     // ─── blocos-p0058 ───
-    '68343': { img:'blocos-p0058', x:4, y:50, p18:23.0, p12rs:24.8, p12:23.0, p7:23.0, cx:12, pedido_min:6, estoque:4167, disponivel:4167, origem:'IMP', nome:'BL GRANDES - DISPLAY CARROS 6 UN', ean:'', dun:'' },
-    '68276': { img:'blocos-p0058', x:4, y:20, p18:89.0, p12rs:95.9, p12:89.0, p7:89.0, cx:3, pedido_min:1, estoque:1258, disponivel:1258, origem:'IMP', nome:'BL GRANDES - TRENZINHO DE NÚMEROS - 50 PÇS', ean:'', dun:'' },
-    '16232': { img:'blocos-p0058', x:4, y:80, p18:110.0, p12rs:118.5, p12:110.0, p7:110.0, cx:4, pedido_min:1, estoque:1242, disponivel:1242, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL GRANDES - NATAL - 77 PÇS', ean:'', dun:'' },
+    '68343': { img:'blocos-p0058', x:4, y:50, p18:23, p12rs:24.8, p12:23, p7:23, cx:12, pedido_min:6, estoque:4107, disponivel:4107, origem:'IMP', nome:'BL GRANDES - DISPLAY CARROS 6 UN', ean:'', dun:'' },
+    '68276': { img:'blocos-p0058', x:4, y:20, p18:89, p12rs:95.9, p12:89, p7:89, cx:4, pedido_min:1, estoque:1109, disponivel:1109, origem:'IMP', nome:'BL GRANDES - TRENZINHO DE NÚMEROS - 50 PÇS', ean:'', dun:'' },
+    '16232': { img:'blocos-p0058', x:4, y:80, p18:110, p12rs:118.5, p12:110, p7:110, cx:4, pedido_min:1, estoque:1242, disponivel:1242, origem:'IMP', lancamento:'30/09/2026', is_lanc:true, origem:'IMP', nome:'BL GRANDES - NATAL - 77 PÇS', ean:'', dun:'' },
     // ─── blocos-p0059 ───
-    '68332': { img:'blocos-p0059', x:4, y:60, p18:250.0, p12rs:269.3, p12:250.0, p7:250.0, cx:2, pedido_min:1, estoque:875, disponivel:875, origem:'IMP', nome:'BL GRANDES - CIDADE EM OBRAS - 90 PÇS', ean:'', dun:'' },
-    '68410': { img:'blocos-p0059', x:4, y:15, p18:270.0, p12rs:290.8, p12:270.0, p7:270.0, cx:2, pedido_min:1, estoque:452, disponivel:452, origem:'IMP', nome:'BL GRANDES - MUNDO ENCANTADO - 126 PÇS', ean:'', dun:'' },
+    '68332': { img:'blocos-p0059', x:4, y:60, p18:250, p12rs:269.3, p12:250, p7:250, cx:2, pedido_min:1, estoque:872, disponivel:872, origem:'IMP', nome:'BL GRANDES - CIDADE EM OBRAS - 90 PÇS', ean:'', dun:'' },
+    '68410': { img:'blocos-p0059', x:4, y:15, p18:270, p12rs:290.8, p12:270, p7:270, cx:2, pedido_min:1, estoque:442, disponivel:442, origem:'IMP', nome:'BL GRANDES - MUNDO ENCANTADO - 126 PÇS', ean:'', dun:'' },
     // ─── blocos-p0060 ───
-    '68309': { img:'blocos-p0060', x:4, y:15, p18:138.0, p12rs:148.6, p12:138.0, p7:138.0, cx:4, pedido_min:1, estoque:650, disponivel:650, origem:'IMP', nome:'BL GRANDES - BOMBEIROS - 35 PÇS', ean:'', dun:'' },
-    '68298': { img:'blocos-p0060', x:4, y:60, p18:277.0, p12rs:298.3, p12:277.0, p7:277.0, cx:2, pedido_min:1, estoque:522, disponivel:522, origem:'IMP', nome:'BL GRANDES - BOMBEIROS - 90 PÇS', ean:'', dun:'' },
+    '68309': { img:'blocos-p0060', x:4, y:15, p18:138, p12rs:148.6, p12:138, p7:138, cx:4, pedido_min:1, estoque:640, disponivel:640, origem:'IMP', nome:'BL GRANDES - BOMBEIROS - 35 PÇS', ean:'', dun:'' },
+    '68298': { img:'blocos-p0060', x:4, y:60, p18:277, p12rs:298.3, p12:277, p7:277, cx:2, pedido_min:1, estoque:520, disponivel:520, origem:'IMP', nome:'BL GRANDES - BOMBEIROS - 90 PÇS', ean:'', dun:'' },
     // ─── blocos-p0061 ───
-    '68321': { img:'blocos-p0061', x:4, y:15, p18:124.0, p12rs:133.5, p12:124.0, p7:124.0, cx:4, pedido_min:1, estoque:748, disponivel:748, origem:'IMP', nome:'BL GRANDES - POLÍCIA - 36 PÇS', ean:'', dun:'' },
-    '68310': { img:'blocos-p0061', x:4, y:60, p18:277.0, p12rs:298.3, p12:277.0, p7:277.0, cx:2, pedido_min:1, estoque:543, disponivel:543, origem:'IMP', nome:'BL GRANDES - POLÍCIA - 90 PÇS', ean:'', dun:'' },
+    '68321': { img:'blocos-p0061', x:4, y:15, p18:124, p12rs:133.5, p12:124, p7:124, cx:4, pedido_min:1, estoque:734, disponivel:734, origem:'IMP', nome:'BL GRANDES - POLÍCIA - 36 PÇS', ean:'', dun:'' },
+    '68310': { img:'blocos-p0061', x:4, y:60, p18:277, p12rs:298.3, p12:277, p7:277, cx:2, pedido_min:1, estoque:543, disponivel:543, origem:'IMP', nome:'BL GRANDES - POLÍCIA - 90 PÇS', ean:'', dun:'' },
     // ─── blocos-p0062 ───
-    '68398': { img:'blocos-p0062', x:4, y:15, p18:152.0, p12rs:163.9, p12:152.0, p7:152.0, cx:4, pedido_min:1, estoque:1284, disponivel:1284, origem:'IMP', nome:'BL GRANDES - CIRCUITO PLAY - 53 PÇS', ean:'', dun:'' },
-    '68354': { img:'blocos-p0062', x:4, y:60, p18:270.0, p12rs:290.9, p12:270.0, p7:270.0, cx:2, pedido_min:1, estoque:861, disponivel:861, origem:'IMP', nome:'BL GRANDES - CIRCUITO PLAY - 100 PÇS', ean:'', dun:'' },
+    '68398': { img:'blocos-p0062', x:4, y:15, p18:152, p12rs:163.9, p12:152, p7:152, cx:4, pedido_min:1, estoque:1274, disponivel:1274, origem:'IMP', nome:'BL GRANDES - CIRCUITO PLAY - 53 PÇS', ean:'', dun:'' },
+    '68354': { img:'blocos-p0062', x:4, y:60, p18:270, p12rs:290.9, p12:270, p7:270, cx:2, pedido_min:1, estoque:859, disponivel:859, origem:'IMP', nome:'BL GRANDES - CIRCUITO PLAY - 100 PÇS', ean:'', dun:'' },
     // ─── blocos-p0063 ───
-    '68387': { img:'blocos-p0063', x:4, y:60, p18:97.0, p12rs:104.5, p12:97.0, p7:97.0, cx:4, pedido_min:1, estoque:948, disponivel:948, origem:'IMP', nome:'BL GRANDES - DINOS PARK - 37 PÇS', ean:'', dun:'' },
-    '68376': { img:'blocos-p0063', x:4, y:15, p18:155.0, p12rs:166.9, p12:155.0, p7:155.0, cx:2, pedido_min:1, estoque:1193, disponivel:1193, origem:'IMP', nome:'BL GRANDES - FLORESTA - 61 PÇS', ean:'', dun:'' },
+    '68387': { img:'blocos-p0063', x:4, y:60, p18:97, p12rs:104.5, p12:97, p7:97, cx:4, pedido_min:1, estoque:930, disponivel:930, origem:'IMP', nome:'BL GRANDES - DINOS PARK - 37 PÇS', ean:'', dun:'' },
+    '68376': { img:'blocos-p0063', x:4, y:15, p18:155, p12rs:166.9, p12:155, p7:155, cx:2, pedido_min:1, estoque:1175, disponivel:1175, origem:'IMP', nome:'BL GRANDES - FLORESTA - 61 PÇS', ean:'', dun:'' },
     // ─── blocos-p0064 ───
-    '68287': { img:'blocos-p0064', x:4, y:15, p18:155.0, p12rs:166.9, p12:155.0, p7:155.0, cx:2, pedido_min:1, estoque:1161, disponivel:1161, origem:'IMP', nome:'BL GRANDES - DINO PARK - 40 PÇS', ean:'', dun:'' },
-    '68409': { img:'blocos-p0064', x:4, y:60, p18:270.0, p12rs:290.8, p12:270.0, p7:270.0, cx:2, pedido_min:1, estoque:516, disponivel:516, origem:'IMP', nome:'BL GRANDES - MUNDO DINOS - 100 PÇS', ean:'', dun:'' },
+    '68287': { img:'blocos-p0064', x:4, y:15, p18:155, p12rs:166.9, p12:155, p7:155, cx:2, pedido_min:1, estoque:1137, disponivel:1137, origem:'IMP', nome:'BL GRANDES - DINO PARK - 40 PÇS', ean:'', dun:'' },
+    '68409': { img:'blocos-p0064', x:4, y:60, p18:270, p12rs:290.8, p12:270, p7:270, cx:2, pedido_min:1, estoque:496, disponivel:496, origem:'IMP', nome:'BL GRANDES - MUNDO DINOS - 100 PÇS', ean:'', dun:'' },
     // ─── blocos-p0066 ───
-    '63110': { img:'blocos-p0066', x:4, y:60, p18:130.0, p12rs:140.0, p12:130.0, p7:130.0, cx:1, pedido_min:1, estoque:1556, disponivel:1556, origem:'IMP', nome:'SUPER SOFT BLOCOS - 30 PÇS', ean:'', dun:'' },
-    '63109': { img:'blocos-p0066', x:4, y:15, p18:147.0, p12rs:158.3, p12:147.0, p7:147.0, cx:1, pedido_min:1, estoque:1840, disponivel:1840, origem:'IMP', nome:'SUPER SOFT BLOCOS - 22 PÇS', ean:'', dun:'' },
+    '63110': { img:'blocos-p0066', x:4, y:60, p18:130, p12rs:140, p12:130, p7:130, cx:3, pedido_min:1, estoque:1538, disponivel:1538, origem:'IMP', nome:'SUPER SOFT BLOCOS - 30 PÇS', ean:'', dun:'' },
+    '63109': { img:'blocos-p0066', x:4, y:15, p18:147, p12rs:158.3, p12:147, p7:147, cx:2, pedido_min:1, estoque:1837, disponivel:1837, origem:'IMP', nome:'SUPER SOFT BLOCOS - 22 PÇS', ean:'', dun:'' },
     // ─── blocos-p0067 ───
-    '68454': { img:'blocos-p0067', x:4, y:60, p18:99.0, p12rs:106.9, p12:99.0, p7:99.0, cx:2, pedido_min:1, estoque:764, disponivel:764, origem:'IMP', nome:'SOFT BLOCOS - 86 PÇS', ean:'', dun:'' },
-    '63121': { img:'blocos-p0067', x:4, y:15, p18:194.0, p12rs:208.9, p12:194.0, p7:194.0, cx:1, pedido_min:1, estoque:737, disponivel:737, origem:'IMP', nome:'SUPER SOFT BLOCOS - 58 PÇS', ean:'', dun:'' },
+    '68454': { img:'blocos-p0067', x:4, y:60, p18:99, p12rs:106.9, p12:99, p7:99, cx:2, pedido_min:1, estoque:648, disponivel:648, origem:'IMP', nome:'SOFT BLOCOS - 86 PÇS', ean:'', dun:'' },
+    '63121': { img:'blocos-p0067', x:4, y:15, p18:194, p12rs:208.9, p12:194, p7:194, cx:2, pedido_min:1, estoque:716, disponivel:716, origem:'IMP', nome:'SUPER SOFT BLOCOS - 58 PÇS', ean:'', dun:'' },
     // ─── blocos-p0068 ───
-    '68465': { img:'blocos-p0068', x:4, y:15, p18:60.4, p12rs:65.0, p12:60.4, p7:60.4, cx:2, pedido_min:1, estoque:395, disponivel:395, origem:'IMP', nome:'SOFT BLOCOS  BIG - 33 PÇS', ean:'', dun:'' },
-    '68476': { img:'blocos-p0068', x:4, y:60, p18:96.0, p12rs:103.5, p12:96.0, p7:96.0, cx:4, pedido_min:1, estoque:1002, disponivel:1002, origem:'IMP', nome:'SOFT BLOCOS  BIG - 56 PÇS', ean:'', dun:'' },
+    '68465': { img:'blocos-p0068', x:4, y:15, p18:60.4, p12rs:65, p12:60.4, p7:60.4, cx:2, pedido_min:1, estoque:366, disponivel:366, origem:'IMP', nome:'SOFT BLOCOS  BIG - 33 PÇS', ean:'', dun:'' },
+    '68476': { img:'blocos-p0068', x:4, y:60, p18:96, p12rs:103.5, p12:96, p7:96, cx:4, pedido_min:1, estoque:992, disponivel:992, origem:'IMP', nome:'SOFT BLOCOS  BIG - 56 PÇS', ean:'', dun:'' },
   };
 
   // ── Refs com tag de preço desativada (ocultas) ───────────
@@ -1924,223 +1923,6 @@
 
   // ── Render all price badges ──────────────────────────────
   
-
-  // ── Preço anterior (tabela A2026) para exibir "De / Por" ──
-  const PRECOS_ANT = {
-    '2810':{p18:220,p12rs:205,p12:205,p7:194},
-    '2921':{p18:21.5,p12rs:20,p12:20,p7:18.9},
-    '4421':{p18:26.3,p12rs:24.5,p12:24.5,p7:23.2},
-    '6419':{p18:146,p12rs:136,p12:136,p7:129},
-    '7043':{p18:11.6,p12rs:10.8,p12:10.8,p7:10.2},
-    '7098':{p18:8.4,p12rs:7.8,p12:7.8,p7:7.4},
-    '7209':{p18:37.6,p12rs:35,p12:35,p7:33.1},
-    '7248':{p18:541,p12rs:504,p12:504,p7:477},
-    '7249':{p18:541,p12rs:504,p12:504,p7:477},
-    '7252':{p18:133,p12rs:124,p12:124,p7:117},
-    '7321':{p18:128,p12rs:119,p12:119,p7:113},
-    '7523':{p18:306,p12rs:285,p12:285,p7:270},
-    '7524':{p18:306,p12rs:285,p12:285,p7:270},
-    '7621':{p18:128,p12rs:119,p12:119,p7:113},
-    '7665':{p18:133,p12rs:124,p12:124,p7:117},
-    '7675':{p18:123,p12rs:115,p12:115,p7:109},
-    '7732':{p18:101,p12rs:94,p12:94,p7:88.9},
-    '7754':{p18:101,p12rs:94,p12:94,p7:88.9},
-    '7821':{p18:33.4,p12rs:31.1,p12:31.1,p7:29.4},
-    '9221':{p18:360,p12rs:335,p12:335,p7:317},
-    '9223':{p18:360,p12rs:335,p12:335,p7:317},
-    '9307':{p18:671,p12rs:625,p12:625,p7:591},
-    '9332':{p18:4185,p12rs:3900,p12:3900,p7:3690},
-    '9355':{p18:138,p12rs:129,p12:129,p7:122},
-    '9356':{p18:138,p12rs:129,p12:129,p7:122},
-    '9387':{p18:1341,p12rs:1250,p12:1250,p7:1183},
-    '9409':{p18:753,p12rs:702,p12:702,p7:664},
-    '9419':{p18:1771,p12rs:1650,p12:1650,p7:1561},
-    '9454':{p18:7244,p12rs:6750,p12:6750,p7:6387},
-    '9521':{p18:387,p12rs:361,p12:361,p7:342},
-    '9532':{p18:2382,p12rs:2220,p12:2220,p7:2101},
-    '9568':{p18:16527,p12rs:15400,p12:15400,p7:14572},
-    '9598':{p18:5044,p12rs:4700,p12:4700,p7:4447},
-    '9654':{p18:880,p12rs:820,p12:820,p7:776},
-    '9666':{p18:5366,p12rs:5000,p12:5000,p7:4731},
-    '9684':{p18:51083,p12rs:47600,p12:47600,p7:45041},
-    '9685':{p18:38602,p12rs:35970,p12:35970,p7:34036},
-    '9686':{p18:32195,p12rs:30000,p12:30000,p7:28387},
-    '9698':{p18:2468,p12rs:2300,p12:2300,p7:2176},
-    '9709':{p18:8585,p12rs:8000,p12:8000,p7:7570},
-    '9765':{p18:24683,p12rs:23000,p12:23000,p7:21763},
-    '9776':{p18:6976,p12rs:6500,p12:6500,p7:6151},
-    '9809':{p18:753,p12rs:702,p12:702,p7:664},
-    '9843':{p18:1465,p12rs:1365,p12:1365,p7:1292},
-    '9854':{p18:2148,p12rs:2002,p12:2002,p7:1894},
-    '9865':{p18:6010,p12rs:5600,p12:5600,p7:5299},
-    '9898':{p18:11698,p12rs:10900,p12:10900,p7:10314},
-    '9943':{p18:15024,p12rs:14000,p12:14000,p7:13247},
-    '9954':{p18:4185,p12rs:3900,p12:3900,p7:3690},
-    '9976':{p18:18459,p12rs:17200,p12:17200,p7:16275},
-    '9987':{p18:16849,p12rs:15700,p12:15700,p7:14856},
-    '9998':{p18:15668,p12rs:14600,p12:14600,p7:13815},
-    '10009':{p18:21463,p12rs:20000,p12:20000,p7:18925},
-    '10032':{p18:24468,p12rs:22800,p12:22800,p7:21574},
-    '10043':{p18:35629,p12rs:33200,p12:33200,p7:31415},
-    '10054':{p18:45717,p12rs:42600,p12:42600,p7:40310},
-    '10087':{p18:10410,p12rs:9700,p12:9700,p7:9178},
-    '10209':{p18:21034,p12rs:19600,p12:19600,p7:18546},
-    '10221':{p18:44537,p12rs:41500,p12:41500,p7:39269},
-    '10543':{p18:21.7,p12rs:20.2,p12:20.2,p7:19.1},
-    '10554':{p18:24.4,p12rs:22.7,p12:22.7,p7:21.5},
-    '10576':{p18:22.8,p12rs:21.2,p12:21.2,p7:20.1},
-    '10687':{p18:714,p12rs:665,p12:665,p7:629},
-    '10899':{p18:188,p12rs:175,p12:175,p7:166},
-    '10909':{p18:188,p12rs:175,p12:175,p7:166},
-    '11298':{p18:49.4,p12rs:46,p12:46,p7:43.5},
-    '11643':{p18:106,p12rs:98.6,p12:98.6,p7:93.3},
-    '12310':{p18:58.6,p12rs:54.6,p12:54.6,p7:51.7},
-    '12321':{p18:53.7,p12rs:50,p12:50,p7:47.3},
-    '12732':{p18:76.2,p12rs:71,p12:71,p7:67.2},
-    '12787':{p18:26.6,p12rs:24.8,p12:24.8,p7:23.5},
-    '12810':{p18:86.9,p12rs:81,p12:81,p7:76.6},
-    '12843':{p18:31.3,p12rs:29.2,p12:29.2,p7:27.6},
-    '12954':{p18:182,p12rs:170,p12:170,p7:161},
-    '12965':{p18:46.4,p12rs:43.2,p12:43.2,p7:40.9},
-    '12976':{p18:42.8,p12rs:39.9,p12:39.9,p7:37.8},
-    '13476':{p18:60.1,p12rs:56,p12:56,p7:53},
-    '13487':{p18:51.5,p12rs:48,p12:48,p7:45.4},
-    '15287':{p18:30,p12rs:28,p12:28,p7:26.5},
-    '15298':{p18:30,p12rs:28,p12:28,p7:26.5},
-    '15343':{p18:56.3,p12rs:52.5,p12:52.5,p7:49.7},
-    '15509':{p18:65.7,p12rs:71.4,p12:65.7,p7:67.6},
-    '15565':{p18:59.2,p12rs:64.3,p12:59.2,p7:60.8},
-    '15965':{p18:78.8,p12rs:85.7,p12:78.8,p7:81.1},
-    '15976':{p18:72.2,p12rs:78.5,p12:72.2,p7:74.3},
-    '16209':{p18:72.2,p12rs:78.5,p12:72.2,p7:74.3},
-    '16221':{p18:128,p12rs:139,p12:128,p7:132},
-    '16232':{p18:125,p12rs:136,p12:125,p7:129},
-    '16343':{p18:128,p12rs:119,p12:119,p7:113},
-    '16354':{p18:128,p12rs:119,p12:119,p7:113},
-    '16376':{p18:242,p12rs:263,p12:242,p7:249},
-    '17376':{p18:17.8,p12rs:16.6,p12:16.6,p7:15.7},
-    '17432':{p18:61.8,p12rs:57.6,p12:57.6,p7:54.5},
-    '17587':{p18:32.1,p12rs:29.9,p12:29.9,p7:28.3},
-    '17621':{p18:43.1,p12rs:40.2,p12:40.2,p7:38},
-    '17632':{p18:42.5,p12rs:39.6,p12:39.6,p7:37.5},
-    '17643':{p18:57.8,p12rs:53.9,p12:53.9,p7:51},
-    '17654':{p18:36.3,p12rs:33.8,p12:33.8,p7:32},
-    '17665':{p18:52.5,p12rs:48.9,p12:48.9,p7:46.3},
-    '17676':{p18:58.2,p12rs:54.2,p12:54.2,p7:51.3},
-    '17687':{p18:45.9,p12rs:42.8,p12:42.8,p7:40.5},
-    '17698':{p18:54.5,p12rs:50.8,p12:50.8,p7:48.1},
-    '17798':{p18:25.3,p12rs:23.6,p12:23.6,p7:22.3},
-    '17809':{p18:25.3,p12rs:23.6,p12:23.6,p7:22.3},
-    '20165':{p18:55.1,p12rs:51.3,p12:51.3,p7:48.5},
-    '20221':{p18:46.4,p12rs:43.2,p12:43.2,p7:40.9},
-    '20232':{p18:58.4,p12rs:54.4,p12:54.4,p7:51.5},
-    '20243':{p18:19.5,p12rs:18.2,p12:18.2,p7:17.2},
-    '20287':{p18:10,p12rs:9.3,p12:9.3,p7:8.8},
-    '20298':{p18:10,p12rs:9.3,p12:9.3,p7:8.8},
-    '20310':{p18:24.7,p12rs:23,p12:23,p7:21.8},
-    '20376':{p18:17.8,p12rs:16.6,p12:16.6,p7:15.7},
-    '20387':{p18:17.8,p12rs:16.6,p12:16.6,p7:15.7},
-    '20409':{p18:19.1,p12rs:17.8,p12:17.8,p7:16.8},
-    '20410':{p18:19.1,p12rs:17.8,p12:17.8,p7:16.8},
-    '20421':{p18:19.1,p12rs:17.8,p12:17.8,p7:16.8},
-    '20432':{p18:111,p12rs:103,p12:103,p7:97.5},
-    '20498':{p18:26.7,p12rs:24.9,p12:24.9,p7:23.6},
-    '20509':{p18:7.3,p12rs:6.8,p12:6.8,p7:6.4},
-    '20510':{p18:7.3,p12rs:6.8,p12:6.8,p7:6.4},
-    '20521':{p18:7.3,p12rs:6.8,p12:6.8,p7:6.4},
-    '20543':{p18:18.2,p12rs:17,p12:17,p7:16.1},
-    '20554':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '20565':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '20576':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '20587':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '20598':{p18:35.1,p12rs:32.7,p12:32.7,p7:30.9},
-    '20609':{p18:52585,p12rs:49000,p12:49000,p7:46366},
-    '20610':{p18:10195,p12rs:9500,p12:9500,p7:8989},
-    '20621':{p18:10195,p12rs:9500,p12:9500,p7:8989},
-    '27998':{p18:251,p12rs:273,p12:251,p7:258},
-    '28176':{p18:185,p12rs:201,p12:185,p7:190},
-    '28310':{p18:163,p12rs:177,p12:163,p7:167},
-    '28321':{p18:185,p12rs:201,p12:185,p7:190},
-    '50498':{p18:45.5,p12rs:42.4,p12:42.4,p7:40.1},
-    '50576':{p18:28.2,p12rs:26.3,p12:26.3,p7:24.9},
-    '50765':{p18:17.8,p12rs:16.6,p12:16.6,p7:15.7},
-    '51587':{p18:16.4,p12rs:15.3,p12:15.3,p7:14.5},
-    '52643':{p18:49,p12rs:45.7,p12:45.7,p7:43.2},
-    '52665':{p18:24.7,p12rs:23,p12:23,p7:21.8},
-    '52698':{p18:15.2,p12rs:14.2,p12:14.2,p7:13.4},
-    '52754':{p18:15.2,p12rs:14.2,p12:14.2,p7:13.4},
-    '52765':{p18:21.7,p12rs:20.2,p12:20.2,p7:19.1},
-    '52773':{p18:46.5,p12rs:43.3,p12:43.3,p7:41},
-    '52776':{p18:25.9,p12rs:24.1,p12:24.1,p7:22.8},
-    '52798':{p18:36.2,p12rs:33.7,p12:33.7,p7:31.9},
-    '52821':{p18:66.5,p12rs:62,p12:62,p7:58.7},
-    '52832':{p18:62.2,p12rs:58,p12:58,p7:54.9},
-    '52909':{p18:45.1,p12rs:42,p12:42,p7:39.7},
-    '52943':{p18:47.8,p12rs:44.5,p12:44.5,p7:42.1},
-    '53021':{p18:31.1,p12rs:29,p12:29,p7:27.4},
-    '53032':{p18:20.2,p12rs:18.8,p12:18.8,p7:17.8},
-    '53054':{p18:44.9,p12rs:41.8,p12:41.8,p7:39.6},
-    '53065':{p18:58.5,p12rs:54.5,p12:54.5,p7:51.6},
-    '53221':{p18:44.5,p12rs:41.5,p12:41.5,p7:39.3},
-    '53265':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '53309':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '53321':{p18:46.9,p12rs:43.7,p12:43.7,p7:41.4},
-    '54265':{p18:24.7,p12rs:23,p12:23,p7:21.8},
-    '54509':{p18:67.3,p12rs:62.7,p12:62.7,p7:59.3},
-    '54709':{p18:59.8,p12rs:55.7,p12:55.7,p7:52.7},
-    '60009':{p18:130,p12rs:121,p12:121,p7:114},
-    '60010':{p18:45.3,p12rs:42.2,p12:42.2,p7:39.9},
-    '60065':{p18:250,p12rs:233,p12:233,p7:220},
-    '60087':{p18:35,p12rs:32.6,p12:32.6,p7:30.8},
-    '60198':{p18:48.2,p12rs:44.9,p12:44.9,p7:42.5},
-    '60210':{p18:48.2,p12rs:44.9,p12:44.9,p7:42.5},
-    '60254':{p18:42.6,p12rs:39.7,p12:39.7,p7:37.6},
-    '60565':{p18:84.4,p12rs:78.6,p12:78.6,p7:74.4},
-    '60576':{p18:80.5,p12rs:75,p12:75,p7:71},
-    '60598':{p18:65.5,p12rs:61,p12:61,p7:57.7},
-    '65543':{p18:16.4,p12rs:15.3,p12:15.3,p7:14.5},
-    '65554':{p18:16.4,p12rs:15.3,p12:15.3,p7:14.5},
-    '65576':{p18:58.1,p12rs:54.1,p12:54.1,p7:51.2},
-    '65587':{p18:40.2,p12rs:37.5,p12:37.5,p7:35.5},
-    '65598':{p18:83.4,p12rs:77.7,p12:77.7,p7:73.5},
-    '67032':{p18:123,p12rs:115,p12:115,p7:109},
-    '67109':{p18:53.1,p12rs:49.5,p12:49.5,p7:46.8},
-    '67287':{p18:1640,p12rs:1528,p12:1528,p7:1446},
-    '67354':{p18:474,p12rs:442,p12:442,p7:418},
-    '67809':{p18:52.9,p12rs:49.3,p12:49.3,p7:46.6},
-    '67832':{p18:58.5,p12rs:54.5,p12:54.5,p7:51.6},
-    '67843':{p18:51.8,p12rs:48.3,p12:48.3,p7:45.7},
-    '67854':{p18:87.1,p12rs:81.2,p12:81.2,p7:76.8},
-    '67865':{p18:144,p12rs:134,p12:134,p7:127},
-    '67876':{p18:288,p12rs:268,p12:268,p7:254},
-    '67887':{p18:42.9,p12rs:40,p12:40,p7:37.8},
-    '67976':{p18:89.3,p12rs:83.2,p12:83.2,p7:78.7},
-    '68276':{p18:97.5,p12rs:106,p12:97.5,p7:100},
-    '68287':{p18:155,p12rs:168,p12:155,p7:159},
-    '68298':{p18:302,p12rs:328,p12:302,p7:310},
-    '68310':{p18:302,p12rs:328,p12:302,p7:310},
-    '68321':{p18:129,p12rs:140,p12:129,p7:132},
-    '68332':{p18:302,p12rs:328,p12:302,p7:310},
-    '68354':{p18:294,p12rs:320,p12:294,p7:303},
-    '68365':{p18:284,p12rs:309,p12:284,p7:292},
-    '68376':{p18:180,p12rs:196,p12:180,p7:185},
-    '68387':{p18:117,p12rs:127,p12:117,p7:120},
-    '68398':{p18:158,p12rs:172,p12:158,p7:163},
-    '68409':{p18:310,p12rs:337,p12:310,p7:319},
-    '68410':{p18:340,p12rs:370,p12:340,p7:350}
-  };
-
-  function precoTagHTML(ref, d, key, extra) {
-    const fmtP = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
-    const atual = getDiscountedPrice(d[key]);
-    const a = PRECOS_ANT[ref] ? PRECOS_ANT[ref][key] : null;
-    const baixou = a && d[key] > 0 && a > d[key] + 0.005;
-    return `<div class="price-ref">${ref}</div>`
-         + (baixou ? `<div class="price-old">De: ${fmtP(a)}</div>` : '')
-         + `<div class="price-main">${baixou ? 'Por: ' : ''}${fmtP(atual)}</div>`
-         + (extra || '');
-  }
-
   function renderPriceBadges() {
     Object.entries(PRICE_CONFIG).forEach(([ref, d]) => {
       if (REFS_OCULTAS.has(ref)) return;
@@ -2161,7 +1943,11 @@
       badge.style.left = d.x + '%';
       badge.style.top  = d.y + '%';
       badge.dataset.ref = ref;
-      badge.innerHTML = `<div class="price-tag">${precoTagHTML(ref, d, currentIcms, '')}</div>
+      badge.innerHTML = `
+        <div class="price-tag">
+          <div class="price-ref">${ref}</div>
+          <div class="price-main">${fmtPrice(d[currentIcms])}</div>
+        </div>
         <button class="badge-info-btn" title="Ver detalhes">ⓘ</button>`;
       badge.querySelector('.price-tag').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -2440,7 +2226,7 @@
       const d = PRICE_CONFIG[ref];
       if (!d) return;
       const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
-      badge.querySelector('.price-tag').innerHTML = precoTagHTML(ref, d, key, '');
+      badge.querySelector('.price-main').textContent = fmtPrice(d[key]);
     });
     renderOrder();
   }

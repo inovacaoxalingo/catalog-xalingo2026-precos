@@ -237,10 +237,6 @@
     font-size: 0.9rem; font-weight: 800; color: #fff;
     line-height: 1.1; letter-spacing: -0.2px;
   }
-  .price-old {
-    font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.62);
-    text-decoration: line-through; line-height: 1.15; margin-bottom: 1px;
-  }
   .price-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; }
   .price-modal-overlay.open { display:flex; }
   .price-modal { background:#fff; border-radius:18px; padding:22px 24px 20px; width:340px; max-width:92vw; box-shadow:0 20px 60px rgba(0,0,0,0.3); font-family:'Quicksand',sans-serif; position:relative; }
@@ -746,7 +742,6 @@
       print-color-adjust: exact !important;
     }
     .price-main { color: #fff !important; }
-    .price-old { color: rgba(255,255,255,0.75) !important; }
     .price-ref  { color: rgba(255,255,255,0.8) !important; }
   }
   </style>
@@ -1435,7 +1430,7 @@
       const d = PRICE_CONFIG[ref];
       if (!d) return;
       const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
-      badge.querySelector('.price-tag').innerHTML = precoTagHTML(ref, d, key, '');
+      badge.querySelector('.price-tag').innerHTML = `<div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(getDiscountedPrice(d[key]))}</div>`;
     });
   }
   function applyIcmsOnLoad() {
@@ -1444,271 +1439,48 @@
 
     const PRICE_CONFIG = {
     // ─── jogos-p0003 (pág 115) ───
-    '12809': { img:'jogos-p0003', x:4, y:15, p18:115.0, p12rs:123.8, p12:115.0, p7:115.0, cx:4, estoque:671, disponivel:671, origem:'IMP', nome:'XADREZ BRINCANDO DE ENGENHEIRO', ean:'7896640415853', dun:'17896640415850' },
+    '12809': { img:'jogos-p0003', x:4, y:15, p18:115, p12rs:123.8, p12:115, p7:115, cx:6, estoque:643, disponivel:643, origem:'IMP', nome:'XADREZ BRINCANDO DE ENGENHEIRO', ean:'7896640415853', dun:'17896640415850' },
     // ─── jogos-p0004 (pág 116) ───
-    '60009': { img:'jogos-p0004', x:4, y:15, p18:127.5, p12rs:121.0, p12:121.0, p7:115.6, cx:4, estoque:137, disponivel:837, origem:'NAC', nome:'XADREZ OFICIAL', ean:'7896640460006', dun:'17896640460003' },
-    '60065': { img:'jogos-p0004', x:4, y:60, p18:245.5, p12rs:233.0, p12:233.0, p7:222.6, cx:4, estoque:156, disponivel:656, origem:'NAC', nome:'XADREZ E DAMAS', ean:'7896640460068', dun:'17896640460065' },
+    '60009': { img:'jogos-p0004', x:4, y:15, p18:127.5, p12rs:121, p12:121, p7:115.6, cx:4, estoque:68, disponivel:768, origem:'NAC', nome:'XADREZ OFICIAL', ean:'7896640460006', dun:'17896640460003' },
+    '60065': { img:'jogos-p0004', x:4, y:60, p18:245.5, p12rs:233, p12:233, p7:222.6, cx:4, estoque:119, disponivel:619, origem:'NAC', nome:'XADREZ E DAMAS', ean:'7896640460068', dun:'17896640460065' },
     // ─── jogos-p0005 (pág 117) ───
-    '7821': { img:'jogos-p0005', x:80, y:70, p18:28.2, p12rs:26.8, p12:26.8, p7:25.6, cx:6, estoque:1719, disponivel:3719, origem:'NAC', nome:'XADREZ ESCOLAR PLÁSTICO', ean:'7896640407827', dun:'17896640407824' },
-    '60087': { img:'jogos-p0005', x:80, y:40, p18:33.6, p12rs:31.9, p12:31.9, p7:30.5, cx:6, estoque:783, disponivel:2783, origem:'NAC', nome:'XADREZ ESCOLAR JOGOS TRADICIONAIS EM MADEIRA', ean:'7896640440008', dun:'17896640440005' },
-    '60010': { img:'jogos-p0005', x:80, y:10, p18:37.9, p12rs:35.9, p12:35.9, p7:34.3, cx:6, estoque:0, disponivel:1784, origem:'NAC', nome:'XADREZ ESCOLAR', ean:'7896640460013', dun:'17896640460010' },
+    '7821': { img:'jogos-p0005', x:80, y:70, p18:28.2, p12rs:26.8, p12:26.8, p7:25.6, cx:6, estoque:1162, disponivel:3162, origem:'NAC', nome:'XADREZ ESCOLAR PLÁSTICO', ean:'7896640407827', dun:'17896640407824' },
+    '60087': { img:'jogos-p0005', x:80, y:40, p18:33.6, p12rs:31.9, p12:31.9, p7:30.5, cx:6, estoque:577, disponivel:2577, origem:'NAC', nome:'XADREZ ESCOLAR JOGOS TRADICIONAIS EM MADEIRA', ean:'7896640440008', dun:'17896640440005' },
+    '60010': { img:'jogos-p0005', x:80, y:10, p18:37.9, p12rs:35.9, p12:35.9, p7:34.3, cx:6, estoque:0, disponivel:1649, origem:'NAC', nome:'XADREZ ESCOLAR', ean:'7896640460013', dun:'17896640460010' },
     // ─── jogos-p0007 (pág 119) ───
-    '7098': { img:'jogos-p0007', x:80, y:60, p18:6.6, p12rs:6.3, p12:6.3, p7:6.0, cx:24, estoque:2819, disponivel:6819, origem:'NAC', nome:'PEGA VARETAS', ean:'7896640407094', dun:'17896640407091' },
-    '20498': { img:'jogos-p0007', x:4, y:15, p18:23.7, p12rs:22.5, p12:22.5, p7:21.5, cx:0, estoque:0, disponivel:0, origem:'NAC', nome:'ADIVINHA PRIMEIRO!', ean:'7896640426859', dun:'17896640426856', lancamento:'01/04/2026' },
+    '7098': { img:'jogos-p0007', x:80, y:60, p18:6.6, p12rs:6.3, p12:6.3, p7:6, cx:24, estoque:269, disponivel:4269, origem:'NAC', nome:'PEGA VARETAS', ean:'7896640407094', dun:'17896640407091' },
+    '20498': { img:'jogos-p0007', x:4, y:15, p18:23.7, p12rs:22.5, p12:22.5, p7:21.5, cx:6, estoque:68, disponivel:568, origem:'NAC', nome:'ADIVINHA PRIMEIRO!', ean:'7896640426859', dun:'17896640426856', lancamento:'01/04/2026' },
     // ─── jogos-p0008 (pág 120) ───
-    '54709': { img:'jogos-p0008', x:4, y:15, p18:51.7, p12rs:49.0, p12:49.0, p7:46.8, cx:6, estoque:36, disponivel:1036, origem:'NAC', nome:'LUDO TRIDIMENSIONAL', ean:'7896640490324', dun:'17896640490321' },
-    '65598': { img:'jogos-p0009', x:4, y:60, p18:74.8, p12rs:71.0, p12:71.0, p7:67.8, cx:3, estoque:2, disponivel:2, origem:'NAC', nome:'JOGO 5 X 1', ean:'7896640465599', dun:'17896640465596' },
+    '54709': { img:'jogos-p0008', x:4, y:15, p18:51.7, p12rs:49, p12:49, p7:46.8, cx:6, estoque:1205, disponivel:2205, origem:'NAC', nome:'LUDO TRIDIMENSIONAL', ean:'7896640490324', dun:'17896640490321' },
+    '65598': { img:'jogos-p0009', x:4, y:60, p18:74.8, p12rs:71, p12:71, p7:67.8, cx:3, estoque:0, disponivel:0, origem:'NAC', nome:'JOGO 5 X 1', ean:'7896640465599', dun:'17896640465596' },
     // ─── jogos-p0009 (pág 121) ───
-    '65587': { img:'jogos-p0011', x:4, y:20, p18:39.5, p12rs:37.5, p12:37.5, p7:35.8, cx:6, estoque:987, disponivel:987, origem:'NAC', nome:'18 JOGOS', ean:'7896640465582', dun:'17896640465589' },
-    '65576': { img:'jogos-p0009', x:4, y:15, p18:48.5, p12rs:46.0, p12:46.0, p7:43.95, cx:3, estoque:0, disponivel:644, origem:'NAC', nome:'JOGO 4 X 1', ean:'7896640465575', dun:'17896640465572' },
+    '65587': { img:'jogos-p0011', x:4, y:20, p18:39.5, p12rs:37.5, p12:37.5, p7:35.8, cx:6, estoque:788, disponivel:788, origem:'NAC', nome:'18 JOGOS', ean:'7896640465582', dun:'17896640465589' },
+    '65576': { img:'jogos-p0009', x:4, y:15, p18:48.5, p12rs:46, p12:46, p7:43.95, cx:3, estoque:0, disponivel:482, origem:'NAC', nome:'JOGO 4 X 1', ean:'7896640465575', dun:'17896640465572' },
     // ─── jogos-p0010 (pág 122) ───
-    '60210': { img:'jogos-p0010', x:80, y:5, p18:42.7, p12rs:40.5, p12:40.5, p7:38.7, cx:6, estoque:0, disponivel:855, origem:'NAC', nome:'DAMAS E LUDO', ean:'7896640460211', dun:'17896640460218' },
-    '60198': { img:'jogos-p0010', x:80, y:38, p18:42.6, p12rs:40.5, p12:40.5, p7:38.7, cx:6, estoque:692, disponivel:1192, origem:'NAC', nome:'DAMAS E TRILHA', ean:'7896640460198', dun:'17896640460195' },
+    '60210': { img:'jogos-p0010', x:80, y:5, p18:42.7, p12rs:40.5, p12:40.5, p7:38.7, cx:6, estoque:0, disponivel:402, origem:'NAC', nome:'DAMAS E LUDO', ean:'7896640460211', dun:'17896640460218' },
+    '60198': { img:'jogos-p0010', x:80, y:38, p18:42.6, p12rs:40.5, p12:40.5, p7:38.7, cx:6, estoque:628, disponivel:1128, origem:'NAC', nome:'DAMAS E TRILHA', ean:'7896640460198', dun:'17896640460195' },
     // ─── jogos-p0011 (pág 123) ───
-    '65554': { img:'jogos-p0011', x:4, y:60, p18:13.0, p12rs:12.4, p12:12.4, p7:11.8, cx:12, estoque:508, disponivel:1508, origem:'NAC', nome:'DAMAS', ean:'7896640470388', dun:'17896640470385' },
-    '65543': { img:'jogos-p0011', x:50, y:60, p18:13.1, p12rs:12.4, p12:12.4, p7:11.9, cx:12, estoque:1823, disponivel:1823, origem:'NAC', nome:'LUDO', ean:'7896640470395', dun:'17896640470392' },
+    '65554': { img:'jogos-p0011', x:4, y:60, p18:13, p12rs:12.4, p12:12.4, p7:11.8, cx:12, estoque:96, disponivel:1096, origem:'NAC', nome:'DAMAS', ean:'7896640470388', dun:'17896640470385' },
+    '65543': { img:'jogos-p0011', x:50, y:60, p18:13.1, p12rs:12.4, p12:12.4, p7:11.9, cx:12, estoque:1495, disponivel:1495, origem:'NAC', nome:'LUDO', ean:'7896640470395', dun:'17896640470392' },
     // ─── jogos-p0012 (pág 124) ───
-    '52909': { img:'jogos-p0012', x:80, y:10, p18:41.1, p12rs:39.0, p12:39.0, p7:37.2, cx:6, estoque:883, disponivel:1383, origem:'NAC', nome:'BINGO EM MADEIRA', ean:'7896640452902', dun:'17896640452909' },
-    '52943': { img:'jogos-p0012', x:80, y:78, p18:46.9, p12rs:44.5, p12:44.5, p7:42.5, cx:6, estoque:268, disponivel:768, origem:'NAC', nome:'LOTO - 48 CARTELAS', ean:'7896640452940', dun:'17896640452947' },
-    '68510': { img:'jogos-p0012', x:80, y:38, p18:50.7, p12rs:54.6, p12:50.7, p7:50.7, cx:4, estoque:4945, disponivel:4945, origem:'IMP', nome:'BINGO SHOW -  24 CARTELAS', ean:'7896640411336', dun:'17896640411333' },
+    '52909': { img:'jogos-p0012', x:80, y:10, p18:41.1, p12rs:39, p12:39, p7:37.2, cx:6, estoque:707, disponivel:1207, origem:'NAC', nome:'BINGO EM MADEIRA', ean:'7896640452902', dun:'17896640452909' },
+    '52943': { img:'jogos-p0012', x:80, y:78, p18:46.9, p12rs:44.5, p12:44.5, p7:42.5, cx:6, estoque:131, disponivel:631, origem:'NAC', nome:'LOTO - 48 CARTELAS', ean:'7896640452940', dun:'17896640452947' },
+    '68510': { img:'jogos-p0012', x:80, y:38, p18:50.7, p12rs:54.6, p12:50.7, p7:50.7, cx:4, estoque:4950, disponivel:4950, origem:'IMP', nome:'BINGO SHOW -  24 CARTELAS', ean:'7896640411336', dun:'17896640411333' },
     // ─── jogos-p0013 (pág 125) ───
-    '7043': { img:'jogos-p0013', x:4, y:15, p18:9.3, p12rs:8.8, p12:8.8, p7:8.41, cx:12, estoque:2650, disponivel:2650, origem:'NAC', nome:'RESTA UM', ean:'7896640407049', dun:'17896640407046' },
+    '7043': { img:'jogos-p0013', x:4, y:15, p18:9.3, p12rs:8.8, p12:8.8, p7:8.41, cx:12, estoque:1917, disponivel:1917, origem:'NAC', nome:'RESTA UM', ean:'7896640407049', dun:'17896640407046' },
     '16687': { img:'jogos-p0013', x:4, y:60, p18:175.0, p12rs:200.0, p12:175.0, p7:175.0, cx:6, estoque:0, disponivel:0, origem:'IMP', nome:'BASQUETE DE MESA', ean:'7896640412579', dun:'17896640412576' },
     // ─── jogos-p0014 (pág 126) ───
-    '60598': { img:'jogos-p0014', x:4, y:15, p18:64.3, p12rs:61.0, p12:61.0, p7:58.3, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'JOGO DE TABULEIRO CORRE PIRATA', ean:'7896640499297', dun:'17896640499294' },
-    '60576': { img:'jogos-p0014', x:4, y:60, p18:79.0, p12rs:75.0, p12:75.0, p7:71.6, cx:6, estoque:875, disponivel:875, origem:'NAC', nome:'JOGO DE TABULEIRO PANGEIA', ean:'7896640499273', dun:'17896640499270' },
+    '60598': { img:'jogos-p0014', x:4, y:15, p18:64.3, p12rs:61, p12:61, p7:58.3, cx:6, estoque:1, disponivel:1, origem:'NAC', nome:'JOGO DE TABULEIRO CORRE PIRATA', ean:'7896640499297', dun:'17896640499294' },
+    '60576': { img:'jogos-p0014', x:4, y:60, p18:79, p12rs:75, p12:75, p7:71.6, cx:6, estoque:866, disponivel:866, origem:'NAC', nome:'JOGO DE TABULEIRO PANGEIA', ean:'7896640499273', dun:'17896640499270' },
     // ─── jogos-p0015 (pág 127) ───
-    '12732': { img:'jogos-p0015', x:4, y:15, p18:74.8, p12rs:71.0, p12:71.0, p7:67.8, cx:6, estoque:603, disponivel:603, origem:'NAC', nome:'JOGO DE TABULEIRO CAMPOS DA FORTUNA', ean:'7896640489533', dun:'17896640489530' },
-    '60565': { img:'jogos-p0015', x:4, y:60, p18:82.8, p12rs:78.6, p12:78.6, p7:75.1, cx:6, estoque:501, disponivel:501, origem:'NAC', nome:'JOGO DE TABULEIRO XALINGÓPOLIS', ean:'', dun:'' },
+    '12732': { img:'jogos-p0015', x:4, y:15, p18:74.8, p12rs:71, p12:71, p7:67.8, cx:6, estoque:576, disponivel:576, origem:'NAC', nome:'JOGO DE TABULEIRO CAMPOS DA FORTUNA', ean:'7896640489533', dun:'17896640489530' },
+    '60565': { img:'jogos-p0015', x:4, y:60, p18:82.8, p12rs:78.6, p12:78.6, p7:75.1, cx:6, estoque:491, disponivel:491, origem:'NAC', nome:'JOGO DE TABULEIRO XALINGÓPOLIS', ean:'', dun:'' },
     // ─── jogos-p0016 (pág 128) ───
-    '12810': { img:'jogos-p0016', x:4, y:20, p18:85.4, p12rs:81.0, p12:81.0, p7:77.4, cx:6, estoque:86, disponivel:86, origem:'NAC', nome:'JOGO DE TABULEIRO PISANDO FUNDO', ean:'7896640489601', dun:'17896640489608' },
+    '12810': { img:'jogos-p0016', x:4, y:20, p18:85.4, p12rs:81, p12:81, p7:77.4, cx:6, estoque:78, disponivel:78, origem:'NAC', nome:'JOGO DE TABULEIRO PISANDO FUNDO', ean:'7896640489601', dun:'17896640489608' },
   };
-
-  // ── Refs com tag de preço desativada (ocultas) ───────────
-  const REFS_OCULTAS = new Set([
-    '16687'
-  ]);
-
-
-  // ── Preço anterior (tabela A2026) para exibir "De / Por" ──
-  const PRECOS_ANT = {
-    '2810':{p18:220,p12rs:205,p12:205,p7:194},
-    '2921':{p18:21.5,p12rs:20,p12:20,p7:18.9},
-    '4421':{p18:26.3,p12rs:24.5,p12:24.5,p7:23.2},
-    '6419':{p18:146,p12rs:136,p12:136,p7:129},
-    '7043':{p18:11.6,p12rs:10.8,p12:10.8,p7:10.2},
-    '7098':{p18:8.4,p12rs:7.8,p12:7.8,p7:7.4},
-    '7209':{p18:37.6,p12rs:35,p12:35,p7:33.1},
-    '7248':{p18:541,p12rs:504,p12:504,p7:477},
-    '7249':{p18:541,p12rs:504,p12:504,p7:477},
-    '7252':{p18:133,p12rs:124,p12:124,p7:117},
-    '7321':{p18:128,p12rs:119,p12:119,p7:113},
-    '7523':{p18:306,p12rs:285,p12:285,p7:270},
-    '7524':{p18:306,p12rs:285,p12:285,p7:270},
-    '7621':{p18:128,p12rs:119,p12:119,p7:113},
-    '7665':{p18:133,p12rs:124,p12:124,p7:117},
-    '7675':{p18:123,p12rs:115,p12:115,p7:109},
-    '7732':{p18:101,p12rs:94,p12:94,p7:88.9},
-    '7754':{p18:101,p12rs:94,p12:94,p7:88.9},
-    '7821':{p18:33.4,p12rs:31.1,p12:31.1,p7:29.4},
-    '9221':{p18:360,p12rs:335,p12:335,p7:317},
-    '9223':{p18:360,p12rs:335,p12:335,p7:317},
-    '9307':{p18:671,p12rs:625,p12:625,p7:591},
-    '9332':{p18:4185,p12rs:3900,p12:3900,p7:3690},
-    '9355':{p18:138,p12rs:129,p12:129,p7:122},
-    '9356':{p18:138,p12rs:129,p12:129,p7:122},
-    '9387':{p18:1341,p12rs:1250,p12:1250,p7:1183},
-    '9409':{p18:753,p12rs:702,p12:702,p7:664},
-    '9419':{p18:1771,p12rs:1650,p12:1650,p7:1561},
-    '9454':{p18:7244,p12rs:6750,p12:6750,p7:6387},
-    '9521':{p18:387,p12rs:361,p12:361,p7:342},
-    '9532':{p18:2382,p12rs:2220,p12:2220,p7:2101},
-    '9568':{p18:16527,p12rs:15400,p12:15400,p7:14572},
-    '9598':{p18:5044,p12rs:4700,p12:4700,p7:4447},
-    '9654':{p18:880,p12rs:820,p12:820,p7:776},
-    '9666':{p18:5366,p12rs:5000,p12:5000,p7:4731},
-    '9684':{p18:51083,p12rs:47600,p12:47600,p7:45041},
-    '9685':{p18:38602,p12rs:35970,p12:35970,p7:34036},
-    '9686':{p18:32195,p12rs:30000,p12:30000,p7:28387},
-    '9698':{p18:2468,p12rs:2300,p12:2300,p7:2176},
-    '9709':{p18:8585,p12rs:8000,p12:8000,p7:7570},
-    '9765':{p18:24683,p12rs:23000,p12:23000,p7:21763},
-    '9776':{p18:6976,p12rs:6500,p12:6500,p7:6151},
-    '9809':{p18:753,p12rs:702,p12:702,p7:664},
-    '9843':{p18:1465,p12rs:1365,p12:1365,p7:1292},
-    '9854':{p18:2148,p12rs:2002,p12:2002,p7:1894},
-    '9865':{p18:6010,p12rs:5600,p12:5600,p7:5299},
-    '9898':{p18:11698,p12rs:10900,p12:10900,p7:10314},
-    '9943':{p18:15024,p12rs:14000,p12:14000,p7:13247},
-    '9954':{p18:4185,p12rs:3900,p12:3900,p7:3690},
-    '9976':{p18:18459,p12rs:17200,p12:17200,p7:16275},
-    '9987':{p18:16849,p12rs:15700,p12:15700,p7:14856},
-    '9998':{p18:15668,p12rs:14600,p12:14600,p7:13815},
-    '10009':{p18:21463,p12rs:20000,p12:20000,p7:18925},
-    '10032':{p18:24468,p12rs:22800,p12:22800,p7:21574},
-    '10043':{p18:35629,p12rs:33200,p12:33200,p7:31415},
-    '10054':{p18:45717,p12rs:42600,p12:42600,p7:40310},
-    '10087':{p18:10410,p12rs:9700,p12:9700,p7:9178},
-    '10209':{p18:21034,p12rs:19600,p12:19600,p7:18546},
-    '10221':{p18:44537,p12rs:41500,p12:41500,p7:39269},
-    '10543':{p18:21.7,p12rs:20.2,p12:20.2,p7:19.1},
-    '10554':{p18:24.4,p12rs:22.7,p12:22.7,p7:21.5},
-    '10576':{p18:22.8,p12rs:21.2,p12:21.2,p7:20.1},
-    '10687':{p18:714,p12rs:665,p12:665,p7:629},
-    '10899':{p18:188,p12rs:175,p12:175,p7:166},
-    '10909':{p18:188,p12rs:175,p12:175,p7:166},
-    '11298':{p18:49.4,p12rs:46,p12:46,p7:43.5},
-    '11643':{p18:106,p12rs:98.6,p12:98.6,p7:93.3},
-    '12310':{p18:58.6,p12rs:54.6,p12:54.6,p7:51.7},
-    '12321':{p18:53.7,p12rs:50,p12:50,p7:47.3},
-    '12732':{p18:76.2,p12rs:71,p12:71,p7:67.2},
-    '12787':{p18:26.6,p12rs:24.8,p12:24.8,p7:23.5},
-    '12810':{p18:86.9,p12rs:81,p12:81,p7:76.6},
-    '12843':{p18:31.3,p12rs:29.2,p12:29.2,p7:27.6},
-    '12954':{p18:182,p12rs:170,p12:170,p7:161},
-    '12965':{p18:46.4,p12rs:43.2,p12:43.2,p7:40.9},
-    '12976':{p18:42.8,p12rs:39.9,p12:39.9,p7:37.8},
-    '13476':{p18:60.1,p12rs:56,p12:56,p7:53},
-    '13487':{p18:51.5,p12rs:48,p12:48,p7:45.4},
-    '15287':{p18:30,p12rs:28,p12:28,p7:26.5},
-    '15298':{p18:30,p12rs:28,p12:28,p7:26.5},
-    '15343':{p18:56.3,p12rs:52.5,p12:52.5,p7:49.7},
-    '15509':{p18:65.7,p12rs:71.4,p12:65.7,p7:67.6},
-    '15565':{p18:59.2,p12rs:64.3,p12:59.2,p7:60.8},
-    '15965':{p18:78.8,p12rs:85.7,p12:78.8,p7:81.1},
-    '15976':{p18:72.2,p12rs:78.5,p12:72.2,p7:74.3},
-    '16209':{p18:72.2,p12rs:78.5,p12:72.2,p7:74.3},
-    '16221':{p18:128,p12rs:139,p12:128,p7:132},
-    '16232':{p18:125,p12rs:136,p12:125,p7:129},
-    '16343':{p18:128,p12rs:119,p12:119,p7:113},
-    '16354':{p18:128,p12rs:119,p12:119,p7:113},
-    '16376':{p18:242,p12rs:263,p12:242,p7:249},
-    '17376':{p18:17.8,p12rs:16.6,p12:16.6,p7:15.7},
-    '17432':{p18:61.8,p12rs:57.6,p12:57.6,p7:54.5},
-    '17587':{p18:32.1,p12rs:29.9,p12:29.9,p7:28.3},
-    '17621':{p18:43.1,p12rs:40.2,p12:40.2,p7:38},
-    '17632':{p18:42.5,p12rs:39.6,p12:39.6,p7:37.5},
-    '17643':{p18:57.8,p12rs:53.9,p12:53.9,p7:51},
-    '17654':{p18:36.3,p12rs:33.8,p12:33.8,p7:32},
-    '17665':{p18:52.5,p12rs:48.9,p12:48.9,p7:46.3},
-    '17676':{p18:58.2,p12rs:54.2,p12:54.2,p7:51.3},
-    '17687':{p18:45.9,p12rs:42.8,p12:42.8,p7:40.5},
-    '17698':{p18:54.5,p12rs:50.8,p12:50.8,p7:48.1},
-    '17798':{p18:25.3,p12rs:23.6,p12:23.6,p7:22.3},
-    '17809':{p18:25.3,p12rs:23.6,p12:23.6,p7:22.3},
-    '20165':{p18:55.1,p12rs:51.3,p12:51.3,p7:48.5},
-    '20221':{p18:46.4,p12rs:43.2,p12:43.2,p7:40.9},
-    '20232':{p18:58.4,p12rs:54.4,p12:54.4,p7:51.5},
-    '20243':{p18:19.5,p12rs:18.2,p12:18.2,p7:17.2},
-    '20287':{p18:10,p12rs:9.3,p12:9.3,p7:8.8},
-    '20298':{p18:10,p12rs:9.3,p12:9.3,p7:8.8},
-    '20310':{p18:24.7,p12rs:23,p12:23,p7:21.8},
-    '20376':{p18:17.8,p12rs:16.6,p12:16.6,p7:15.7},
-    '20387':{p18:17.8,p12rs:16.6,p12:16.6,p7:15.7},
-    '20409':{p18:19.1,p12rs:17.8,p12:17.8,p7:16.8},
-    '20410':{p18:19.1,p12rs:17.8,p12:17.8,p7:16.8},
-    '20421':{p18:19.1,p12rs:17.8,p12:17.8,p7:16.8},
-    '20432':{p18:111,p12rs:103,p12:103,p7:97.5},
-    '20498':{p18:26.7,p12rs:24.9,p12:24.9,p7:23.6},
-    '20509':{p18:7.3,p12rs:6.8,p12:6.8,p7:6.4},
-    '20510':{p18:7.3,p12rs:6.8,p12:6.8,p7:6.4},
-    '20521':{p18:7.3,p12rs:6.8,p12:6.8,p7:6.4},
-    '20543':{p18:18.2,p12rs:17,p12:17,p7:16.1},
-    '20554':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '20565':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '20576':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '20587':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '20598':{p18:35.1,p12rs:32.7,p12:32.7,p7:30.9},
-    '20609':{p18:52585,p12rs:49000,p12:49000,p7:46366},
-    '20610':{p18:10195,p12rs:9500,p12:9500,p7:8989},
-    '20621':{p18:10195,p12rs:9500,p12:9500,p7:8989},
-    '27998':{p18:251,p12rs:273,p12:251,p7:258},
-    '28176':{p18:185,p12rs:201,p12:185,p7:190},
-    '28310':{p18:163,p12rs:177,p12:163,p7:167},
-    '28321':{p18:185,p12rs:201,p12:185,p7:190},
-    '50498':{p18:45.5,p12rs:42.4,p12:42.4,p7:40.1},
-    '50576':{p18:28.2,p12rs:26.3,p12:26.3,p7:24.9},
-    '50765':{p18:17.8,p12rs:16.6,p12:16.6,p7:15.7},
-    '51587':{p18:16.4,p12rs:15.3,p12:15.3,p7:14.5},
-    '52643':{p18:49,p12rs:45.7,p12:45.7,p7:43.2},
-    '52665':{p18:24.7,p12rs:23,p12:23,p7:21.8},
-    '52698':{p18:15.2,p12rs:14.2,p12:14.2,p7:13.4},
-    '52754':{p18:15.2,p12rs:14.2,p12:14.2,p7:13.4},
-    '52765':{p18:21.7,p12rs:20.2,p12:20.2,p7:19.1},
-    '52773':{p18:46.5,p12rs:43.3,p12:43.3,p7:41},
-    '52776':{p18:25.9,p12rs:24.1,p12:24.1,p7:22.8},
-    '52798':{p18:36.2,p12rs:33.7,p12:33.7,p7:31.9},
-    '52821':{p18:66.5,p12rs:62,p12:62,p7:58.7},
-    '52832':{p18:62.2,p12rs:58,p12:58,p7:54.9},
-    '52909':{p18:45.1,p12rs:42,p12:42,p7:39.7},
-    '52943':{p18:47.8,p12rs:44.5,p12:44.5,p7:42.1},
-    '53021':{p18:31.1,p12rs:29,p12:29,p7:27.4},
-    '53032':{p18:20.2,p12rs:18.8,p12:18.8,p7:17.8},
-    '53054':{p18:44.9,p12rs:41.8,p12:41.8,p7:39.6},
-    '53065':{p18:58.5,p12rs:54.5,p12:54.5,p7:51.6},
-    '53221':{p18:44.5,p12rs:41.5,p12:41.5,p7:39.3},
-    '53265':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '53309':{p18:19.9,p12rs:18.5,p12:18.5,p7:17.5},
-    '53321':{p18:46.9,p12rs:43.7,p12:43.7,p7:41.4},
-    '54265':{p18:24.7,p12rs:23,p12:23,p7:21.8},
-    '54509':{p18:67.3,p12rs:62.7,p12:62.7,p7:59.3},
-    '54709':{p18:59.8,p12rs:55.7,p12:55.7,p7:52.7},
-    '60009':{p18:130,p12rs:121,p12:121,p7:114},
-    '60010':{p18:45.3,p12rs:42.2,p12:42.2,p7:39.9},
-    '60065':{p18:250,p12rs:233,p12:233,p7:220},
-    '60087':{p18:35,p12rs:32.6,p12:32.6,p7:30.8},
-    '60198':{p18:48.2,p12rs:44.9,p12:44.9,p7:42.5},
-    '60210':{p18:48.2,p12rs:44.9,p12:44.9,p7:42.5},
-    '60254':{p18:42.6,p12rs:39.7,p12:39.7,p7:37.6},
-    '60565':{p18:84.4,p12rs:78.6,p12:78.6,p7:74.4},
-    '60576':{p18:80.5,p12rs:75,p12:75,p7:71},
-    '60598':{p18:65.5,p12rs:61,p12:61,p7:57.7},
-    '65543':{p18:16.4,p12rs:15.3,p12:15.3,p7:14.5},
-    '65554':{p18:16.4,p12rs:15.3,p12:15.3,p7:14.5},
-    '65576':{p18:58.1,p12rs:54.1,p12:54.1,p7:51.2},
-    '65587':{p18:40.2,p12rs:37.5,p12:37.5,p7:35.5},
-    '65598':{p18:83.4,p12rs:77.7,p12:77.7,p7:73.5},
-    '67032':{p18:123,p12rs:115,p12:115,p7:109},
-    '67109':{p18:53.1,p12rs:49.5,p12:49.5,p7:46.8},
-    '67287':{p18:1640,p12rs:1528,p12:1528,p7:1446},
-    '67354':{p18:474,p12rs:442,p12:442,p7:418},
-    '67809':{p18:52.9,p12rs:49.3,p12:49.3,p7:46.6},
-    '67832':{p18:58.5,p12rs:54.5,p12:54.5,p7:51.6},
-    '67843':{p18:51.8,p12rs:48.3,p12:48.3,p7:45.7},
-    '67854':{p18:87.1,p12rs:81.2,p12:81.2,p7:76.8},
-    '67865':{p18:144,p12rs:134,p12:134,p7:127},
-    '67876':{p18:288,p12rs:268,p12:268,p7:254},
-    '67887':{p18:42.9,p12rs:40,p12:40,p7:37.8},
-    '67976':{p18:89.3,p12rs:83.2,p12:83.2,p7:78.7},
-    '68276':{p18:97.5,p12rs:106,p12:97.5,p7:100},
-    '68287':{p18:155,p12rs:168,p12:155,p7:159},
-    '68298':{p18:302,p12rs:328,p12:302,p7:310},
-    '68310':{p18:302,p12rs:328,p12:302,p7:310},
-    '68321':{p18:129,p12rs:140,p12:129,p7:132},
-    '68332':{p18:302,p12rs:328,p12:302,p7:310},
-    '68354':{p18:294,p12rs:320,p12:294,p7:303},
-    '68365':{p18:284,p12rs:309,p12:284,p7:292},
-    '68376':{p18:180,p12rs:196,p12:180,p7:185},
-    '68387':{p18:117,p12rs:127,p12:117,p7:120},
-    '68398':{p18:158,p12rs:172,p12:158,p7:163},
-    '68409':{p18:310,p12rs:337,p12:310,p7:319},
-    '68410':{p18:340,p12rs:370,p12:340,p7:350}
-  };
-
-  function precoTagHTML(ref, d, key, extra) {
-    const fmtP = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
-    const atual = getDiscountedPrice(d[key]);
-    const a = PRECOS_ANT[ref] ? PRECOS_ANT[ref][key] : null;
-    const baixou = a && d[key] > 0 && a > d[key] + 0.005;
-    return `<div class="price-ref">${ref}</div>`
-         + (baixou ? `<div class="price-old">De: ${fmtP(a)}</div>` : '')
-         + `<div class="price-main">${baixou ? 'Por: ' : ''}${fmtP(atual)}</div>`
-         + (extra || '');
-  }
 
   function renderPriceBadges() {
     Object.entries(PRICE_CONFIG).forEach(([ref, d]) => {
-      if (REFS_OCULTAS.has(ref)) return;
       const img = document.querySelector(`img[src*="${d.img}"]`);
       if (!img) return;
       let wrap = img.parentElement;
@@ -1726,7 +1498,7 @@
       badge.dataset.ref = ref;
       d.ref = ref;
       const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
-      badge.innerHTML = `<div class="price-tag">${precoTagHTML(ref, d, currentIcms, '')}</div><button class="badge-info-btn" title="Ver detalhes">ⓘ</button>`;
+      badge.innerHTML = `<div class="price-tag"><div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(d[currentIcms])}</div></div><button class="badge-info-btn" title="Ver detalhes">ⓘ</button>`;
       badge.querySelector('.price-tag').addEventListener('click', (e) => { e.stopPropagation(); toggleProduct(ref); });
       badge.querySelector('.badge-info-btn').addEventListener('click', (e) => { e.stopPropagation(); openPriceModal(ref, d); });
       wrap.appendChild(badge);
@@ -1901,7 +1673,7 @@
       const d = PRICE_CONFIG[ref];
       if (!d) return;
       const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
-      badge.querySelector('.price-tag').innerHTML = precoTagHTML(ref, d, key, '');
+      badge.querySelector('.price-main').textContent = fmtPrice(getDiscountedPrice(d[key]));
     });
     renderOrder();
   }
