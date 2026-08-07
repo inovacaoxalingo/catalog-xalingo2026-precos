@@ -1030,6 +1030,49 @@
     .price-main { color: #fff !important; }
     .price-ref  { color: rgba(255,255,255,0.8) !important; }
   }
+
+  /* ===== EXP-IND — Exportação Indireta ===== */
+  .sb-icms-btn.expind {
+    grid-column: 1 / -1; margin-top: 2px;
+    border-color: rgba(14,110,90,0.35); color: #0E6E5A;
+  }
+  .sb-icms-btn.expind:hover { background: rgba(14,110,90,0.08); border-color: #0E6E5A; color: #0E6E5A; }
+  .sb-icms-btn.expind.active { background: #0E6E5A; border-color: #0E6E5A; color: #fff; }
+  .os-icms-btn.expind { border-color: rgba(14,110,90,0.35); color: #0E6E5A; }
+  .os-icms-btn.expind:hover { border-color: #0E6E5A; color: #0E6E5A; }
+  .os-icms-btn.expind.active { background: #0E6E5A; border-color: #0E6E5A; color: #fff; }
+  .sb-expind-note {
+    display: none; margin-top: 7px; padding: 5px 7px;
+    font-size: 0.55rem; line-height: 1.4; font-weight: 600; color: #0E6E5A;
+    background: rgba(14,110,90,0.08); border: 1px solid rgba(14,110,90,0.2);
+    border-radius: 7px;
+  }
+  body.expind-mode .sb-expind-note { display: block; }
+  body.expind-mode .price-tag { background: rgba(14,110,90,0.88); }
+  body.expind-mode .price-badge[data-orig="IMP"] .price-tag::after {
+    content: '\26A0 IMPORTADO \B7 taxas dif.';
+    display: block; margin-top: 2px;
+    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.2px;
+    color: #ffdf8a; line-height: 1.1;
+  }
+  .os-warn-imp {
+    font-size: 0.6rem; font-weight: 700; color: #0E6E5A; margin-top: 4px;
+    background: rgba(14,110,90,0.09); border-radius: 5px; padding: 3px 6px;
+    line-height: 1.3;
+  }
+  .pm-price-box.pm-expind {
+    grid-column: 1 / -1;
+    background: #e6f4f0; border: 1px solid rgba(14,110,90,0.25);
+  }
+  .pm-price-box.pm-expind .pm-price-val { color: #0E6E5A; }
+  .pm-imp-note {
+    font-size: 0.68rem; font-weight: 700; color: #0E6E5A; line-height: 1.4;
+    background: rgba(14,110,90,0.09); border: 1px solid rgba(14,110,90,0.2);
+    border-radius: 8px; padding: 7px 10px; margin-bottom: 10px;
+  }
+  @media print {
+    body.expind-mode .price-tag { background: #0E6E5A !important; }
+  }
   </style>
 </head>
 <body>
@@ -1059,8 +1102,10 @@
         <button class="sb-icms-btn active" data-icms="p18"   onclick="setIcms('p18',this)">ICMS 18%</button>
         <button class="sb-icms-btn"        data-icms="p12rs" onclick="setIcms('p12rs',this)">12% RS</button>
         <button class="sb-icms-btn"        data-icms="p12"   onclick="setIcms('p12',this)">12% SC/PR/SP</button>
-        <button class="sb-icms-btn"        data-icms="p7"    onclick="setIcms('p7',this)">ICMS 7%</button>
+        <button class="sb-icms-btn"        data-icms="p7"   onclick="setIcms('p7',this)">ICMS 7%</button>
+        <button class="sb-icms-btn expind" data-icms="expind" onclick="setIcms('expind',this)">EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta</button>
       </div>
+      <div class="sb-expind-note">Tabela de <b>exporta&ccedil;&atilde;o indireta</b>. Produtos <b>importados</b> t&ecirc;m carga tribut&aacute;ria diferente &mdash; confira antes de fechar o pedido.</div>
     </div>
 
     <a href="sumario.html" class="sb-back">
@@ -1748,16 +1793,37 @@
   setLang(currentLang);
 
 
-  let currentIcms = localStorage.getItem('xalingo-icms') || 'p18';
+  let currentIcms = (localStorage.getItem('xalingo-expind') === '1')
+    ? 'expind'
+    : (localStorage.getItem('xalingo-icms') || 'p18');
+
+  // Guarda a escolha de tabela. EXP-IND vai numa chave separada para nao quebrar
+  // paginas antigas que so entendem p18/p12rs/p12/p7.
+  function saveTabela(key) {
+    if (key === 'expind') {
+      localStorage.setItem('xalingo-expind', '1');
+    } else {
+      localStorage.setItem('xalingo-expind', '0');
+      localStorage.setItem('xalingo-icms', key);
+    }
+  }
+  function applyExpIndMode(key) {
+    if (document.body) document.body.classList.toggle('expind-mode', key === 'expind');
+  }
   function setIcms(key, btn) {
     currentIcms = key;
-    localStorage.setItem('xalingo-icms', key);
+    osIcms = key;
+    saveTabela(key);
+    applyExpIndMode(key);
+    document.querySelectorAll('.os-icms-btn').forEach(b =>
+      b.classList.toggle('active', b.getAttribute('data-icms') === key));
+    if (typeof renderOrder === 'function') renderOrder();
     document.querySelectorAll('.sb-icms-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-icms') === key));
     document.querySelectorAll('.price-badge').forEach(badge => {
       const ref = badge.dataset.ref;
       const d = PRICE_CONFIG[ref];
       if (!d) return;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.querySelector('.price-tag').innerHTML = `<div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(getDiscountedPrice(d[key]))}</div>`;
     });
   }
@@ -1767,26 +1833,26 @@
 
     const PRICE_CONFIG = {
     // ─── fazdeconta-p3 (pág 130) ───
-    '6419': { img:'fazdeconta-p2', x:4, y:60, p18:104.3, p12rs:99, p12:99, p7:94.5, cx:1, estoque:85, disponivel:1085, origem:'NAC', nome:'COZINHA PETIT CHEF', ean:'7896640483807', dun:'17896640483804' },
-    '12954': { img:'fazdeconta-p2', x:4, y:15, p18:136.9, p12rs:130, p12:130, p7:124.2, cx:1, estoque:68, disponivel:368, origem:'NAC', nome:'REFRIGERADOR PETIT CHEF', ean:'7896640489724', dun:'17896640489721' },
+    '6419': { img:'fazdeconta-p2', x:4, y:60, p18:104.3, p12rs:99, p12:99, p7:94.5, expind:38, cx:1, estoque:85, disponivel:1085, origem:'NAC', nome:'COZINHA PETIT CHEF', ean:'7896640483807', dun:'17896640483804' },
+    '12954': { img:'fazdeconta-p2', x:4, y:15, p18:136.9, p12rs:130, p12:130, p7:124.2, expind:50, cx:1, estoque:68, disponivel:368, origem:'NAC', nome:'REFRIGERADOR PETIT CHEF', ean:'7896640489724', dun:'17896640489721' },
     // ─── fazdeconta-p4 (pág 131) ───
-    '11753': { img:'fazdeconta-p3', x:85, y:40, p18:89, p12rs:95.9, p12:89, p7:89, cx:6, estoque:151, disponivel:151, origem:'IMP', nome:'MINI CHURRASQUEIRA COM SOM', ean:'7896640412302', dun:'17896640412309' },
-    '11750': { img:'fazdeconta-p3', x:85, y:10, p18:104, p12rs:112, p12:104, p7:104, cx:6, estoque:995, disponivel:995, origem:'IMP', nome:'CAFETEIRA 3 EM 1 COM SOM', ean:'7896640412289', dun:'17896640412286' },
-    '62110': { img:'fazdeconta-p3', x:85, y:70, p18:168, p12rs:180.9, p12:168, p7:168, cx:6, estoque:812, disponivel:812, nome:'CONJUNTO DE ESTAÇÃO DE SUPERMERCADO COM LUZ E SOM', ean:'7896640412272', dun:'17896640412279' },
+    '11753': { img:'fazdeconta-p3', x:85, y:40, p18:89, p12rs:95.9, p12:89, p7:89, expind:45, cx:6, estoque:151, disponivel:151, origem:'IMP', nome:'MINI CHURRASQUEIRA COM SOM', ean:'7896640412302', dun:'17896640412309' },
+    '11750': { img:'fazdeconta-p3', x:85, y:10, p18:104, p12rs:112, p12:104, p7:104, expind:52, cx:6, estoque:995, disponivel:995, origem:'IMP', nome:'CAFETEIRA 3 EM 1 COM SOM', ean:'7896640412289', dun:'17896640412286' },
+    '62110': { img:'fazdeconta-p3', x:85, y:70, p18:168, p12rs:180.9, p12:168, p7:168, expind:84, cx:6, estoque:812, disponivel:812, nome:'CONJUNTO DE ESTAÇÃO DE SUPERMERCADO COM LUZ E SOM', ean:'7896640412272', dun:'17896640412279' },
     // ─── fazdeconta-p5 (pág 132) ───
-    '6000': { img:'fazdeconta-p4', x:4, y:15, p18:146, p12rs:157.2, p12:146, p7:146, cx:6, estoque:1210, disponivel:1210, origem:'IMP', nome:'BRINCANDO DE VETERINÁRIO', ean:'7896640412371', dun:'17896640412378' },
-    '4160': { img:'fazdeconta-p5', x:4, y:60, p18:162, p12rs:174.5, p12:162, p7:162, cx:6, estoque:1377, disponivel:1377, origem:'IMP', nome:'PLAYSET ESPACIAL FOGUETE', ean:'7896640434717', dun:'17896640434714' },
-    '55025': { img:'fazdeconta-p5', x:4, y:15, p18:141.0, p12rs:153.0, p12:141.0, p7:145.0, cx:6, estoque:418, disponivel:418, origem:'IMP', nome:'MALETA DE FERRAMENTAS COM PARAFUSADEIRA', ean:'7896640412333', dun:'17896640412330' },
-    '22407': { img:'fazdeconta-p4', x:80, y:55, p18:188.0, p12rs:214.0, p12:188.0, p7:188.0, cx:6, estoque:2, disponivel:2, origem:'IMP', nome:'MINHA PRIMEIRA VIAGEM DE IATE E HELICÓPTERO', ean:'7896640412203', dun:'17896640412200' },
+    '6000': { img:'fazdeconta-p4', x:4, y:15, p18:146, p12rs:157.2, p12:146, p7:146, expind:73, cx:6, estoque:1210, disponivel:1210, origem:'IMP', nome:'BRINCANDO DE VETERINÁRIO', ean:'7896640412371', dun:'17896640412378' },
+    '4160': { img:'fazdeconta-p5', x:4, y:60, p18:162, p12rs:174.5, p12:162, p7:162, expind:81, cx:6, estoque:1377, disponivel:1377, origem:'IMP', nome:'PLAYSET ESPACIAL FOGUETE', ean:'7896640434717', dun:'17896640434714' },
+    '55025': { img:'fazdeconta-p5', x:4, y:15, p18:141.0, p12rs:153.0, p12:141.0, p7:145.0, expind:0, cx:6, estoque:418, disponivel:418, origem:'IMP', nome:'MALETA DE FERRAMENTAS COM PARAFUSADEIRA', ean:'7896640412333', dun:'17896640412330' },
+    '22407': { img:'fazdeconta-p4', x:80, y:55, p18:188.0, p12rs:214.0, p12:188.0, p7:188.0, expind:0, cx:6, estoque:2, disponivel:2, origem:'IMP', nome:'MINHA PRIMEIRA VIAGEM DE IATE E HELICÓPTERO', ean:'7896640412203', dun:'17896640412200' },
     // ─── fazdeconta-p6 (pág 133) ───
-    '2921': { img:'fazdeconta-p6', x:4, y:75, p18:21, p12rs:19.9, p12:19.95, p7:19.06, cx:6, estoque:2766, disponivel:2766, origem:'NAC', nome:'SHOW DE MÁGICAS - 8 MÁGICAS', ean:'7896640402921', dun:'17896640402928' },
-    '68498': { img:'fazdeconta-p6', x:80, y:75, p18:45.8, p12rs:49.3, p12:45.8, p7:45.8, cx:2, estoque:5068, disponivel:5068, origem:'IMP', nome:'KIT MÁGICA COM CARTOLA - 35 TRUQUES', ean:'7896640411312', dun:'17896640411319' },
-    '6618': { img:'fazdeconta-p6', x:20, y:30, p18:29.0, p12rs:33.1, p12:29.0, p7:29.0, cx:12, pedido_min:12, estoque:0, disponivel:0, origem:'IMP', nome:'MINI PROJETORES DINOS - DISPLAY 12 UNID.', ean:'7896640412418', dun:'17896640412415' },
+    '2921': { img:'fazdeconta-p6', x:4, y:75, p18:21, p12rs:19.9, p12:19.95, p7:19.06, expind:8, cx:6, estoque:2766, disponivel:2766, origem:'NAC', nome:'SHOW DE MÁGICAS - 8 MÁGICAS', ean:'7896640402921', dun:'17896640402928' },
+    '68498': { img:'fazdeconta-p6', x:80, y:75, p18:45.8, p12rs:49.3, p12:45.8, p7:45.8, expind:23, cx:2, estoque:5068, disponivel:5068, origem:'IMP', nome:'KIT MÁGICA COM CARTOLA - 35 TRUQUES', ean:'7896640411312', dun:'17896640411319' },
+    '6618': { img:'fazdeconta-p6', x:20, y:30, p18:29.0, p12rs:33.1, p12:29.0, p7:29.0, expind:0, cx:12, pedido_min:12, estoque:0, disponivel:0, origem:'IMP', nome:'MINI PROJETORES DINOS - DISPLAY 12 UNID.', ean:'7896640412418', dun:'17896640412415' },
     // ─── fazdeconta-p7 (pág 134) ───
-    '95960': { img:'fazdeconta-p7', x:4, y:15, p18:248, p12rs:267.1, p12:248, p7:248, cx:6, estoque:374, disponivel:374, origem:'IMP', nome:'MESA DE AGUA ÁRVORE DIVERTIDA', ean:'7896640412500', dun:'17896640412507' },
+    '95960': { img:'fazdeconta-p7', x:4, y:15, p18:248, p12rs:267.1, p12:248, p7:248, expind:124, cx:6, estoque:374, disponivel:374, origem:'IMP', nome:'MESA DE AGUA ÁRVORE DIVERTIDA', ean:'7896640412500', dun:'17896640412507' },
     // ─── fazdeconta-p8 (pág 135) ───
-    '93945': { img:'fazdeconta-p8', x:4, y:60, p18:78.9, p12rs:85.8, p12:78.9, p7:81.2, cx:6, estoque:320, disponivel:320, origem:'IMP', nome:'MOCHILINHA DE PRAIA', ean:'7896640412517', dun:'17896640412514' },
-    '62554': { img:'fazdeconta-p8', x:4, y:15, p18:170, p12rs:183, p12:170, p7:170, cx:6, estoque:542, disponivel:542, origem:'IMP', nome:'MESA DE ÁGUA AREIA PLAY', ean:'7896640412487', dun:'17896640412484' },
+    '93945': { img:'fazdeconta-p8', x:4, y:60, p18:78.9, p12rs:85.8, p12:78.9, p7:81.2, expind:0, cx:6, estoque:320, disponivel:320, origem:'IMP', nome:'MOCHILINHA DE PRAIA', ean:'7896640412517', dun:'17896640412514' },
+    '62554': { img:'fazdeconta-p8', x:4, y:15, p18:170, p12rs:183, p12:170, p7:170, expind:85, cx:6, estoque:542, disponivel:542, origem:'IMP', nome:'MESA DE ÁGUA AREIA PLAY', ean:'7896640412487', dun:'17896640412484' },
   };
 
   function renderPriceBadges() {
@@ -1806,8 +1872,9 @@
       badge.style.left = d.x + '%';
       badge.style.top  = d.y + '%';
       badge.dataset.ref = ref;
+      badge.dataset.orig = d.origem || 'IMP';
       d.ref = ref;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.innerHTML = `<div class="price-tag"><div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(d[currentIcms])}</div></div><button class="badge-info-btn" title="Ver detalhes">ⓘ</button>`;
       badge.querySelector('.price-tag').addEventListener('click', (e) => { e.stopPropagation(); toggleProduct(ref); });
       badge.querySelector('.badge-info-btn').addEventListener('click', (e) => { e.stopPropagation(); openPriceModal(ref, d); });
@@ -1816,7 +1883,7 @@
   }
 
   function openPriceModal(ref, d) {
-    const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+    const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
     const stockClass = d.estoque > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
     const stockLabel = d.estoque > 0 ? d.estoque + ' un.' : 'Sem estoque';
     const dispClass  = d.disponivel > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
@@ -1824,11 +1891,15 @@
     document.getElementById('pmContent').innerHTML = `
       <div class="pm-ref">REF ${ref}</div>
       <div class="pm-nome">${d.nome}</div>
+      ${(currentIcms === 'expind' && (d.origem||'IMP') === 'IMP')
+        ? '<div class="pm-imp-note">&#9888;&#65039; Produto <b>importado</b> &mdash; na tabela EXP-IND a carga tribut&aacute;ria &eacute; diferente da dos produtos nacionais. Confirme os impostos antes de faturar.</div>'
+        : ''}
       <div class="pm-prices">
         <div class="pm-price-box"><div class="pm-price-label">ICMS 18%</div><div class="pm-price-val">${fmtPrice(d.p18)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 12% RS</div><div class="pm-price-val">${fmtPrice(d.p12rs)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 12% SC/PR/SP/RJ/MG</div><div class="pm-price-val">${fmtPrice(d.p12)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 7%</div><div class="pm-price-val">${fmtPrice(d.p7)}</div></div>
+        <div class="pm-price-box pm-expind"><div class="pm-price-label">EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta</div><div class="pm-price-val">${fmtPrice(d.expind)}</div></div>
       </div>
       <div class="pm-info">
         <div class="pm-info-item">CX: <span>${d.cx} un.</span></div>
@@ -1843,6 +1914,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     renderPriceBadges();
     applyIcmsOnLoad();
+  applyExpIndMode(currentIcms);
+  document.addEventListener('DOMContentLoaded', () => applyExpIndMode(currentIcms));
     // Restore cart from localStorage
     loadCart();
     if (Object.keys(osCart).length) {
@@ -1921,7 +1994,9 @@
   }
 
   // ── ORDER SIDEBAR ──────────────────────────────────────────────────────────
-  let osIcms = localStorage.getItem('xalingo-icms') || 'p18';
+  let osIcms = (localStorage.getItem('xalingo-expind') === '1')
+    ? 'expind'
+    : (localStorage.getItem('xalingo-icms') || 'p18');
   const osCart = {};     // ref -> {data, qty}
   const imgCache = {};   // ref -> imageUrl (pre-fetched em background)
   // ── Cart persisted across pages via localStorage ──────────────────────────
@@ -1955,11 +2030,12 @@
     } catch(e){}
   }
 
-  const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%'};
+  const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%',expind:'EXP-IND \u00b7 Exporta\u00e7\u00e3o Indireta'};
 
   function setOsIcms(btn, key) {
     osIcms = key;
-    localStorage.setItem('xalingo-icms', key);
+    saveTabela(key);
+    applyExpIndMode(key);
     document.querySelectorAll('.os-icms-btn').forEach(b => b.classList.toggle('active', b===btn));
     // Sync with main ICMS selector
     currentIcms = key;
@@ -1970,7 +2046,7 @@
       const ref = badge.dataset.ref;
       const d = PRICE_CONFIG[ref];
       if (!d) return;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.querySelector('.price-main').textContent = fmtPrice(getDiscountedPrice(d[key]));
     });
     renderOrder();
@@ -2047,7 +2123,7 @@
     saveCart();
   }
 
-  function fmtMoney(v) { return v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar'; }
+  function fmtMoney(v) { return v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar'); }
 
   function renderOrder() {
     const body = document.getElementById('osBody');
@@ -2093,7 +2169,9 @@
               ${d.pedido_min>1?`<span class="os-badge" style="background:#fff0cc;color:#8a5000">Mín: ${d.pedido_min}</span>`:''}
               ${estLabel}${lancDate}
             </div>
-            ${warnMin}
+            ${warnMin}${(osIcms === 'expind' && (d.origem||'IMP') === 'IMP')
+              ? '<div class="os-warn-imp">&#9888;&#65039; Importado &mdash; carga tribut&aacute;ria diferente na exporta&ccedil;&atilde;o indireta</div>'
+              : ''}
           </div>
           <div class="os-item-right">
             <div class="os-qty-row">
@@ -2226,6 +2304,12 @@
         <table style="width:100%;border-collapse:collapse;margin-bottom:4px">${thead}<tbody>${renderRows(lanc)}</tbody></table>
         <p style="text-align:right;font-size:0.82rem;font-weight:700;color:#555;margin:4px 0 20px">Subtotal lançamentos: ${fmtMoney(totalLanc)}</p>`;
     }
+    if (osIcms === 'expind') {
+      const impCount = items.filter(i => (i.data.origem||'IMP') === 'IMP').length;
+      body += `<div style="background:#e6f4f0;border:1px solid rgba(14,110,90,0.3);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:0.78rem;color:#0E6E5A;font-weight:700">
+        Tabela EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta.${impCount ? ' &#9888;&#65039; ' + impCount + ' item(ns) importado(s) neste pedido &mdash; carga tribut&aacute;ria diferente da dos produtos nacionais.' : ''}
+      </div>`;
+    }
     body += `<div style="border-top:2px solid #1B3A5C;padding-top:10px;display:flex;justify-content:flex-end">
       <table style="font-size:0.85rem;border-collapse:collapse">
         <tr><td style="color:#888;padding:3px 12px">Itens:</td><td style="font-weight:700;padding:3px 0">${items.length}</td></tr>
@@ -2325,8 +2409,9 @@
 
   // Sync ICMS on load
   (function() {
-    const saved = localStorage.getItem('xalingo-icms') || 'p18';
+    const saved = currentIcms;
     osIcms = saved;
+    applyExpIndMode(saved);
     document.querySelectorAll('.os-icms-btn').forEach(b =>
       b.classList.toggle('active', b.getAttribute('data-icms') === saved));
   })();
@@ -2609,9 +2694,9 @@
       if (globalDiscount > 0 && orig !== v) {
         mainEl.innerHTML =
           '<span style="display:block;text-decoration:line-through;opacity:0.4;font-size:0.72rem;font-weight:400;line-height:1.2">R$ ' + orig.toFixed(2).replace('.',',') + '</span>' +
-          (v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar');
+          (v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar'));
       } else {
-        mainEl.textContent = v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+        mainEl.textContent = v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       }
     });
   }
@@ -2694,6 +2779,7 @@
     <button class="os-icms-btn"        data-icms="p12rs" onclick="setOsIcms(this,'p12rs')">12% RS</button>
     <button class="os-icms-btn"        data-icms="p12"   onclick="setOsIcms(this,'p12')">12% SC/PR/SP</button>
     <button class="os-icms-btn"        data-icms="p7"    onclick="setOsIcms(this,'p7')">7%</button>
+    <button class="os-icms-btn expind" data-icms="expind" onclick="setOsIcms(this,'expind')">EXP-IND</button>
   </div>
 
   <div class="os-body" id="osBody">

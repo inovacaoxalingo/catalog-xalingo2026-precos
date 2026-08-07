@@ -744,6 +744,49 @@
     .price-main { color: #fff !important; }
     .price-ref  { color: rgba(255,255,255,0.8) !important; }
   }
+
+  /* ===== EXP-IND — Exportação Indireta ===== */
+  .sb-icms-btn.expind {
+    grid-column: 1 / -1; margin-top: 2px;
+    border-color: rgba(14,110,90,0.35); color: #0E6E5A;
+  }
+  .sb-icms-btn.expind:hover { background: rgba(14,110,90,0.08); border-color: #0E6E5A; color: #0E6E5A; }
+  .sb-icms-btn.expind.active { background: #0E6E5A; border-color: #0E6E5A; color: #fff; }
+  .os-icms-btn.expind { border-color: rgba(14,110,90,0.35); color: #0E6E5A; }
+  .os-icms-btn.expind:hover { border-color: #0E6E5A; color: #0E6E5A; }
+  .os-icms-btn.expind.active { background: #0E6E5A; border-color: #0E6E5A; color: #fff; }
+  .sb-expind-note {
+    display: none; margin-top: 7px; padding: 5px 7px;
+    font-size: 0.55rem; line-height: 1.4; font-weight: 600; color: #0E6E5A;
+    background: rgba(14,110,90,0.08); border: 1px solid rgba(14,110,90,0.2);
+    border-radius: 7px;
+  }
+  body.expind-mode .sb-expind-note { display: block; }
+  body.expind-mode .price-tag { background: rgba(14,110,90,0.88); }
+  body.expind-mode .price-badge[data-orig="IMP"] .price-tag::after {
+    content: '\26A0 IMPORTADO \B7 taxas dif.';
+    display: block; margin-top: 2px;
+    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.2px;
+    color: #ffdf8a; line-height: 1.1;
+  }
+  .os-warn-imp {
+    font-size: 0.6rem; font-weight: 700; color: #0E6E5A; margin-top: 4px;
+    background: rgba(14,110,90,0.09); border-radius: 5px; padding: 3px 6px;
+    line-height: 1.3;
+  }
+  .pm-price-box.pm-expind {
+    grid-column: 1 / -1;
+    background: #e6f4f0; border: 1px solid rgba(14,110,90,0.25);
+  }
+  .pm-price-box.pm-expind .pm-price-val { color: #0E6E5A; }
+  .pm-imp-note {
+    font-size: 0.68rem; font-weight: 700; color: #0E6E5A; line-height: 1.4;
+    background: rgba(14,110,90,0.09); border: 1px solid rgba(14,110,90,0.2);
+    border-radius: 8px; padding: 7px 10px; margin-bottom: 10px;
+  }
+  @media print {
+    body.expind-mode .price-tag { background: #0E6E5A !important; }
+  }
   </style>
 </head>
 <body>
@@ -771,8 +814,10 @@
         <button class="sb-icms-btn active" data-icms="p18"   onclick="setIcms('p18',this)">ICMS 18%</button>
         <button class="sb-icms-btn"        data-icms="p12rs" onclick="setIcms('p12rs',this)">12% RS</button>
         <button class="sb-icms-btn"        data-icms="p12"   onclick="setIcms('p12',this)">12% SC/PR/SP</button>
-        <button class="sb-icms-btn"        data-icms="p7"    onclick="setIcms('p7',this)">ICMS 7%</button>
+        <button class="sb-icms-btn"        data-icms="p7"   onclick="setIcms('p7',this)">ICMS 7%</button>
+        <button class="sb-icms-btn expind" data-icms="expind" onclick="setIcms('expind',this)">EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta</button>
       </div>
+      <div class="sb-expind-note">Tabela de <b>exporta&ccedil;&atilde;o indireta</b>. Produtos <b>importados</b> t&ecirc;m carga tribut&aacute;ria diferente &mdash; confira antes de fechar o pedido.</div>
     </div>
 
     <a href="sumario.html" class="sb-back">
@@ -1436,16 +1481,37 @@
   setLang(currentLang);
 
 
-  let currentIcms = localStorage.getItem('xalingo-icms') || 'p18';
+  let currentIcms = (localStorage.getItem('xalingo-expind') === '1')
+    ? 'expind'
+    : (localStorage.getItem('xalingo-icms') || 'p18');
+
+  // Guarda a escolha de tabela. EXP-IND vai numa chave separada para nao quebrar
+  // paginas antigas que so entendem p18/p12rs/p12/p7.
+  function saveTabela(key) {
+    if (key === 'expind') {
+      localStorage.setItem('xalingo-expind', '1');
+    } else {
+      localStorage.setItem('xalingo-expind', '0');
+      localStorage.setItem('xalingo-icms', key);
+    }
+  }
+  function applyExpIndMode(key) {
+    if (document.body) document.body.classList.toggle('expind-mode', key === 'expind');
+  }
   function setIcms(key, btn) {
     currentIcms = key;
-    localStorage.setItem('xalingo-icms', key);
+    osIcms = key;
+    saveTabela(key);
+    applyExpIndMode(key);
+    document.querySelectorAll('.os-icms-btn').forEach(b =>
+      b.classList.toggle('active', b.getAttribute('data-icms') === key));
+    if (typeof renderOrder === 'function') renderOrder();
     document.querySelectorAll('.sb-icms-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-icms') === key));
     document.querySelectorAll('.price-badge').forEach(badge => {
       const ref = badge.dataset.ref;
       const d = PRICE_CONFIG[ref];
       if (!d) return;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.querySelector('.price-tag').innerHTML = `<div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(getDiscountedPrice(d[key]))}</div>`;
     });
   }
@@ -1455,83 +1521,83 @@
 
     const PRICE_CONFIG = {
     // ─── playground-p0002 (pág 149) ───
-    '9356': { img:'playground-p0002', x:4, y:20, p18:109.6, p12rs:104, p12:104, p7:99.3, cx:1, estoque:0, disponivel:164, origem:'NAC', nome:'BALANÇO BORBOLETINHA - S/ GANCHO', ean:'7896640483913', dun:'17896640483910' },
-    '9355': { img:'playground-p0002', x:4, y:50, p18:109.6, p12rs:104, p12:104, p7:99.3, cx:1, estoque:0, disponivel:320, origem:'NAC', nome:'BALANÇO URSINHO - S/ GANCHO', ean:'7896640483548', dun:'17896640483545' },
-    '2810': { img:'playground-p0002', x:60, y:70, p18:183.3, p12rs:174, p12:174, p7:166.2, cx:1, estoque:38, disponivel:238, origem:'NAC', nome:'BALANÇO NEW BIU', ean:'7896640437923', dun:'17896640437920' },
+    '9356': { img:'playground-p0002', x:4, y:20, p18:109.6, p12rs:104, p12:104, p7:99.3, expind:40, cx:1, estoque:0, disponivel:164, origem:'NAC', nome:'BALANÇO BORBOLETINHA - S/ GANCHO', ean:'7896640483913', dun:'17896640483910' },
+    '9355': { img:'playground-p0002', x:4, y:50, p18:109.6, p12rs:104, p12:104, p7:99.3, expind:40, cx:1, estoque:0, disponivel:320, origem:'NAC', nome:'BALANÇO URSINHO - S/ GANCHO', ean:'7896640483548', dun:'17896640483545' },
+    '2810': { img:'playground-p0002', x:60, y:70, p18:183.3, p12rs:174, p12:174, p7:166.2, expind:67, cx:1, estoque:38, disponivel:238, origem:'NAC', nome:'BALANÇO NEW BIU', ean:'7896640437923', dun:'17896640437920' },
     // ─── playground-p0003 (pág 150) ───
-    '10687': { img:'playground-p0003', x:32, y:15, p18:409.9, p12rs:389, p12:389, p7:371.6, cx:1, estoque:17, disponivel:17, origem:'NAC', nome:'GANGORRA BIDU TURMA DA MÔNICA', ean:'7896640410681', dun:'17896640410688' },
-    '9376': { img:'playground-p0003', x:32, y:60, p18:398.3, p12rs:378, p12:378, p7:361.1, cx:1, estoque:69, disponivel:99, origem:'NAC', nome:'GANGORRA ANDA CAVALINHO - VERMELHO COM SOM', ean:'7896640409371', dun:'17896640409378' },
+    '10687': { img:'playground-p0003', x:32, y:15, p18:409.9, p12rs:389, p12:389, p7:371.6, expind:149, cx:1, estoque:17, disponivel:17, origem:'NAC', nome:'GANGORRA BIDU TURMA DA MÔNICA', ean:'7896640410681', dun:'17896640410688' },
+    '9376': { img:'playground-p0003', x:32, y:60, p18:398.3, p12rs:378, p12:378, p7:361.1, expind:145, cx:1, estoque:69, disponivel:99, origem:'NAC', nome:'GANGORRA ANDA CAVALINHO - VERMELHO COM SOM', ean:'7896640409371', dun:'17896640409378' },
     // ─── playground-p0004 (pág 151) ───
-    '9221': { img:'playground-p0004', x:32, y:15, p18:199, p12rs:189, p12:189, p7:180.5, cx:1, estoque:126, disponivel:326, origem:'NAC', nome:'GANGORRA CAVALINHO POCOTÓ - AZUL CLARO', ean:'7896640437527', dun:'17896640437524' },
-    '9223': { img:'playground-p0004', x:32, y:60, p18:199.1, p12rs:189, p12:189, p7:180.6, cx:1, estoque:75, disponivel:275, origem:'NAC', nome:'GANGORRA CAVALINHO POCOTÓ - VERMELHO', ean:'7896640438920', dun:'17896640438927' },
+    '9221': { img:'playground-p0004', x:32, y:15, p18:199, p12rs:189, p12:189, p7:180.5, expind:73, cx:1, estoque:126, disponivel:326, origem:'NAC', nome:'GANGORRA CAVALINHO POCOTÓ - AZUL CLARO', ean:'7896640437527', dun:'17896640437524' },
+    '9223': { img:'playground-p0004', x:32, y:60, p18:199.1, p12rs:189, p12:189, p7:180.6, expind:73, cx:1, estoque:75, disponivel:275, origem:'NAC', nome:'GANGORRA CAVALINHO POCOTÓ - VERMELHO', ean:'7896640438920', dun:'17896640438927' },
     // ─── playground-p0005 (pág 152) ───
-    '9307': { img:'playground-p0005', x:32, y:12, p18:398.2, p12rs:378, p12:378, p7:361.1, cx:1, estoque:19, disponivel:49, origem:'NAC', nome:'GANGORRA CAVALINHO - AMARELO COM SOM', ean:'7896640493073', dun:'17896640493070' },
-    '9654': { img:'playground-p0005', x:32, y:40, p18:603.7, p12rs:573, p12:573, p7:547.4, cx:1, estoque:7, disponivel:7, origem:'NAC', nome:'GANGORRA DINOSSAURO ROXA', ean:'7896640409654', dun:'17896640409651' },
+    '9307': { img:'playground-p0005', x:32, y:12, p18:398.2, p12rs:378, p12:378, p7:361.1, expind:145, cx:1, estoque:19, disponivel:49, origem:'NAC', nome:'GANGORRA CAVALINHO - AMARELO COM SOM', ean:'7896640493073', dun:'17896640493070' },
+    '9654': { img:'playground-p0005', x:32, y:40, p18:603.7, p12rs:573, p12:573, p7:547.4, expind:219, cx:1, estoque:7, disponivel:7, origem:'NAC', nome:'GANGORRA DINOSSAURO ROXA', ean:'7896640409654', dun:'17896640409651' },
     // ─── playground-p0006 (pág 153) ───
-    '9521': { img:'playground-p0006', x:8, y:85, p18:247.6, p12rs:235, p12:235, p7:224.5, cx:1, estoque:71, disponivel:107, origem:'NAC', nome:'GANGORRA NHOCA LARANJA', ean:'7896640409524', dun:'17896640409521' },
-    '9698': { img:'playground-p0006', x:32, y:10, p18:1622.5, p12rs:1540, p12:1540, p7:1471.2, cx:1, estoque:27, disponivel:51, origem:'NAC', nome:'GANGORRA POLVO MALUCO', ean:'7896640409692', dun:'17896640409699' },
+    '9521': { img:'playground-p0006', x:8, y:85, p18:247.6, p12rs:235, p12:235, p7:224.5, expind:90, cx:1, estoque:71, disponivel:107, origem:'NAC', nome:'GANGORRA NHOCA LARANJA', ean:'7896640409524', dun:'17896640409521' },
+    '9698': { img:'playground-p0006', x:32, y:10, p18:1622.5, p12rs:1540, p12:1540, p7:1471.2, expind:589, cx:1, estoque:27, disponivel:51, origem:'NAC', nome:'GANGORRA POLVO MALUCO', ean:'7896640409692', dun:'17896640409699' },
     // ─── playground-p0007 (pág 154) ───
-    '9809': { img:'playground-p0007', x:80, y:60, p18:442.5, p12rs:420, p12:420, p7:401.3, cx:1, estoque:1, disponivel:101, origem:'NAC', nome:'MESA SIRIZINHO', ean:'7896640498092', dun:'17896640498099' },
-    '9854': { img:'playground-p0007', x:80, y:15, p18:1158.9, p12rs:1100, p12:1100, p7:1050.9, cx:1, estoque:24, disponivel:84, origem:'NAC', nome:'GIRA PATO', ean:'7896640409852', dun:'17896640409859' },
+    '9809': { img:'playground-p0007', x:80, y:60, p18:442.5, p12rs:420, p12:420, p7:401.3, expind:161, cx:1, estoque:1, disponivel:101, origem:'NAC', nome:'MESA SIRIZINHO', ean:'7896640498092', dun:'17896640498099' },
+    '9854': { img:'playground-p0007', x:80, y:15, p18:1158.9, p12rs:1100, p12:1100, p7:1050.9, expind:421, cx:1, estoque:24, disponivel:84, origem:'NAC', nome:'GIRA PATO', ean:'7896640409852', dun:'17896640409859' },
     // ─── playground-p0008 (pág 155) ───
-    '9409': { img:'playground-p0008', x:40, y:70, p18:579.5, p12rs:550, p12:550, p7:525.4, cx:1, estoque:37, disponivel:37, origem:'NAC', nome:'HIPO BAÚ ROXO', ean:'7896640409401', dun:'17896640409408' },
-    '9843': { img:'playground-p0008', x:40, y:5, p18:842.9, p12rs:800, p12:800, p7:764.3, cx:1, estoque:38, disponivel:88, origem:'NAC', nome:'CERCADINHO', ean:'7896640498436', dun:'17896640498433' },
-    '9419': { img:'playground-p0008', x:40, y:40, p18:1158.9, p12rs:1100, p12:1100, p7:1050.9, cx:1, estoque:53, disponivel:53, origem:'NAC', nome:'CAIXA DE AREIA ESTRELA DO MAR VERMELHA', ean:'7896640494193', dun:'17896640494190' },
+    '9409': { img:'playground-p0008', x:40, y:70, p18:579.5, p12rs:550, p12:550, p7:525.4, expind:211, cx:1, estoque:37, disponivel:37, origem:'NAC', nome:'HIPO BAÚ ROXO', ean:'7896640409401', dun:'17896640409408' },
+    '9843': { img:'playground-p0008', x:40, y:5, p18:842.9, p12rs:800, p12:800, p7:764.3, expind:306, cx:1, estoque:38, disponivel:88, origem:'NAC', nome:'CERCADINHO', ean:'7896640498436', dun:'17896640498433' },
+    '9419': { img:'playground-p0008', x:40, y:40, p18:1158.9, p12rs:1100, p12:1100, p7:1050.9, expind:421, cx:1, estoque:53, disponivel:53, origem:'NAC', nome:'CAIXA DE AREIA ESTRELA DO MAR VERMELHA', ean:'7896640494193', dun:'17896640494190' },
     // ─── playground-p0009 (pág 156) ───
-    '9387': { img:'playground-p0009', x:30, y:5, p18:811.3, p12rs:770, p12:770, p7:735.6, cx:1, estoque:2, disponivel:2, origem:'NAC', nome:'ESCORREGADOR DESMONTAVEL VERMELHO', ean:'7896640409388', dun:'17896640409385' },
-    '9532': { img:'playground-p0009', x:27, y:56, p18:1453.9, p12rs:1380, p12:1380, p7:1318.4, cx:1, estoque:103, disponivel:103, origem:'NAC', nome:'ESCORREGADOR MASTER LARANJA', ean:'7896640409531', dun:'17896640409538' },
+    '9387': { img:'playground-p0009', x:30, y:5, p18:811.3, p12rs:770, p12:770, p7:735.6, expind:295, cx:1, estoque:2, disponivel:2, origem:'NAC', nome:'ESCORREGADOR DESMONTAVEL VERMELHO', ean:'7896640409388', dun:'17896640409385' },
+    '9532': { img:'playground-p0009', x:27, y:56, p18:1453.9, p12rs:1380, p12:1380, p7:1318.4, expind:528, cx:1, estoque:103, disponivel:103, origem:'NAC', nome:'ESCORREGADOR MASTER LARANJA', ean:'7896640409531', dun:'17896640409538' },
     // ─── playground-p0010 (pág 157) ───
-    '9332': { img:'playground-p0010', x:10, y:30, p18:2633.9, p12rs:2500, p12:2500, p7:2388.4, cx:1, estoque:6, disponivel:6, origem:'NAC', nome:'ESCORREGADOR COM BALANÇO', ean:'7896640493325', dun:'17896640493322' },
+    '9332': { img:'playground-p0010', x:10, y:30, p18:2633.9, p12rs:2500, p12:2500, p7:2388.4, expind:956, cx:1, estoque:6, disponivel:6, origem:'NAC', nome:'ESCORREGADOR COM BALANÇO', ean:'7896640493325', dun:'17896640493322' },
     // ─── playground-p0011 (pág 158) ───
-    '9666': { img:'playground-p0011', x:10, y:75, p18:3687.5, p12rs:3500, p12:3500, p7:3343.8, cx:1, estoque:0, disponivel:0, origem:'NAC', nome:'CASINHA ENCANTADA AMARELA', ean:'7896640496661', dun:'17896640496668' },
+    '9666': { img:'playground-p0011', x:10, y:75, p18:3687.5, p12rs:3500, p12:3500, p7:3343.8, expind:1338, cx:1, estoque:0, disponivel:0, origem:'NAC', nome:'CASINHA ENCANTADA AMARELA', ean:'7896640496661', dun:'17896640496668' },
     // ─── playground-p0012 (pág 159) ───
-    '9776': { img:'playground-p0012', x:10, y:75, p18:4741, p12rs:4500, p12:4500, p7:4299.1, cx:1, estoque:7, disponivel:7, origem:'NAC', nome:'CASINHA CHALE DA MONTANHA', ean:'7896640497767', dun:'17896640497764' },
-    '9454': { img:'playground-p0012', x:80, y:10, p18:4951.8, p12rs:4700, p12:4700, p7:4490.1, cx:1, estoque:8, disponivel:20, origem:'NAC', nome:'CASINHA TROPICAL CREME', ean:'7896640409456', dun:'17896640409453' },
+    '9776': { img:'playground-p0012', x:10, y:75, p18:4741, p12rs:4500, p12:4500, p7:4299.1, expind:1720, cx:1, estoque:7, disponivel:7, origem:'NAC', nome:'CASINHA CHALE DA MONTANHA', ean:'7896640497767', dun:'17896640497764' },
+    '9454': { img:'playground-p0012', x:80, y:10, p18:4951.8, p12rs:4700, p12:4700, p7:4490.1, expind:1797, cx:1, estoque:8, disponivel:20, origem:'NAC', nome:'CASINHA TROPICAL CREME', ean:'7896640409456', dun:'17896640409453' },
     // ─── playground-p0013 (pág 160) ───
-    '20610': { img:'playground-p0013', x:10, y:85, p18:6322, p12rs:6000, p12:6000, p7:5732.1, cx:1, estoque:5, disponivel:5, origem:'NAC', nome:'CASTELO ENCANTADO', ean:'7896640426972', dun:'17896640426979', lancamento:'01/04/2026' },
-    '20621': { img:'playground-p0013', x:10, y:40, p18:6322, p12rs:6000, p12:6000, p7:5732.1, cx:1, estoque:5, disponivel:5, origem:'NAC', nome:'CASTELO REAL', ean:'7896640426989', dun:'17896640426986', lancamento:'01/04/2026' },
+    '20610': { img:'playground-p0013', x:10, y:85, p18:6322, p12rs:6000, p12:6000, p7:5732.1, expind:2293, cx:1, estoque:5, disponivel:5, origem:'NAC', nome:'CASTELO ENCANTADO', ean:'7896640426972', dun:'17896640426979', lancamento:'01/04/2026' },
+    '20621': { img:'playground-p0013', x:10, y:40, p18:6322, p12rs:6000, p12:6000, p7:5732.1, expind:2293, cx:1, estoque:5, disponivel:5, origem:'NAC', nome:'CASTELO REAL', ean:'7896640426989', dun:'17896640426986', lancamento:'01/04/2026' },
     // ─── playground-p0014 (pág 161) ───
-    '9954': { img:'playground-p0014', x:80, y:60, p18:2633.93, p12rs:2500, p12:2500, p7:2388.4, cx:1, estoque:9, disponivel:9, origem:'NAC', nome:'PARQUINHO DE ATIVIDADES', ean:'7896640409951', dun:'17896640409958' },
-    '9865': { img:'playground-p0014', x:80, y:15, p18:3687.5, p12rs:3500, p12:3500, p7:3343.7, cx:1, estoque:15, disponivel:15, origem:'NAC', nome:'NEW BIG PLAY', ean:'7896640498658', dun:'17896640498655' },
+    '9954': { img:'playground-p0014', x:80, y:60, p18:2633.93, p12rs:2500, p12:2500, p7:2388.4, expind:956, cx:1, estoque:9, disponivel:9, origem:'NAC', nome:'PARQUINHO DE ATIVIDADES', ean:'7896640409951', dun:'17896640409958' },
+    '9865': { img:'playground-p0014', x:80, y:15, p18:3687.5, p12rs:3500, p12:3500, p7:3343.7, expind:1338, cx:1, estoque:15, disponivel:15, origem:'NAC', nome:'NEW BIG PLAY', ean:'7896640498658', dun:'17896640498655' },
     // ─── playground-p0015 (pág 162) ───
-    '9598': { img:'playground-p0015', x:80, y:15, p18:3371.4, p12rs:3200, p12:3200, p7:3057.1, cx:1, estoque:40, disponivel:40, origem:'NAC', nome:'TRENZINHO DA ALEGRIA', ean:'7896640409593', dun:'17896640409590' },
-    '9709': { img:'playground-p0015', x:32, y:55, p18:5583.93, p12rs:5300, p12:5300, p7:5063.4, cx:1, estoque:28, disponivel:28, origem:'NAC', nome:'CASTELO MEDIEVAL', ean:'7896640409708', dun:'17896640409705' },
+    '9598': { img:'playground-p0015', x:80, y:15, p18:3371.4, p12rs:3200, p12:3200, p7:3057.1, expind:1223, cx:1, estoque:40, disponivel:40, origem:'NAC', nome:'TRENZINHO DA ALEGRIA', ean:'7896640409593', dun:'17896640409590' },
+    '9709': { img:'playground-p0015', x:32, y:55, p18:5583.93, p12rs:5300, p12:5300, p7:5063.4, expind:2026, cx:1, estoque:28, disponivel:28, origem:'NAC', nome:'CASTELO MEDIEVAL', ean:'7896640409708', dun:'17896640409705' },
     // ─── playground-p0016 (pág 163) ───
-    '9898': { img:'playground-p0016', x:32, y:5, p18:7585.7, p12rs:7200, p12:7200, p7:6878.5, cx:1, estoque:11, disponivel:11, nome:'NAVIO DOS PIRATAS', ean:'7896640409890', dun:'17896640409897' },
+    '9898': { img:'playground-p0016', x:32, y:5, p18:7585.7, p12rs:7200, p12:7200, p7:6878.5, expind:2752, cx:1, estoque:11, disponivel:11, nome:'NAVIO DOS PIRATAS', ean:'7896640409890', dun:'17896640409897' },
     // ─── playground-p0017 (pág 164) ───
-    '10087': { img:'playground-p0017', x:32, y:5, p18:6637.5, p12rs:6300, p12:6300, p7:6018.7, cx:1, estoque:10, disponivel:10, origem:'NAC', nome:'ILHA DOS FOFOSSAUROS', ean:'7896640437473', dun:'17896640437470' },
+    '10087': { img:'playground-p0017', x:32, y:5, p18:6637.5, p12rs:6300, p12:6300, p7:6018.7, expind:2408, cx:1, estoque:10, disponivel:10, origem:'NAC', nome:'ILHA DOS FOFOSSAUROS', ean:'7896640437473', dun:'17896640437470' },
     // ─── playground-p0018 (pág 165) ───
-    '9765': { img:'playground-p0018', x:32, y:5, p18:14750, p12rs:14000, p12:14000, p7:13375, cx:1, estoque:0, disponivel:0, origem:'NAC', nome:'PLAY DOG HOUSE', ean:'7896640409760', dun:'17896640409767' },
+    '9765': { img:'playground-p0018', x:32, y:5, p18:14750, p12rs:14000, p12:14000, p7:13375, expind:5350, cx:1, estoque:0, disponivel:0, origem:'NAC', nome:'PLAY DOG HOUSE', ean:'7896640409760', dun:'17896640409767' },
     // ─── playground-p0019 (pág 166) ───
-    '9976': { img:'playground-p0019', x:32, y:5, p18:11483.9, p12rs:10900, p12:10900, p7:10413.4, cx:1, estoque:2, disponivel:2, origem:'NAC', nome:'CASINHA NA ÁRVORE SMART', ean:'7896640432836', dun:'17896640432833' },
+    '9976': { img:'playground-p0019', x:32, y:5, p18:11483.9, p12rs:10900, p12:10900, p7:10413.4, expind:4166, cx:1, estoque:2, disponivel:2, origem:'NAC', nome:'CASINHA NA ÁRVORE SMART', ean:'7896640432836', dun:'17896640432833' },
     // ─── playground-p0020 (pág 167) ───
-    '9943': { img:'playground-p0020', x:32, y:5, p18:8112.5, p12rs:7700, p12:7700, p7:7356.2, cx:1, estoque:1, disponivel:1, origem:'NAC', nome:'PLAY HOUSE DOIS ANDARES', ean:'7896640409944', dun:'17896640409941' },
+    '9943': { img:'playground-p0020', x:32, y:5, p18:8112.5, p12rs:7700, p12:7700, p7:7356.2, expind:2943, cx:1, estoque:1, disponivel:1, origem:'NAC', nome:'PLAY HOUSE DOIS ANDARES', ean:'7896640409944', dun:'17896640409941' },
     // ─── playground-p0021 (pág 168) ───
-    '9998': { img:'playground-p0021', x:32, y:5, p18:9798.2, p12rs:9300, p12:9300, p7:8884.8, cx:1, estoque:10, disponivel:10, origem:'NAC', nome:'FUN PLAY', ean:'7896640433390', dun:'17896640433397' },
+    '9998': { img:'playground-p0021', x:32, y:5, p18:9798.2, p12rs:9300, p12:9300, p7:8884.8, expind:3554, cx:1, estoque:10, disponivel:10, origem:'NAC', nome:'FUN PLAY', ean:'7896640433390', dun:'17896640433397' },
     // ─── playground-p0022 (pág 169) ───
-    '9987': { img:'playground-p0022', x:32, y:5, p18:11062.5, p12rs:10500, p12:10500, p7:10031.3, cx:1, estoque:10, disponivel:10, origem:'NAC', nome:'CREATIVE PLAY', ean:'7896640433130', dun:'17896640433137' },
+    '9987': { img:'playground-p0022', x:32, y:5, p18:11062.5, p12rs:10500, p12:10500, p7:10031.3, expind:4013, cx:1, estoque:10, disponivel:10, origem:'NAC', nome:'CREATIVE PLAY', ean:'7896640433130', dun:'17896640433137' },
     // ─── playground-p0023 (pág 170) ───
-    '10009': { img:'playground-p0023', x:32, y:5, p18:14539.3, p12rs:13800, p12:13800, p7:13183.9, cx:1, estoque:11, disponivel:11, origem:'NAC', nome:'SUPER CREATIVE PLAY', ean:'7896640436087', dun:'17896640436084' },
+    '10009': { img:'playground-p0023', x:32, y:5, p18:14539.3, p12rs:13800, p12:13800, p7:13183.9, expind:5274, cx:1, estoque:11, disponivel:11, origem:'NAC', nome:'SUPER CREATIVE PLAY', ean:'7896640436087', dun:'17896640436084' },
     // ─── playground-p0024 (pág 171) ───
-    '10032': { img:'playground-p0024', x:32, y:5, p18:15803.6, p12rs:15000, p12:15000, p7:14330.3, cx:1, estoque:10, disponivel:10, origem:'NAC', nome:'SUPER TOP PLAY', ean:'7896640436605', dun:'17896640436602' },
+    '10032': { img:'playground-p0024', x:32, y:5, p18:15803.6, p12rs:15000, p12:15000, p7:14330.3, expind:5733, cx:1, estoque:10, disponivel:10, origem:'NAC', nome:'SUPER TOP PLAY', ean:'7896640436605', dun:'17896640436602' },
     // ─── playground-p0025 (pág 172) ───
-    '10043': { img:'playground-p0025', x:32, y:5, p18:23705.4, p12rs:22500, p12:22500, p7:21495.5, cx:1, estoque:0, disponivel:0, origem:'NAC', nome:'BRIDGE PLAY', ean:'7896640436612', dun:'17896640436619' },
+    '10043': { img:'playground-p0025', x:32, y:5, p18:23705.4, p12rs:22500, p12:22500, p7:21495.5, expind:8599, cx:1, estoque:0, disponivel:0, origem:'NAC', nome:'BRIDGE PLAY', ean:'7896640436612', dun:'17896640436619' },
     // ─── playground-p0026 (pág 173) ───
-    '10054': { img:'playground-p0026', x:32, y:5, p18:29500, p12rs:28000, p12:28000, p7:26750, cx:1, estoque:0, disponivel:0, origem:'NAC', nome:'GRAND PLAY', ean:'7896640436629', dun:'17896640436626' },
+    '10054': { img:'playground-p0026', x:32, y:5, p18:29500, p12rs:28000, p12:28000, p7:26750, expind:10700, cx:1, estoque:0, disponivel:0, origem:'NAC', nome:'GRAND PLAY', ean:'7896640436629', dun:'17896640436626' },
     // ─── playground-p0027 (pág 174) ───
-    '10209': { img:'playground-p0027', x:32, y:5, p18:14750, p12rs:14000, p12:14000, p7:13375, cx:1, estoque:8, disponivel:8, origem:'NAC', nome:'PARQUE DOS FOFOSSAUROS', ean:'7896640437497', dun:'17896640437494' },
+    '10209': { img:'playground-p0027', x:32, y:5, p18:14750, p12rs:14000, p12:14000, p7:13375, expind:5350, cx:1, estoque:8, disponivel:8, origem:'NAC', nome:'PARQUE DOS FOFOSSAUROS', ean:'7896640437497', dun:'17896640437494' },
     // ─── playground-p0028 (pág 175) ───
-    '10221': { img:'playground-p0028', x:32, y:5, p18:28763, p12rs:27300, p12:27300, p7:26081.3, cx:1, estoque:4, disponivel:4, origem:'NAC', nome:'MUNDO DOS FOFOSSAUROS', ean:'7896640437510', dun:'17896640437517' },
+    '10221': { img:'playground-p0028', x:32, y:5, p18:28763, p12rs:27300, p12:27300, p7:26081.3, expind:10433, cx:1, estoque:4, disponivel:4, origem:'NAC', nome:'MUNDO DOS FOFOSSAUROS', ean:'7896640437510', dun:'17896640437517' },
     // ─── playground-p0029 (pág 176) ───
-    '20609': { img:'playground-p0029', x:32, y:5, p18:43197, p12rs:41000, p12:41000, p7:39169, cx:1, estoque:0, disponivel:0, origem:'NAC', nome:'UNIVERSO DOS FOFOSSAUROS', ean:'7896640426965', dun:'17896640426962', lancamento:'01/04/2026' },
+    '20609': { img:'playground-p0029', x:32, y:5, p18:43197, p12rs:41000, p12:41000, p7:39169, expind:15668, cx:1, estoque:0, disponivel:0, origem:'NAC', nome:'UNIVERSO DOS FOFOSSAUROS', ean:'7896640426965', dun:'17896640426962', lancamento:'01/04/2026' },
     // ─── playground-p0030 (pág 177) ───
-    '9568': { img:'playground-p0030', x:32, y:5, p18:10430.4, p12rs:9900, p12:9900, p7:9458, cx:1, estoque:3, disponivel:3, origem:'NAC', nome:'PLAY MODULAR GLOBAL', ean:'7896640495688', dun:'17896640495685' },
+    '9568': { img:'playground-p0030', x:32, y:5, p18:10430.4, p12rs:9900, p12:9900, p7:9458, expind:3784, cx:1, estoque:3, disponivel:3, origem:'NAC', nome:'PLAY MODULAR GLOBAL', ean:'7896640495688', dun:'17896640495685' },
     // ─── playground-p0031 (pág 178) ───
-    '9684': { img:'playground-p0031', x:32, y:5, p18:32239.3, p12rs:30600, p12:30600, p7:29233.9, cx:1, estoque:1, disponivel:1, origem:'NAC', nome:'PLAY MODULAR ADVANCED', ean:'7896640496845', dun:'17896640496842' },
+    '9684': { img:'playground-p0031', x:32, y:5, p18:32239.3, p12rs:30600, p12:30600, p7:29233.9, expind:11694, cx:1, estoque:1, disponivel:1, origem:'NAC', nome:'PLAY MODULAR ADVANCED', ean:'7896640496845', dun:'17896640496842' },
     // ─── playground-p0032 (pág 179) ───
-    '9685': { img:'playground-p0032', x:32, y:5, p18:27076.8, p12rs:25700, p12:25700, p7:24552.7, cx:1, estoque:1, disponivel:1, origem:'NAC', nome:'PLAY MODULAR ADVENTURE', ean:'7896640496852', dun:'17896640496859' },
+    '9685': { img:'playground-p0032', x:32, y:5, p18:27076.8, p12rs:25700, p12:25700, p7:24552.7, expind:9822, cx:1, estoque:1, disponivel:1, origem:'NAC', nome:'PLAY MODULAR ADVENTURE', ean:'7896640496852', dun:'17896640496859' },
     // ─── playground-p0033 (pág 180) ───
-    '9686': { img:'playground-p0033', x:32, y:5, p18:21071.5, p12rs:20000, p12:20000, p7:19107.1, cx:1, estoque:1, disponivel:1, origem:'NAC', nome:'PLAY MODULAR FUTURE', ean:'7896640496869', dun:'17896640496866' },
+    '9686': { img:'playground-p0033', x:32, y:5, p18:21071.5, p12rs:20000, p12:20000, p7:19107.1, expind:7643, cx:1, estoque:1, disponivel:1, origem:'NAC', nome:'PLAY MODULAR FUTURE', ean:'7896640496869', dun:'17896640496866' },
   };
 
   function renderPriceBadges() {
@@ -1551,8 +1617,9 @@
       badge.style.left = d.x + '%';
       badge.style.top  = d.y + '%';
       badge.dataset.ref = ref;
+      badge.dataset.orig = d.origem || 'IMP';
       d.ref = ref;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.innerHTML = `<div class="price-tag"><div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(d[currentIcms])}</div></div><button class="badge-info-btn" title="Ver detalhes">ⓘ</button>`;
       badge.querySelector('.price-tag').addEventListener('click', (e) => { e.stopPropagation(); toggleProduct(ref); });
       badge.querySelector('.badge-info-btn').addEventListener('click', (e) => { e.stopPropagation(); openPriceModal(ref, d); });
@@ -1561,7 +1628,7 @@
   }
 
   function openPriceModal(ref, d) {
-    const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+    const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
     const stockClass = d.estoque > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
     const stockLabel = d.estoque > 0 ? d.estoque + ' un.' : 'Sem estoque';
     const dispClass  = d.disponivel > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
@@ -1569,11 +1636,15 @@
     document.getElementById('pmContent').innerHTML = `
       <div class="pm-ref">REF ${ref}</div>
       <div class="pm-nome">${d.nome}</div>
+      ${(currentIcms === 'expind' && (d.origem||'IMP') === 'IMP')
+        ? '<div class="pm-imp-note">&#9888;&#65039; Produto <b>importado</b> &mdash; na tabela EXP-IND a carga tribut&aacute;ria &eacute; diferente da dos produtos nacionais. Confirme os impostos antes de faturar.</div>'
+        : ''}
       <div class="pm-prices">
         <div class="pm-price-box"><div class="pm-price-label">ICMS 18%</div><div class="pm-price-val">${fmtPrice(d.p18)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 12% RS</div><div class="pm-price-val">${fmtPrice(d.p12rs)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 12% SC/PR/SP/RJ/MG</div><div class="pm-price-val">${fmtPrice(d.p12)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 7%</div><div class="pm-price-val">${fmtPrice(d.p7)}</div></div>
+        <div class="pm-price-box pm-expind"><div class="pm-price-label">EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta</div><div class="pm-price-val">${fmtPrice(d.expind)}</div></div>
       </div>
       <div class="pm-info">
         <div class="pm-info-item">CX: <span>${d.cx} un.</span></div>
@@ -1588,6 +1659,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     renderPriceBadges();
     applyIcmsOnLoad();
+  applyExpIndMode(currentIcms);
+  document.addEventListener('DOMContentLoaded', () => applyExpIndMode(currentIcms));
     // Restore cart from localStorage
     loadCart();
     if (Object.keys(osCart).length) {
@@ -1697,7 +1770,9 @@
   }
 
   // ── ORDER SIDEBAR ──────────────────────────────────────────────────────────
-  let osIcms = localStorage.getItem('xalingo-icms') || 'p18';
+  let osIcms = (localStorage.getItem('xalingo-expind') === '1')
+    ? 'expind'
+    : (localStorage.getItem('xalingo-icms') || 'p18');
   const osCart = {};     // ref -> {data, qty}
   const imgCache = {};   // ref -> imageUrl (pre-fetched em background)
   // ── Cart persisted across pages via localStorage ──────────────────────────
@@ -1731,11 +1806,12 @@
     } catch(e){}
   }
 
-  const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%'};
+  const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%',expind:'EXP-IND \u00b7 Exporta\u00e7\u00e3o Indireta'};
 
   function setOsIcms(btn, key) {
     osIcms = key;
-    localStorage.setItem('xalingo-icms', key);
+    saveTabela(key);
+    applyExpIndMode(key);
     document.querySelectorAll('.os-icms-btn').forEach(b => b.classList.toggle('active', b===btn));
     // Sync with main ICMS selector
     currentIcms = key;
@@ -1746,7 +1822,7 @@
       const ref = badge.dataset.ref;
       const d = PRICE_CONFIG[ref];
       if (!d) return;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.querySelector('.price-main').textContent = fmtPrice(getDiscountedPrice(d[key]));
     });
     renderOrder();
@@ -1823,7 +1899,7 @@
     saveCart();
   }
 
-  function fmtMoney(v) { return v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar'; }
+  function fmtMoney(v) { return v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar'); }
 
   function renderOrder() {
     const body = document.getElementById('osBody');
@@ -1869,7 +1945,9 @@
               ${d.pedido_min>1?`<span class="os-badge" style="background:#fff0cc;color:#8a5000">Mín: ${d.pedido_min}</span>`:''}
               ${estLabel}${lancDate}
             </div>
-            ${warnMin}
+            ${warnMin}${(osIcms === 'expind' && (d.origem||'IMP') === 'IMP')
+              ? '<div class="os-warn-imp">&#9888;&#65039; Importado &mdash; carga tribut&aacute;ria diferente na exporta&ccedil;&atilde;o indireta</div>'
+              : ''}
           </div>
           <div class="os-item-right">
             <div class="os-qty-row">
@@ -2002,6 +2080,12 @@
         <table style="width:100%;border-collapse:collapse;margin-bottom:4px">${thead}<tbody>${renderRows(lanc)}</tbody></table>
         <p style="text-align:right;font-size:0.82rem;font-weight:700;color:#555;margin:4px 0 20px">Subtotal lançamentos: ${fmtMoney(totalLanc)}</p>`;
     }
+    if (osIcms === 'expind') {
+      const impCount = items.filter(i => (i.data.origem||'IMP') === 'IMP').length;
+      body += `<div style="background:#e6f4f0;border:1px solid rgba(14,110,90,0.3);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:0.78rem;color:#0E6E5A;font-weight:700">
+        Tabela EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta.${impCount ? ' &#9888;&#65039; ' + impCount + ' item(ns) importado(s) neste pedido &mdash; carga tribut&aacute;ria diferente da dos produtos nacionais.' : ''}
+      </div>`;
+    }
     body += `<div style="border-top:2px solid #1B3A5C;padding-top:10px;display:flex;justify-content:flex-end">
       <table style="font-size:0.85rem;border-collapse:collapse">
         <tr><td style="color:#888;padding:3px 12px">Itens:</td><td style="font-weight:700;padding:3px 0">${items.length}</td></tr>
@@ -2101,8 +2185,9 @@
 
   // Sync ICMS on load
   (function() {
-    const saved = localStorage.getItem('xalingo-icms') || 'p18';
+    const saved = currentIcms;
     osIcms = saved;
+    applyExpIndMode(saved);
     document.querySelectorAll('.os-icms-btn').forEach(b =>
       b.classList.toggle('active', b.getAttribute('data-icms') === saved));
   })();
@@ -2385,9 +2470,9 @@
       if (globalDiscount > 0 && orig !== v) {
         mainEl.innerHTML =
           '<span style="display:block;text-decoration:line-through;opacity:0.4;font-size:0.72rem;font-weight:400;line-height:1.2">R$ ' + orig.toFixed(2).replace('.',',') + '</span>' +
-          (v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar');
+          (v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar'));
       } else {
-        mainEl.textContent = v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+        mainEl.textContent = v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       }
     });
   }
@@ -2469,6 +2554,7 @@
     <button class="os-icms-btn"        data-icms="p12rs" onclick="setOsIcms(this,'p12rs')">12% RS</button>
     <button class="os-icms-btn"        data-icms="p12"   onclick="setOsIcms(this,'p12')">12% SC/PR/SP</button>
     <button class="os-icms-btn"        data-icms="p7"    onclick="setOsIcms(this,'p7')">7%</button>
+    <button class="os-icms-btn expind" data-icms="expind" onclick="setOsIcms(this,'expind')">EXP-IND</button>
   </div>
 
   <div class="os-body" id="osBody">

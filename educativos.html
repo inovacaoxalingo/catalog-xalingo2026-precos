@@ -744,6 +744,49 @@
     .price-main { color: #fff !important; }
     .price-ref  { color: rgba(255,255,255,0.8) !important; }
   }
+
+  /* ===== EXP-IND — Exportação Indireta ===== */
+  .sb-icms-btn.expind {
+    grid-column: 1 / -1; margin-top: 2px;
+    border-color: rgba(14,110,90,0.35); color: #0E6E5A;
+  }
+  .sb-icms-btn.expind:hover { background: rgba(14,110,90,0.08); border-color: #0E6E5A; color: #0E6E5A; }
+  .sb-icms-btn.expind.active { background: #0E6E5A; border-color: #0E6E5A; color: #fff; }
+  .os-icms-btn.expind { border-color: rgba(14,110,90,0.35); color: #0E6E5A; }
+  .os-icms-btn.expind:hover { border-color: #0E6E5A; color: #0E6E5A; }
+  .os-icms-btn.expind.active { background: #0E6E5A; border-color: #0E6E5A; color: #fff; }
+  .sb-expind-note {
+    display: none; margin-top: 7px; padding: 5px 7px;
+    font-size: 0.55rem; line-height: 1.4; font-weight: 600; color: #0E6E5A;
+    background: rgba(14,110,90,0.08); border: 1px solid rgba(14,110,90,0.2);
+    border-radius: 7px;
+  }
+  body.expind-mode .sb-expind-note { display: block; }
+  body.expind-mode .price-tag { background: rgba(14,110,90,0.88); }
+  body.expind-mode .price-badge[data-orig="IMP"] .price-tag::after {
+    content: '\26A0 IMPORTADO \B7 taxas dif.';
+    display: block; margin-top: 2px;
+    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.2px;
+    color: #ffdf8a; line-height: 1.1;
+  }
+  .os-warn-imp {
+    font-size: 0.6rem; font-weight: 700; color: #0E6E5A; margin-top: 4px;
+    background: rgba(14,110,90,0.09); border-radius: 5px; padding: 3px 6px;
+    line-height: 1.3;
+  }
+  .pm-price-box.pm-expind {
+    grid-column: 1 / -1;
+    background: #e6f4f0; border: 1px solid rgba(14,110,90,0.25);
+  }
+  .pm-price-box.pm-expind .pm-price-val { color: #0E6E5A; }
+  .pm-imp-note {
+    font-size: 0.68rem; font-weight: 700; color: #0E6E5A; line-height: 1.4;
+    background: rgba(14,110,90,0.09); border: 1px solid rgba(14,110,90,0.2);
+    border-radius: 8px; padding: 7px 10px; margin-bottom: 10px;
+  }
+  @media print {
+    body.expind-mode .price-tag { background: #0E6E5A !important; }
+  }
   </style>
 </head>
 <body>
@@ -771,8 +814,10 @@
         <button class="sb-icms-btn active" data-icms="p18"   onclick="setIcms('p18',this)">ICMS 18%</button>
         <button class="sb-icms-btn"        data-icms="p12rs" onclick="setIcms('p12rs',this)">12% RS</button>
         <button class="sb-icms-btn"        data-icms="p12"   onclick="setIcms('p12',this)">12% SC/PR/SP</button>
-        <button class="sb-icms-btn"        data-icms="p7"    onclick="setIcms('p7',this)">ICMS 7%</button>
+        <button class="sb-icms-btn"        data-icms="p7"   onclick="setIcms('p7',this)">ICMS 7%</button>
+        <button class="sb-icms-btn expind" data-icms="expind" onclick="setIcms('expind',this)">EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta</button>
       </div>
+      <div class="sb-expind-note">Tabela de <b>exporta&ccedil;&atilde;o indireta</b>. Produtos <b>importados</b> t&ecirc;m carga tribut&aacute;ria diferente &mdash; confira antes de fechar o pedido.</div>
     </div>
 
     <a href="sumario.html" class="sb-back">
@@ -1443,16 +1488,37 @@
   setLang(currentLang);
 
 
-  let currentIcms = localStorage.getItem('xalingo-icms') || 'p18';
+  let currentIcms = (localStorage.getItem('xalingo-expind') === '1')
+    ? 'expind'
+    : (localStorage.getItem('xalingo-icms') || 'p18');
+
+  // Guarda a escolha de tabela. EXP-IND vai numa chave separada para nao quebrar
+  // paginas antigas que so entendem p18/p12rs/p12/p7.
+  function saveTabela(key) {
+    if (key === 'expind') {
+      localStorage.setItem('xalingo-expind', '1');
+    } else {
+      localStorage.setItem('xalingo-expind', '0');
+      localStorage.setItem('xalingo-icms', key);
+    }
+  }
+  function applyExpIndMode(key) {
+    if (document.body) document.body.classList.toggle('expind-mode', key === 'expind');
+  }
   function setIcms(key, btn) {
     currentIcms = key;
-    localStorage.setItem('xalingo-icms', key);
+    osIcms = key;
+    saveTabela(key);
+    applyExpIndMode(key);
+    document.querySelectorAll('.os-icms-btn').forEach(b =>
+      b.classList.toggle('active', b.getAttribute('data-icms') === key));
+    if (typeof renderOrder === 'function') renderOrder();
     document.querySelectorAll('.sb-icms-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-icms') === key));
     document.querySelectorAll('.price-badge').forEach(badge => {
       const ref = badge.dataset.ref;
       const d = PRICE_CONFIG[ref];
       if (!d) return;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.querySelector('.price-tag').innerHTML = `<div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(getDiscountedPrice(d[key]))}</div>`;
     });
   }
@@ -1462,113 +1528,113 @@
 
     const PRICE_CONFIG = {
     // ─── educ-p0003 (pág 76) ───
-    '12310': { img:'educ-p0003', x:4, y:60, p18:57.5, p12rs:54.6, p12:54.6, p7:52.2, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'COMUNICAÇÃO ALTERNATIVA - 127 PALAVRAS', ean:'7896640415594', dun:'17896640415591' },
-    '11643': { img:'educ-p0003', x:4, y:15, p18:103.9, p12rs:98.6, p12:98.6, p7:94.2, cx:6, estoque:0, disponivel:50, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO DESAFIO DOS BLOCOS - 15 PÇS', ean:'7896640415341', dun:'17896640415348' },
+    '12310': { img:'educ-p0003', x:4, y:60, p18:57.5, p12rs:54.6, p12:54.6, p7:52.2, expind:21, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'COMUNICAÇÃO ALTERNATIVA - 127 PALAVRAS', ean:'7896640415594', dun:'17896640415591' },
+    '11643': { img:'educ-p0003', x:4, y:15, p18:103.9, p12rs:98.6, p12:98.6, p7:94.2, expind:38, cx:6, estoque:0, disponivel:50, origem:'NAC', nome:'BRINCANDO DE ENGENHEIRO DESAFIO DOS BLOCOS - 15 PÇS', ean:'7896640415341', dun:'17896640415348' },
     // ─── educ-p0004 (pág 77) ───
-    '12332': { img:'educ-p0004', x:4, y:15, p18:80.8, p12rs:87, p12:80.8, p7:80.8, cx:6, estoque:920, disponivel:920, origem:'IMP', nome:'PÉ DE EQUILIBRIO', ean:'7896640415761', dun:'17896640415768' },
+    '12332': { img:'educ-p0004', x:4, y:15, p18:80.8, p12rs:87, p12:80.8, p7:80.8, expind:41, cx:6, estoque:920, disponivel:920, origem:'IMP', nome:'PÉ DE EQUILIBRIO', ean:'7896640415761', dun:'17896640415768' },
     // ─── educ-p0005 (pág 78) ───
-    '12321': { img:'educ-p0005', x:4, y:15, p18:43.2, p12rs:41, p12:41, p7:39.1, cx:6, estoque:38, disponivel:38, origem:'NAC', nome:'ALINHAVOS - 6 FIGURAS', ean:'7896640415723', dun:'17896640415720' },
-    '15343': { img:'educ-p0005', x:4, y:60, p18:50.6, p12rs:48, p12:48, p7:45.8, cx:6, estoque:580, disponivel:830, origem:'NAC', nome:'CASINHA INTERATIVA FOFOSSAUROS', ean:'7896640416522', dun:'17896640416529' },
+    '12321': { img:'educ-p0005', x:4, y:15, p18:43.2, p12rs:41, p12:41, p7:39.1, expind:16, cx:6, estoque:38, disponivel:38, origem:'NAC', nome:'ALINHAVOS - 6 FIGURAS', ean:'7896640415723', dun:'17896640415720' },
+    '15343': { img:'educ-p0005', x:4, y:60, p18:50.6, p12rs:48, p12:48, p7:45.8, expind:19, cx:6, estoque:580, disponivel:830, origem:'NAC', nome:'CASINHA INTERATIVA FOFOSSAUROS', ean:'7896640416522', dun:'17896640416529' },
     // ─── educ-p0006 (pág 79) ───
-    '17621': { img:'educ-p0006', x:4, y:60, p18:34.8, p12rs:33, p12:33, p7:31.5, cx:6, estoque:357, disponivel:357, origem:'NAC', nome:'QUEBRA-CABEÇA DE EXPRESSÕES II - 25 PÇS', ean:'7896640491482', dun:'17896640491489' },
-    '17698': { img:'educ-p0006', x:4, y:15, p18:44.2, p12rs:41.9, p12:41.9, p7:40, cx:6, estoque:0, disponivel:81, origem:'NAC', nome:'SEPARAÇÃO DE CORES', ean:'7896640491550', dun:'17896640491557' },
+    '17621': { img:'educ-p0006', x:4, y:60, p18:34.8, p12rs:33, p12:33, p7:31.5, expind:13, cx:6, estoque:357, disponivel:357, origem:'NAC', nome:'QUEBRA-CABEÇA DE EXPRESSÕES II - 25 PÇS', ean:'7896640491482', dun:'17896640491489' },
+    '17698': { img:'educ-p0006', x:4, y:15, p18:44.2, p12rs:41.9, p12:41.9, p7:40, expind:16, cx:6, estoque:0, disponivel:81, origem:'NAC', nome:'SEPARAÇÃO DE CORES', ean:'7896640491550', dun:'17896640491557' },
     // ─── educ-p0007 (pág 80) ───
-    '17654': { img:'educ-p0007', x:4, y:15, p18:35.6, p12rs:33.8, p12:33.8, p7:32.3, cx:6, estoque:463, disponivel:463, origem:'NAC', nome:'MEMÓRIA  SOMBRAS E FORMAS II - 32 PÇS', ean:'7896640491512', dun:'17896640491519' },
-    '17687': { img:'educ-p0007', x:4, y:60, p18:45.1, p12rs:42.8, p12:42.8, p7:40.9, cx:6, estoque:572, disponivel:572, origem:'NAC', nome:'SEQUÊNCIA LÓGICA DAS FORMAS', ean:'7896640491543', dun:'17896640491540' },
+    '17654': { img:'educ-p0007', x:4, y:15, p18:35.6, p12rs:33.8, p12:33.8, p7:32.3, expind:13, cx:6, estoque:463, disponivel:463, origem:'NAC', nome:'MEMÓRIA  SOMBRAS E FORMAS II - 32 PÇS', ean:'7896640491512', dun:'17896640491519' },
+    '17687': { img:'educ-p0007', x:4, y:60, p18:45.1, p12rs:42.8, p12:42.8, p7:40.9, expind:17, cx:6, estoque:572, disponivel:572, origem:'NAC', nome:'SEQUÊNCIA LÓGICA DAS FORMAS', ean:'7896640491543', dun:'17896640491540' },
     // ─── educ-p0008 (pág 81) ───
-    '17665': { img:'educ-p0008', x:4, y:60, p18:51.5, p12rs:48.9, p12:48.9, p7:46.7, cx:4, estoque:759, disponivel:759, origem:'NAC', nome:'QUADRO PARA COLORIR PIXEL ART 2 -  C/ 6 CANETINHAS', ean:'7896640491529', dun:'17896640491526' },
-    '17676': { img:'educ-p0008', x:4, y:15, p18:57.1, p12rs:54.2, p12:54.2, p7:51.8, cx:4, estoque:145, disponivel:145, origem:'NAC', nome:'PAINEL DE ATIVIDADES II', ean:'7896640491536', dun:'17896640491533' },
+    '17665': { img:'educ-p0008', x:4, y:60, p18:51.5, p12rs:48.9, p12:48.9, p7:46.7, expind:19, cx:4, estoque:759, disponivel:759, origem:'NAC', nome:'QUADRO PARA COLORIR PIXEL ART 2 -  C/ 6 CANETINHAS', ean:'7896640491529', dun:'17896640491526' },
+    '17676': { img:'educ-p0008', x:4, y:15, p18:57.1, p12rs:54.2, p12:54.2, p7:51.8, expind:21, cx:4, estoque:145, disponivel:145, origem:'NAC', nome:'PAINEL DE ATIVIDADES II', ean:'7896640491536', dun:'17896640491533' },
     // ─── educ-p0009 (pág 82) ───
-    '17632': { img:'educ-p0009', x:4, y:60, p18:34.8, p12rs:33, p12:33, p7:31.5, cx:6, estoque:213, disponivel:213, origem:'NAC', nome:'APRENDENDO AS HORAS E QUANTIDADES', ean:'7896640491499', dun:'17896640491496' },
-    '17643': { img:'educ-p0009', x:4, y:15, p18:56.8, p12rs:53.9, p12:53.9, p7:51.5, cx:6, estoque:208, disponivel:1208, origem:'NAC', nome:'ABC MONTANDO PALAVRAS', ean:'7896640491505', dun:'17896640491502' },
+    '17632': { img:'educ-p0009', x:4, y:60, p18:34.8, p12rs:33, p12:33, p7:31.5, expind:13, cx:6, estoque:213, disponivel:213, origem:'NAC', nome:'APRENDENDO AS HORAS E QUANTIDADES', ean:'7896640491499', dun:'17896640491496' },
+    '17643': { img:'educ-p0009', x:4, y:15, p18:56.8, p12rs:53.9, p12:53.9, p7:51.5, expind:21, cx:6, estoque:208, disponivel:1208, origem:'NAC', nome:'ABC MONTANDO PALAVRAS', ean:'7896640491505', dun:'17896640491502' },
     // ─── educ-p0010 (pág 83) ───
-    '12309': { img:'educ-p0010', x:4, y:15, p18:93.8, p12rs:101, p12:93.8, p7:93.8, cx:6, estoque:0, disponivel:0, origem:'IMP', nome:'ALINHAVO E PINOS', ean:'7896640415587', dun:'17896640415584' },
-    '12287': { img:'educ-p0010', x:4, y:60, p18:101, p12rs:108.8, p12:101, p7:101, cx:4, estoque:0, disponivel:0, origem:'IMP', nome:'BRINCANDO COM CORES E SONS', ean:'7896640415563', dun:'17896640415560' },
+    '12309': { img:'educ-p0010', x:4, y:15, p18:93.8, p12rs:101, p12:93.8, p7:93.8, expind:47, cx:6, estoque:0, disponivel:0, origem:'IMP', nome:'ALINHAVO E PINOS', ean:'7896640415587', dun:'17896640415584' },
+    '12287': { img:'educ-p0010', x:4, y:60, p18:101, p12rs:108.8, p12:101, p7:101, expind:51, cx:4, estoque:0, disponivel:0, origem:'IMP', nome:'BRINCANDO COM CORES E SONS', ean:'7896640415563', dun:'17896640415560' },
     // ─── educ-p0011 (pág 84) ───
-    '12787': { img:'educ-p0011', x:4, y:15, p18:26.1, p12rs:24.8, p12:24.8, p7:23.7, cx:6, estoque:0, disponivel:456, origem:'NAC', nome:'JOGO DA VELHA TÁTIL APRENDENDO BRAILE', ean:'7896640489588', dun:'17896640489585' },
+    '12787': { img:'educ-p0011', x:4, y:15, p18:26.1, p12rs:24.8, p12:24.8, p7:23.7, expind:10, cx:6, estoque:0, disponivel:456, origem:'NAC', nome:'JOGO DA VELHA TÁTIL APRENDENDO BRAILE', ean:'7896640489588', dun:'17896640489585' },
         // ─── educ-p0012 (pág 85) ───
-    '17587': { img:'educ-p0012', x:4, y:60, p18:28.7, p12rs:27.2, p12:27.2, p7:25.9, cx:6, estoque:1047, disponivel:1047, origem:'NAC', nome:'QUEBRA-CABEÇA APRENDENDO O ALFABETO EM LIBRAS - 52 PÇS', ean:'7896640491444', dun:'17896640491441' },
-    '17610': { img:'educ-p0012', x:4, y:15, p18:49.3, p12rs:48.1, p12:48.1, p7:43.7, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'KIT DE ATIVIDADES APRENDENDO BRAILLE', ean:'7896640491475', dun:'17896640491472' },
+    '17587': { img:'educ-p0012', x:4, y:60, p18:28.7, p12rs:27.2, p12:27.2, p7:25.9, expind:11, cx:6, estoque:1047, disponivel:1047, origem:'NAC', nome:'QUEBRA-CABEÇA APRENDENDO O ALFABETO EM LIBRAS - 52 PÇS', ean:'7896640491444', dun:'17896640491441' },
+    '17610': { img:'educ-p0012', x:4, y:15, p18:49.3, p12rs:48.1, p12:48.1, p7:43.7, expind:0, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'KIT DE ATIVIDADES APRENDENDO BRAILLE', ean:'7896640491475', dun:'17896640491472' },
     // ─── educ-p0013 (pág 86) ───
-    '20221': { img:'educ-p0013', x:35, y:20, p18:35.7, p12rs:33.9, p12:33.9, p7:32.4, cx:6, estoque:390, disponivel:690, origem:'NAC', nome:'BRINCANDO DE MATEMÁTICA PIZZA MULTIPLICAÇÃO', ean:'7896640426248', dun:'17896640426245', lancamento:'01/04/2026' },
+    '20221': { img:'educ-p0013', x:35, y:20, p18:35.7, p12rs:33.9, p12:33.9, p7:32.4, expind:13, cx:6, estoque:390, disponivel:690, origem:'NAC', nome:'BRINCANDO DE MATEMÁTICA PIZZA MULTIPLICAÇÃO', ean:'7896640426248', dun:'17896640426245', lancamento:'01/04/2026' },
     // ─── educ-p0014 (pág 87) ───
-    '50498': { img:'educ-p0014', x:4, y:60, p18:44.7, p12rs:42.4, p12:42.4, p7:40.5, cx:4, estoque:117, disponivel:367, nome:'STEAM QUEBRA-CABEÇA CONHECENDO O CORPO HUMANO - 60 PÇS', ean:'7896640479350', dun:'17896640479357' },
-    '17432': { img:'educ-p0014', x:4, y:15, p18:60.6, p12rs:57.6, p12:57.6, p7:55, cx:6, estoque:65, disponivel:2065, nome:'STEAM BRINCANDO DE MATEMÁTICA - 56 PÇS', ean:'7896640490768', dun:'17896640490765' },
+    '50498': { img:'educ-p0014', x:4, y:60, p18:44.7, p12rs:42.4, p12:42.4, p7:40.5, expind:17, cx:4, estoque:117, disponivel:367, nome:'STEAM QUEBRA-CABEÇA CONHECENDO O CORPO HUMANO - 60 PÇS', ean:'7896640479350', dun:'17896640479357' },
+    '17432': { img:'educ-p0014', x:4, y:15, p18:60.6, p12rs:57.6, p12:57.6, p7:55, expind:22, cx:6, estoque:65, disponivel:2065, nome:'STEAM BRINCANDO DE MATEMÁTICA - 56 PÇS', ean:'7896640490768', dun:'17896640490765' },
     // ─── educ-p0015 (pág 88) ───
-    '53265': { img:'educ-p0015', x:4, y:60, p18:19.5, p12rs:18.5, p12:18.5, p7:17.6, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'STEAM INTERACTIVE PLAY QUEBRA-CABEÇA CONHECENDO OS PLANETAS - 100 PÇS', ean:'7896640435813', dun:'17896640435810' },
-    '53309': { img:'educ-p0015', x:4, y:15, p18:19.5, p12rs:18.5, p12:18.5, p7:17.7, cx:6, estoque:750, disponivel:750, origem:'NAC', nome:'STEAM INTERACTIVE PLAY QUEBRA-CABEÇA CONHECENDO O CORPO HUMANO - 100 PÇS', ean:'7896640471149', dun:'17896640471146' },
+    '53265': { img:'educ-p0015', x:4, y:60, p18:19.5, p12rs:18.5, p12:18.5, p7:17.6, expind:8, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'STEAM INTERACTIVE PLAY QUEBRA-CABEÇA CONHECENDO OS PLANETAS - 100 PÇS', ean:'7896640435813', dun:'17896640435810' },
+    '53309': { img:'educ-p0015', x:4, y:15, p18:19.5, p12rs:18.5, p12:18.5, p7:17.7, expind:8, cx:6, estoque:750, disponivel:750, origem:'NAC', nome:'STEAM INTERACTIVE PLAY QUEBRA-CABEÇA CONHECENDO O CORPO HUMANO - 100 PÇS', ean:'7896640471149', dun:'17896640471146' },
     // ─── educ-p0016 (pág 89) ───
-    '20232': { img:'educ-p0016', x:15, y:5, p18:57.3, p12rs:54.4, p12:54.4, p7:51.9, cx:4, estoque:0, disponivel:0, origem:'NAC', nome:'PLAYSET PISANDO FUNDO', ean:'7896640426231', dun:'17896640426238', lancamento:'01/04/2026' },
+    '20232': { img:'educ-p0016', x:15, y:5, p18:57.3, p12rs:54.4, p12:54.4, p7:51.9, expind:21, cx:4, estoque:0, disponivel:0, origem:'NAC', nome:'PLAYSET PISANDO FUNDO', ean:'7896640426231', dun:'17896640426238', lancamento:'01/04/2026' },
     // ─── educ-p0017 (pág 90) ───
-    '67843': { img:'educ-p0017', x:4, y:60, p18:42.2, p12rs:40, p12:40, p7:38.2, cx:4, estoque:473, disponivel:473, origem:'NAC', nome:'DIY PLAYSET CARRINHO PARA PINTURA 3D II', ean:'7896640410322', dun:'17896640410329' },
-    '67832': { img:'educ-p0017', x:4, y:15, p18:49.5, p12rs:47, p12:47, p7:44.9, cx:4, estoque:270, disponivel:270, origem:'NAC', nome:'DIY PLAYSET CASINHA PARA PINTURA 3D II', ean:'7896640410315', dun:'17896640410312' },
+    '67843': { img:'educ-p0017', x:4, y:60, p18:42.2, p12rs:40, p12:40, p7:38.2, expind:16, cx:4, estoque:473, disponivel:473, origem:'NAC', nome:'DIY PLAYSET CARRINHO PARA PINTURA 3D II', ean:'7896640410322', dun:'17896640410329' },
+    '67832': { img:'educ-p0017', x:4, y:15, p18:49.5, p12rs:47, p12:47, p7:44.9, expind:18, cx:4, estoque:270, disponivel:270, origem:'NAC', nome:'DIY PLAYSET CASINHA PARA PINTURA 3D II', ean:'7896640410315', dun:'17896640410312' },
     // ─── educ-p0018 (pág 91) ───
-    '20243': { img:'educ-p0018', x:15, y:5, p18:16.9, p12rs:16, p12:16, p7:15.3, cx:8, estoque:852, disponivel:1252, origem:'NAC', nome:'LOUSA E CANETINHAS', ean:'7896640426385', dun:'17896640426382', lancamento:'01/04/2026' },
+    '20243': { img:'educ-p0018', x:15, y:5, p18:16.9, p12rs:16, p12:16, p7:15.3, expind:7, cx:8, estoque:852, disponivel:1252, origem:'NAC', nome:'LOUSA E CANETINHAS', ean:'7896640426385', dun:'17896640426382', lancamento:'01/04/2026' },
     // ─── educ-p0019 (pág 92) ───
-    '17576': { img:'educ-p0019', x:4, y:80, p18:15.5, p12rs:16.6, p12:15.45, p7:15.4, cx:12, estoque:1085, disponivel:1085, origem:'IMP', nome:'CANETAS PARA QUADRO BRANCO - 6 CORES COM APAGADOR NA TAMPA', ean:'7896640491116', dun:'17896640491113' },
-    '53221': { img:'educ-p0019', x:4, y:50, p18:43.7, p12rs:41.5, p12:41.5, p7:39.7, cx:4, estoque:300, disponivel:300, origem:'NAC', nome:'QUADRO INFANTIL UNICÓRNIO - C/6 CANETINHAS', ean:'7896640435776', dun:'17896640435773' },
-    '12976': { img:'educ-p0019', x:4, y:15, p18:42, p12rs:39.9, p12:39.9, p7:38.1, cx:4, estoque:378, disponivel:378, origem:'NAC', nome:'QUADRO INFANTIL FOGUETE ESPACIAL - C/6 CANETINHAS', ean:'7896640489748', dun:'17896640489745' },
+    '17576': { img:'educ-p0019', x:4, y:80, p18:15.5, p12rs:16.6, p12:15.45, p7:15.4, expind:8, cx:12, estoque:1085, disponivel:1085, origem:'IMP', nome:'CANETAS PARA QUADRO BRANCO - 6 CORES COM APAGADOR NA TAMPA', ean:'7896640491116', dun:'17896640491113' },
+    '53221': { img:'educ-p0019', x:4, y:50, p18:43.7, p12rs:41.5, p12:41.5, p7:39.7, expind:16, cx:4, estoque:300, disponivel:300, origem:'NAC', nome:'QUADRO INFANTIL UNICÓRNIO - C/6 CANETINHAS', ean:'7896640435776', dun:'17896640435773' },
+    '12976': { img:'educ-p0019', x:4, y:15, p18:42, p12rs:39.9, p12:39.9, p7:38.1, expind:16, cx:4, estoque:378, disponivel:378, origem:'NAC', nome:'QUADRO INFANTIL FOGUETE ESPACIAL - C/6 CANETINHAS', ean:'7896640489748', dun:'17896640489745' },
     // ─── educ-p0020 (pág 93) ───
-    '20510': { img:'educ-p0020', x:4, y:15, p18:7.2, p12rs:6.8, p12:6.8, p7:6.5, cx:20, estoque:1, disponivel:501, origem:'NAC', nome:'QUEBRA-CABEÇA PULLPACK - PÇS', ean:'7896640426873', dun:'17896640426870', lancamento:'01/05/2026' },
-    '20310': { img:'educ-p0020', x:4, y:60, p18:24.2, p12rs:23, p12:23, p7:22, cx:6, estoque:1000, disponivel:1500, origem:'NAC', nome:'QUEBRA-CABEÇA EXPLORADORES DO MUNDO - 33 PÇS', ean:'7896640426521', dun:'17896640426528', lancamento:'01/04/2026' },
+    '20510': { img:'educ-p0020', x:4, y:15, p18:7.2, p12rs:6.8, p12:6.8, p7:6.5, expind:3, cx:20, estoque:1, disponivel:501, origem:'NAC', nome:'QUEBRA-CABEÇA PULLPACK - PÇS', ean:'7896640426873', dun:'17896640426870', lancamento:'01/05/2026' },
+    '20310': { img:'educ-p0020', x:4, y:60, p18:24.2, p12rs:23, p12:23, p7:22, expind:9, cx:6, estoque:1000, disponivel:1500, origem:'NAC', nome:'QUEBRA-CABEÇA EXPLORADORES DO MUNDO - 33 PÇS', ean:'7896640426521', dun:'17896640426528', lancamento:'01/04/2026' },
     // ─── educ-p0021 (pág 94) ───
-    '20287': { img:'educ-p0021', x:4, y:15, p18:8.7, p12rs:8.2, p12:8.2, p7:7.9, cx:48, pedido_min:12, estoque:543, disponivel:1543, origem:'NAC', nome:'QUEBRA-CABEÇA FAUNA BRASILEIRA - DISPLAY 12 UNID. - 3PÇS', ean:'7896640426484', dun:'17896640426481', lancamento:'01/04/2026' },
-    '20298': { img:'educ-p0021', x:4, y:60, p18:8.6, p12rs:8.2, p12:8.2, p7:7.9, cx:48, pedido_min:12, estoque:720, disponivel:1720, origem:'NAC', nome:'QUEBRA-CABEÇA VIAGEM ESPACIAL - DISPLAY 12 UNID. - 3 - 4 PÇS', ean:'7896640426491', dun:'17896640426498', lancamento:'01/04/2026' },
+    '20287': { img:'educ-p0021', x:4, y:15, p18:8.7, p12rs:8.2, p12:8.2, p7:7.9, expind:4, cx:48, pedido_min:12, estoque:543, disponivel:1543, origem:'NAC', nome:'QUEBRA-CABEÇA FAUNA BRASILEIRA - DISPLAY 12 UNID. - 3PÇS', ean:'7896640426484', dun:'17896640426481', lancamento:'01/04/2026' },
+    '20298': { img:'educ-p0021', x:4, y:60, p18:8.6, p12rs:8.2, p12:8.2, p7:7.9, expind:4, cx:48, pedido_min:12, estoque:720, disponivel:1720, origem:'NAC', nome:'QUEBRA-CABEÇA VIAGEM ESPACIAL - DISPLAY 12 UNID. - 3 - 4 PÇS', ean:'7896640426491', dun:'17896640426498', lancamento:'01/04/2026' },
     // ─── educ-p0022 (pág 95) ───
-    '20543': { img:'educ-p0022', x:4, y:50, p18:16.8, p12rs:15.9, p12:15.9, p7:15.2, cx:6, estoque:84, disponivel:584, origem:'NAC', nome:'QUEBRA CABEÇA A PRINCESA E O DRAGÃO - 30 PÇS', ean:'7896640426903', dun:'17896640426900', lancamento:'01/05/2026' },
-    '20554': { img:'educ-p0022', x:4, y:80, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, cx:6, estoque:454, disponivel:954, origem:'NAC', nome:'QUEBRA-CABEÇA LAGO DAS FADAS - 60PÇS', ean:'7896640426910', dun:'17896640426917', lancamento:'01/05/2026' },
-    '20576': { img:'educ-p0023', x:4, y:20, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, cx:6, estoque:22, disponivel:1022, origem:'NAC', nome:'QUEBRA-CABEÇA JARDIM DAS PRINCESAS - 60PÇS', ean:'7896640426934', dun:'17896640426931', lancamento:'01/05/2026' },
+    '20543': { img:'educ-p0022', x:4, y:50, p18:16.8, p12rs:15.9, p12:15.9, p7:15.2, expind:7, cx:6, estoque:84, disponivel:584, origem:'NAC', nome:'QUEBRA CABEÇA A PRINCESA E O DRAGÃO - 30 PÇS', ean:'7896640426903', dun:'17896640426900', lancamento:'01/05/2026' },
+    '20554': { img:'educ-p0022', x:4, y:80, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, expind:7, cx:6, estoque:454, disponivel:954, origem:'NAC', nome:'QUEBRA-CABEÇA LAGO DAS FADAS - 60PÇS', ean:'7896640426910', dun:'17896640426917', lancamento:'01/05/2026' },
+    '20576': { img:'educ-p0023', x:4, y:20, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, expind:7, cx:6, estoque:22, disponivel:1022, origem:'NAC', nome:'QUEBRA-CABEÇA JARDIM DAS PRINCESAS - 60PÇS', ean:'7896640426934', dun:'17896640426931', lancamento:'01/05/2026' },
     // ─── educ-p0023 (pág 96) ───
-    '20565': { img:'educ-p0023', x:4, y:80, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, cx:6, estoque:348, disponivel:1348, origem:'NAC', nome:'QUEBRA-CABEÇA PISANDO FUNDO - 60 PÇS', ean:'7896640426927', dun:'17896640426924', lancamento:'01/05/2026' },
-    '20587': { img:'educ-p0023', x:4, y:50, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, cx:6, estoque:0, disponivel:564, origem:'NAC', nome:'QUEBRA-CABEÇA GUARDIÃO PLASMA - 60PÇS', ean:'7896640426941', dun:'17896640426948', lancamento:'01/05/2026' },
-    '20598': { img:'educ-p0024', x:4, y:20, p18:31.5, p12rs:29.9, p12:29.9, p7:28.6, cx:6, estoque:45, disponivel:1045, origem:'NAC', nome:'QUEBRA-CABEÇA PISANDO FUNDO 2X100 – 200 PÇS', ean:'7896640426958', dun:'17896640426955', lancamento:'01/05/2026' },
+    '20565': { img:'educ-p0023', x:4, y:80, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, expind:7, cx:6, estoque:348, disponivel:1348, origem:'NAC', nome:'QUEBRA-CABEÇA PISANDO FUNDO - 60 PÇS', ean:'7896640426927', dun:'17896640426924', lancamento:'01/05/2026' },
+    '20587': { img:'educ-p0023', x:4, y:50, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, expind:7, cx:6, estoque:0, disponivel:564, origem:'NAC', nome:'QUEBRA-CABEÇA GUARDIÃO PLASMA - 60PÇS', ean:'7896640426941', dun:'17896640426948', lancamento:'01/05/2026' },
+    '20598': { img:'educ-p0024', x:4, y:20, p18:31.5, p12rs:29.9, p12:29.9, p7:28.6, expind:12, cx:6, estoque:45, disponivel:1045, origem:'NAC', nome:'QUEBRA-CABEÇA PISANDO FUNDO 2X100 – 200 PÇS', ean:'7896640426958', dun:'17896640426955', lancamento:'01/05/2026' },
     // ─── educ-p0024 (pág 97) ───
-    '17809': { img:'educ-p0024', x:4, y:50, p18:22.1, p12rs:21, p12:21, p7:20, cx:6, estoque:514, disponivel:1514, origem:'NAC', nome:'QUEBRA-CABEÇA AEIOU - 20 PÇS', ean:'7896640491932', dun:'17896640491939' },
-    '17798': { img:'educ-p0024', x:4, y:80, p18:22.1, p12rs:21, p12:21, p7:20, cx:6, estoque:163, disponivel:1163, origem:'NAC', nome:'QUEBRA-CABEÇA NÚMEROS - 30 PÇS', ean:'7896640491925', dun:'17896640491922' },
-    '54265': { img:'educ-p0025', x:4, y:15, p18:24.2, p12rs:23, p12:23, p7:22, cx:6, estoque:435, disponivel:435, origem:'NAC', nome:'QUEBRA-CABEÇA BIG FOFOSSAUROS - 35 PÇS', ean:'7896640470364', dun:'17896640470361' },
+    '17809': { img:'educ-p0024', x:4, y:50, p18:22.1, p12rs:21, p12:21, p7:20, expind:8, cx:6, estoque:514, disponivel:1514, origem:'NAC', nome:'QUEBRA-CABEÇA AEIOU - 20 PÇS', ean:'7896640491932', dun:'17896640491939' },
+    '17798': { img:'educ-p0024', x:4, y:80, p18:22.1, p12rs:21, p12:21, p7:20, expind:8, cx:6, estoque:163, disponivel:1163, origem:'NAC', nome:'QUEBRA-CABEÇA NÚMEROS - 30 PÇS', ean:'7896640491925', dun:'17896640491922' },
+    '54265': { img:'educ-p0025', x:4, y:15, p18:24.2, p12rs:23, p12:23, p7:22, expind:9, cx:6, estoque:435, disponivel:435, origem:'NAC', nome:'QUEBRA-CABEÇA BIG FOFOSSAUROS - 35 PÇS', ean:'7896640470364', dun:'17896640470361' },
     // ─── educ-p0025 (pág 98) ───
-    '67976': { img:'educ-p0025', x:4, y:50, p18:79, p12rs:75, p12:75, p7:71.6, cx:6, estoque:115, disponivel:115, origem:'NAC', nome:'QUEBRA-CABEÇA HARRY POTTER 4X100 - 400 PÇS', ean:'7896640410766', dun:'17896640410763' },
+    '67976': { img:'educ-p0025', x:4, y:50, p18:79, p12rs:75, p12:75, p7:71.6, expind:29, cx:6, estoque:115, disponivel:115, origem:'NAC', nome:'QUEBRA-CABEÇA HARRY POTTER 4X100 - 400 PÇS', ean:'7896640410766', dun:'17896640410763' },
     // ─── educ-p0026 (pág 99) ───
-    '20521': { img:'educ-p0026', x:4, y:15, p18:7.2, p12rs:6.8, p12:6.8, p7:6.5, cx:20, estoque:1888, disponivel:2388, origem:'NAC', nome:'MEMÓRIA PULLPACK - 20 PÇS', ean:'7896640426880', dun:'17896640426887', lancamento:'01/05/2026' },
-    '20387': { img:'educ-p0026', x:4, y:60, p18:17.5, p12rs:16.6, p12:16.6, p7:15.8, cx:6, estoque:1398, disponivel:2398, origem:'NAC', nome:'MEMÓRIA PISANDO FUNDO - 24 PÇS', ean:'7896640426590', dun:'17896640426597', lancamento:'01/04/2026' },
+    '20521': { img:'educ-p0026', x:4, y:15, p18:7.2, p12rs:6.8, p12:6.8, p7:6.5, expind:3, cx:20, estoque:1888, disponivel:2388, origem:'NAC', nome:'MEMÓRIA PULLPACK - 20 PÇS', ean:'7896640426880', dun:'17896640426887', lancamento:'01/05/2026' },
+    '20387': { img:'educ-p0026', x:4, y:60, p18:17.5, p12rs:16.6, p12:16.6, p7:15.8, expind:7, cx:6, estoque:1398, disponivel:2398, origem:'NAC', nome:'MEMÓRIA PISANDO FUNDO - 24 PÇS', ean:'7896640426590', dun:'17896640426597', lancamento:'01/04/2026' },
     // ─── educ-p0027 (pág 100) ───
-    '50765': { img:'educ-p0027', x:4, y:50, p18:17.5, p12rs:16.6, p12:16.6, p7:15.8, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'MEMÓRIA ANIMAIS - 24 PÇS', ean:'7896640450762', dun:'17896640450769' },
-    '17376': { img:'educ-p0027', x:4, y:80, p18:17.5, p12rs:16.6, p12:16.6, p7:15.8, cx:6, estoque:51, disponivel:51, origem:'NAC', nome:'MEMÓRIA DAS AVES PASSATEMPO - 24 PÇS', ean:'7896640484187', dun:'17896640484184' },
-    '20376': { img:'educ-p0027', x:4, y:20, p18:17.5, p12rs:16.6, p12:16.6, p7:15.8, cx:6, estoque:639, disponivel:1639, origem:'NAC', nome:'MEMÓRIA SALADA FRUTAS - 24 PÇS', ean:'7896640426583', dun:'17896640426580', lancamento:'01/04/2026' },
+    '50765': { img:'educ-p0027', x:4, y:50, p18:17.5, p12rs:16.6, p12:16.6, p7:15.8, expind:7, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'MEMÓRIA ANIMAIS - 24 PÇS', ean:'7896640450762', dun:'17896640450769' },
+    '17376': { img:'educ-p0027', x:4, y:80, p18:17.5, p12rs:16.6, p12:16.6, p7:15.8, expind:7, cx:6, estoque:51, disponivel:51, origem:'NAC', nome:'MEMÓRIA DAS AVES PASSATEMPO - 24 PÇS', ean:'7896640484187', dun:'17896640484184' },
+    '20376': { img:'educ-p0027', x:4, y:20, p18:17.5, p12rs:16.6, p12:16.6, p7:15.8, expind:7, cx:6, estoque:639, disponivel:1639, origem:'NAC', nome:'MEMÓRIA SALADA FRUTAS - 24 PÇS', ean:'7896640426583', dun:'17896640426580', lancamento:'01/04/2026' },
     // ─── educ-p0028 (pág 101) ───
-    '10554': { img:'educ-p0028', x:4, y:15, p18:23.9, p12rs:22.7, p12:22.7, p7:21.7, cx:6, estoque:751, disponivel:751, origem:'NAC', nome:'MEMÓRIA TURMA DA MÔNICA - 24 PÇS', ean:'7896640410551', dun:'17896640410558' },
+    '10554': { img:'educ-p0028', x:4, y:15, p18:23.9, p12rs:22.7, p12:22.7, p7:21.7, expind:9, cx:6, estoque:751, disponivel:751, origem:'NAC', nome:'MEMÓRIA TURMA DA MÔNICA - 24 PÇS', ean:'7896640410551', dun:'17896640410558' },
     // ─── educ-p0029 (pág 102) ───
-    '20421': { img:'educ-p0029', x:4, y:60, p18:17.8, p12rs:16.9, p12:16.9, p7:16.2, cx:6, estoque:0, disponivel:267, origem:'NAC', nome:'DOMINÓ ANIMAIS COM LETRAS - 28 PÇS', ean:'7896640426637', dun:'17896640426634', lancamento:'01/04/2026' },
-    '20532': { img:'educ-p0029', x:4, y:15, p18:7.2, p12rs:6.8, p12:6.8, p7:6.5, cx:6, estoque:1239, disponivel:1739, origem:'NAC', nome:'DOMINÓ DOS NÚMEROS', ean:'', dun:'' },
+    '20421': { img:'educ-p0029', x:4, y:60, p18:17.8, p12rs:16.9, p12:16.9, p7:16.2, expind:7, cx:6, estoque:0, disponivel:267, origem:'NAC', nome:'DOMINÓ ANIMAIS COM LETRAS - 28 PÇS', ean:'7896640426637', dun:'17896640426634', lancamento:'01/04/2026' },
+    '20532': { img:'educ-p0029', x:4, y:15, p18:7.2, p12rs:6.8, p12:6.8, p7:6.5, expind:3, cx:6, estoque:1239, disponivel:1739, origem:'NAC', nome:'DOMINÓ DOS NÚMEROS', ean:'', dun:'' },
     // ─── educ-p0030 (pág 103) ───
-    '10543': { img:'educ-p0030', x:4, y:80, p18:21.2, p12rs:20.2, p12:20.2, p7:19.2, cx:6, estoque:564, disponivel:1111, origem:'NAC', nome:'DOMINÓ TURMA DA MÔNICA - 28 PÇS', ean:'7896640410544', dun:'17896640410541' },
-    '20409': { img:'educ-p0030', x:4, y:20, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, cx:6, estoque:763, disponivel:1763, origem:'NAC', nome:'DOMINÓ ADIÇÃO E SUBTRAÇÃO - 28 PÇS', ean:'7896640426613', dun:'17896640426610', lancamento:'01/04/2026' },
-    '20410': { img:'educ-p0030', x:4, y:50, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, cx:6, estoque:1048, disponivel:2048, origem:'NAC', nome:'DOMINÓ MULTIPLICAÇÃO E DIVISÃO - 28 PÇS', ean:'7896640426620', dun:'17896640426627', lancamento:'01/04/2026' },
+    '10543': { img:'educ-p0030', x:4, y:80, p18:21.2, p12rs:20.2, p12:20.2, p7:19.2, expind:8, cx:6, estoque:564, disponivel:1111, origem:'NAC', nome:'DOMINÓ TURMA DA MÔNICA - 28 PÇS', ean:'7896640410544', dun:'17896640410541' },
+    '20409': { img:'educ-p0030', x:4, y:20, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, expind:7, cx:6, estoque:763, disponivel:1763, origem:'NAC', nome:'DOMINÓ ADIÇÃO E SUBTRAÇÃO - 28 PÇS', ean:'7896640426613', dun:'17896640426610', lancamento:'01/04/2026' },
+    '20410': { img:'educ-p0030', x:4, y:50, p18:17.8, p12rs:16.9, p12:16.9, p7:16.1, expind:7, cx:6, estoque:1048, disponivel:2048, origem:'NAC', nome:'DOMINÓ MULTIPLICAÇÃO E DIVISÃO - 28 PÇS', ean:'7896640426620', dun:'17896640426627', lancamento:'01/04/2026' },
     // ─── educ-p0031 (pág 104) ───
-    '51587': { img:'educ-p0031', x:4, y:80, p18:12.1, p12rs:11.5, p12:11.5, p7:11, cx:12, estoque:548, disponivel:1548, origem:'NAC', nome:'DOMINÓ JOGOS TRADICIONAIS EM MADEIRA - 28 PÇS', ean:'7896640470296', dun:'17896640470293' },
-    '53032': { img:'educ-p0031', x:4, y:50, p18:13.7, p12rs:13, p12:13, p7:12.42, cx:12, estoque:139, disponivel:639, origem:'NAC', nome:'DOMINÓ PINGOS COLORIDOS - 28 PÇS', ean:'7896640453039', dun:'17896640453036' },
-    '53021': { img:'educ-p0031', x:4, y:20, p18:17.4, p12rs:16.5, p12:16.5, p7:15.76, cx:12, estoque:416, disponivel:2416, origem:'NAC', nome:'DOMINÓ DE MADEIRA PINGOS COLORIDOS - 28 PÇS', ean:'7896640453022', dun:'17896640453029' },
+    '51587': { img:'educ-p0031', x:4, y:80, p18:12.1, p12rs:11.5, p12:11.5, p7:11, expind:5, cx:12, estoque:548, disponivel:1548, origem:'NAC', nome:'DOMINÓ JOGOS TRADICIONAIS EM MADEIRA - 28 PÇS', ean:'7896640470296', dun:'17896640470293' },
+    '53032': { img:'educ-p0031', x:4, y:50, p18:13.7, p12rs:13, p12:13, p7:12.42, expind:5, cx:12, estoque:139, disponivel:639, origem:'NAC', nome:'DOMINÓ PINGOS COLORIDOS - 28 PÇS', ean:'7896640453039', dun:'17896640453036' },
+    '53021': { img:'educ-p0031', x:4, y:20, p18:17.4, p12rs:16.5, p12:16.5, p7:15.76, expind:7, cx:12, estoque:416, disponivel:2416, origem:'NAC', nome:'DOMINÓ DE MADEIRA PINGOS COLORIDOS - 28 PÇS', ean:'7896640453022', dun:'17896640453029' },
     // ─── educ-p0032 (pág 105) ───
-    '15287': { img:'educ-p0032', x:4, y:60, p18:21, p12rs:20, p12:20, p7:19.1, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'BLOCOS PEDAGÓGICOS FUNDOS DO MAR - 32 PÇS', ean:'7896640416461', dun:'17896640416468' },
-    '15298': { img:'educ-p0032', x:4, y:15, p18:21.1, p12rs:20, p12:20, p7:19.1, cx:6, estoque:82, disponivel:82, origem:'NAC', nome:'BLOCOS PEDAGÓGICOS FRUTINHAS - 32 PÇS', ean:'7896640416478', dun:'17896640416475' },
+    '15287': { img:'educ-p0032', x:4, y:60, p18:21, p12rs:20, p12:20, p7:19.1, expind:8, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'BLOCOS PEDAGÓGICOS FUNDOS DO MAR - 32 PÇS', ean:'7896640416461', dun:'17896640416468' },
+    '15298': { img:'educ-p0032', x:4, y:15, p18:21.1, p12rs:20, p12:20, p7:19.1, expind:8, cx:6, estoque:82, disponivel:82, origem:'NAC', nome:'BLOCOS PEDAGÓGICOS FRUTINHAS - 32 PÇS', ean:'7896640416478', dun:'17896640416475' },
     // ─── educ-p0033 (pág 106) ───
-    '52832': { img:'educ-p0033', x:4, y:60, p18:61.2, p12rs:58, p12:58, p7:55.4, cx:6, estoque:512, disponivel:1012, origem:'NAC', nome:'MULTIBLOCKS MIX - 50 PÇS', ean:'7896640452834', dun:'17896640452831' },
-    '52821': { img:'educ-p0033', x:4, y:15, p18:65.3, p12rs:62, p12:62, p7:59.2, cx:6, estoque:0, disponivel:896, origem:'NAC', nome:'MULTIBLOCKS COLORIDOS - 50 PÇS', ean:'7896640452827', dun:'17896640452824' },
+    '52832': { img:'educ-p0033', x:4, y:60, p18:61.2, p12rs:58, p12:58, p7:55.4, expind:23, cx:6, estoque:512, disponivel:1012, origem:'NAC', nome:'MULTIBLOCKS MIX - 50 PÇS', ean:'7896640452834', dun:'17896640452831' },
+    '52821': { img:'educ-p0033', x:4, y:15, p18:65.3, p12rs:62, p12:62, p7:59.2, expind:24, cx:6, estoque:0, disponivel:896, origem:'NAC', nome:'MULTIBLOCKS COLORIDOS - 50 PÇS', ean:'7896640452827', dun:'17896640452824' },
     // ─── educ-p0034 (pág 107) ───
-    '52698': { img:'educ-p0034', x:4, y:15, p18:14.9, p12rs:14.2, p12:14.2, p7:13.6, cx:6, estoque:564, disponivel:2564, origem:'NAC', nome:'BRINCANDO COM LETRAS MAIÚSCULAS - 36 PÇS', ean:'7896640452698', dun:'17896640452695' },
-    '52665': { img:'educ-p0034', x:4, y:60, p18:24.2, p12rs:23, p12:23, p7:21.9, cx:6, estoque:710, disponivel:2210, origem:'NAC', nome:'ABC - MAIÚSCULAS E MINÚSCULAS - 72 PÇS', ean:'7896640452667', dun:'17896640452664' },
+    '52698': { img:'educ-p0034', x:4, y:15, p18:14.9, p12rs:14.2, p12:14.2, p7:13.6, expind:6, cx:6, estoque:564, disponivel:2564, origem:'NAC', nome:'BRINCANDO COM LETRAS MAIÚSCULAS - 36 PÇS', ean:'7896640452698', dun:'17896640452695' },
+    '52665': { img:'educ-p0034', x:4, y:60, p18:24.2, p12rs:23, p12:23, p7:21.9, expind:9, cx:6, estoque:710, disponivel:2210, origem:'NAC', nome:'ABC - MAIÚSCULAS E MINÚSCULAS - 72 PÇS', ean:'7896640452667', dun:'17896640452664' },
     // ─── educ-p0035 (pág 108) ───
-    '10576': { img:'educ-p0035', x:4, y:80, p18:22.3, p12rs:21.2, p12:21.2, p7:20.3, cx:6, estoque:1747, disponivel:1747, origem:'NAC', nome:'ASSOCIANDO NÚMEROS À QUANTIDADES TURMA DA MÔNICA - 20 PÇS', ean:'7896640410575', dun:'17896640410572' },
-    '50576': { img:'educ-p0035', x:4, y:50, p18:27.7, p12rs:26.2, p12:26.2, p7:25.1, cx:6, estoque:760, disponivel:1760, origem:'NAC', nome:'BRINCANDO COM LETRAS E NÚMEROS  - 72 PÇS', ean:'7896640450571', dun:'17896640450578' },
-    '52643': { img:'educ-p0035', x:4, y:20, p18:48.2, p12rs:45.7, p12:45.7, p7:43.6, cx:6, estoque:0, disponivel:468, origem:'NAC', nome:'ABCD + MAIÚSCULAS E MINÚSCULAS - 142 PÇS', ean:'7896640452643', dun:'17896640452640' },
+    '10576': { img:'educ-p0035', x:4, y:80, p18:22.3, p12rs:21.2, p12:21.2, p7:20.3, expind:9, cx:6, estoque:1747, disponivel:1747, origem:'NAC', nome:'ASSOCIANDO NÚMEROS À QUANTIDADES TURMA DA MÔNICA - 20 PÇS', ean:'7896640410575', dun:'17896640410572' },
+    '50576': { img:'educ-p0035', x:4, y:50, p18:27.7, p12rs:26.2, p12:26.2, p7:25.1, expind:11, cx:6, estoque:760, disponivel:1760, origem:'NAC', nome:'BRINCANDO COM LETRAS E NÚMEROS  - 72 PÇS', ean:'7896640450571', dun:'17896640450578' },
+    '52643': { img:'educ-p0035', x:4, y:20, p18:48.2, p12rs:45.7, p12:45.7, p7:43.6, expind:18, cx:6, estoque:0, disponivel:468, origem:'NAC', nome:'ABCD + MAIÚSCULAS E MINÚSCULAS - 142 PÇS', ean:'7896640452643', dun:'17896640452640' },
     // ─── educ-p0036 (pág 109) ───
-    '12843': { img:'educ-p0036', x:4, y:15, p18:30.5, p12rs:28.9, p12:28.9, p7:27.6, cx:6, estoque:1596, disponivel:1596, origem:'NAC', nome:'APRENDENDO INGLÊS MEMÓRIA DAS CORES - 32 PÇS', ean:'7896640489632', dun:'17896640489639' },
+    '12843': { img:'educ-p0036', x:4, y:15, p18:30.5, p12rs:28.9, p12:28.9, p7:27.6, expind:12, cx:6, estoque:1596, disponivel:1596, origem:'NAC', nome:'APRENDENDO INGLÊS MEMÓRIA DAS CORES - 32 PÇS', ean:'7896640489632', dun:'17896640489639' },
         // ─── educ-p0037 (pág 110) ───
-    '60254': { img:'educ-p0038', x:4, y:15, p18:38, p12rs:36, p12:36, p7:34.4, cx:6, estoque:89, disponivel:589, origem:'NAC', nome:'PALAVRAS CRUZADAS', ean:'7896640460259', dun:'17896640460256' },
-    '67809': { img:'educ-p0037', x:4, y:15, p18:47.5, p12rs:45, p12:45, p7:43, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'TORRE EM RISCO: DESAFIO DAS CARTAS', ean:'7896640410285', dun:'17896640410282' },
+    '60254': { img:'educ-p0038', x:4, y:15, p18:38, p12rs:36, p12:36, p7:34.4, expind:14, cx:6, estoque:89, disponivel:589, origem:'NAC', nome:'PALAVRAS CRUZADAS', ean:'7896640460259', dun:'17896640460256' },
+    '67809': { img:'educ-p0037', x:4, y:15, p18:47.5, p12rs:45, p12:45, p7:43, expind:18, cx:6, estoque:0, disponivel:0, origem:'NAC', nome:'TORRE EM RISCO: DESAFIO DAS CARTAS', ean:'7896640410285', dun:'17896640410282' },
     // ─── educ-p0038 (pág 111) ───
-    '4421': { img:'educ-p0038', x:4, y:60, p18:24.1, p12rs:22.9, p12:22.9, p7:21.8, cx:6, estoque:515, disponivel:2515, origem:'NAC', nome:'TANGRAM - 28 PÇS', ean:'7896640404420', dun:'17896640404427' },
-    '12965': { img:'educ-p0039', x:4, y:15, p18:40, p12rs:38, p12:38, p7:36.3, cx:6, estoque:143, disponivel:432, origem:'NAC', nome:'BATE PINOS', ean:'7896640489731', dun:'17896640489738' },
+    '4421': { img:'educ-p0038', x:4, y:60, p18:24.1, p12rs:22.9, p12:22.9, p7:21.8, expind:9, cx:6, estoque:515, disponivel:2515, origem:'NAC', nome:'TANGRAM - 28 PÇS', ean:'7896640404420', dun:'17896640404427' },
+    '12965': { img:'educ-p0039', x:4, y:15, p18:40, p12rs:38, p12:38, p7:36.3, expind:15, cx:6, estoque:143, disponivel:432, origem:'NAC', nome:'BATE PINOS', ean:'7896640489731', dun:'17896640489738' },
     // ─── educ-p0039 (pág 112) ───
               };
 
@@ -1589,8 +1655,9 @@
       badge.style.left = d.x + '%';
       badge.style.top  = d.y + '%';
       badge.dataset.ref = ref;
+      badge.dataset.orig = d.origem || 'IMP';
       d.ref = ref;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.innerHTML = `<div class="price-tag"><div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(d[currentIcms])}</div></div><button class="badge-info-btn" title="Ver detalhes">ⓘ</button>`;
       badge.querySelector('.price-tag').addEventListener('click', (e) => { e.stopPropagation(); toggleProduct(ref); });
       badge.querySelector('.badge-info-btn').addEventListener('click', (e) => { e.stopPropagation(); openPriceModal(ref, d); });
@@ -1599,7 +1666,7 @@
   }
 
   function openPriceModal(ref, d) {
-    const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+    const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
     const stockClass = d.estoque > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
     const stockLabel = d.estoque > 0 ? d.estoque + ' un.' : 'Sem estoque';
     const dispClass  = d.disponivel > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
@@ -1607,11 +1674,15 @@
     document.getElementById('pmContent').innerHTML = `
       <div class="pm-ref">REF ${ref}</div>
       <div class="pm-nome">${d.nome}</div>
+      ${(currentIcms === 'expind' && (d.origem||'IMP') === 'IMP')
+        ? '<div class="pm-imp-note">&#9888;&#65039; Produto <b>importado</b> &mdash; na tabela EXP-IND a carga tribut&aacute;ria &eacute; diferente da dos produtos nacionais. Confirme os impostos antes de faturar.</div>'
+        : ''}
       <div class="pm-prices">
         <div class="pm-price-box"><div class="pm-price-label">ICMS 18%</div><div class="pm-price-val">${fmtPrice(d.p18)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 12% RS</div><div class="pm-price-val">${fmtPrice(d.p12rs)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 12% SC/PR/SP/RJ/MG</div><div class="pm-price-val">${fmtPrice(d.p12)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 7%</div><div class="pm-price-val">${fmtPrice(d.p7)}</div></div>
+        <div class="pm-price-box pm-expind"><div class="pm-price-label">EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta</div><div class="pm-price-val">${fmtPrice(d.expind)}</div></div>
       </div>
       <div class="pm-info">
         <div class="pm-info-item">CX: <span>${d.cx} un.</span></div>
@@ -1626,6 +1697,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     renderPriceBadges();
     applyIcmsOnLoad();
+  applyExpIndMode(currentIcms);
+  document.addEventListener('DOMContentLoaded', () => applyExpIndMode(currentIcms));
     // Restore cart from localStorage
     loadCart();
     if (Object.keys(osCart).length) {
@@ -1759,7 +1832,9 @@
   }
 
   // ── ORDER SIDEBAR ──────────────────────────────────────────────────────────
-  let osIcms = localStorage.getItem('xalingo-icms') || 'p18';
+  let osIcms = (localStorage.getItem('xalingo-expind') === '1')
+    ? 'expind'
+    : (localStorage.getItem('xalingo-icms') || 'p18');
   const osCart = {};     // ref -> {data, qty}
   const imgCache = {};   // ref -> imageUrl (pre-fetched em background)
   // ── Cart persisted across pages via localStorage ──────────────────────────
@@ -1793,11 +1868,12 @@
     } catch(e){}
   }
 
-  const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%'};
+  const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%',expind:'EXP-IND \u00b7 Exporta\u00e7\u00e3o Indireta'};
 
   function setOsIcms(btn, key) {
     osIcms = key;
-    localStorage.setItem('xalingo-icms', key);
+    saveTabela(key);
+    applyExpIndMode(key);
     document.querySelectorAll('.os-icms-btn').forEach(b => b.classList.toggle('active', b===btn));
     // Sync with main ICMS selector
     currentIcms = key;
@@ -1808,7 +1884,7 @@
       const ref = badge.dataset.ref;
       const d = PRICE_CONFIG[ref];
       if (!d) return;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.querySelector('.price-main').textContent = fmtPrice(getDiscountedPrice(d[key]));
     });
     renderOrder();
@@ -1885,7 +1961,7 @@
     saveCart();
   }
 
-  function fmtMoney(v) { return v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar'; }
+  function fmtMoney(v) { return v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar'); }
 
   function renderOrder() {
     const body = document.getElementById('osBody');
@@ -1931,7 +2007,9 @@
               ${d.pedido_min>1?`<span class="os-badge" style="background:#fff0cc;color:#8a5000">Mín: ${d.pedido_min}</span>`:''}
               ${estLabel}${lancDate}
             </div>
-            ${warnMin}
+            ${warnMin}${(osIcms === 'expind' && (d.origem||'IMP') === 'IMP')
+              ? '<div class="os-warn-imp">&#9888;&#65039; Importado &mdash; carga tribut&aacute;ria diferente na exporta&ccedil;&atilde;o indireta</div>'
+              : ''}
           </div>
           <div class="os-item-right">
             <div class="os-qty-row">
@@ -2064,6 +2142,12 @@
         <table style="width:100%;border-collapse:collapse;margin-bottom:4px">${thead}<tbody>${renderRows(lanc)}</tbody></table>
         <p style="text-align:right;font-size:0.82rem;font-weight:700;color:#555;margin:4px 0 20px">Subtotal lançamentos: ${fmtMoney(totalLanc)}</p>`;
     }
+    if (osIcms === 'expind') {
+      const impCount = items.filter(i => (i.data.origem||'IMP') === 'IMP').length;
+      body += `<div style="background:#e6f4f0;border:1px solid rgba(14,110,90,0.3);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:0.78rem;color:#0E6E5A;font-weight:700">
+        Tabela EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta.${impCount ? ' &#9888;&#65039; ' + impCount + ' item(ns) importado(s) neste pedido &mdash; carga tribut&aacute;ria diferente da dos produtos nacionais.' : ''}
+      </div>`;
+    }
     body += `<div style="border-top:2px solid #1B3A5C;padding-top:10px;display:flex;justify-content:flex-end">
       <table style="font-size:0.85rem;border-collapse:collapse">
         <tr><td style="color:#888;padding:3px 12px">Itens:</td><td style="font-weight:700;padding:3px 0">${items.length}</td></tr>
@@ -2163,8 +2247,9 @@
 
   // Sync ICMS on load
   (function() {
-    const saved = localStorage.getItem('xalingo-icms') || 'p18';
+    const saved = currentIcms;
     osIcms = saved;
+    applyExpIndMode(saved);
     document.querySelectorAll('.os-icms-btn').forEach(b =>
       b.classList.toggle('active', b.getAttribute('data-icms') === saved));
   })();
@@ -2447,9 +2532,9 @@
       if (globalDiscount > 0 && orig !== v) {
         mainEl.innerHTML =
           '<span style="display:block;text-decoration:line-through;opacity:0.4;font-size:0.72rem;font-weight:400;line-height:1.2">R$ ' + orig.toFixed(2).replace('.',',') + '</span>' +
-          (v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar');
+          (v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar'));
       } else {
-        mainEl.textContent = v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+        mainEl.textContent = v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       }
     });
   }
@@ -2531,6 +2616,7 @@
     <button class="os-icms-btn"        data-icms="p12rs" onclick="setOsIcms(this,'p12rs')">12% RS</button>
     <button class="os-icms-btn"        data-icms="p12"   onclick="setOsIcms(this,'p12')">12% SC/PR/SP</button>
     <button class="os-icms-btn"        data-icms="p7"    onclick="setOsIcms(this,'p7')">7%</button>
+    <button class="os-icms-btn expind" data-icms="expind" onclick="setOsIcms(this,'expind')">EXP-IND</button>
   </div>
 
   <div class="os-body" id="osBody">

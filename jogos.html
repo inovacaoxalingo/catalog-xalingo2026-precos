@@ -744,6 +744,49 @@
     .price-main { color: #fff !important; }
     .price-ref  { color: rgba(255,255,255,0.8) !important; }
   }
+
+  /* ===== EXP-IND — Exportação Indireta ===== */
+  .sb-icms-btn.expind {
+    grid-column: 1 / -1; margin-top: 2px;
+    border-color: rgba(14,110,90,0.35); color: #0E6E5A;
+  }
+  .sb-icms-btn.expind:hover { background: rgba(14,110,90,0.08); border-color: #0E6E5A; color: #0E6E5A; }
+  .sb-icms-btn.expind.active { background: #0E6E5A; border-color: #0E6E5A; color: #fff; }
+  .os-icms-btn.expind { border-color: rgba(14,110,90,0.35); color: #0E6E5A; }
+  .os-icms-btn.expind:hover { border-color: #0E6E5A; color: #0E6E5A; }
+  .os-icms-btn.expind.active { background: #0E6E5A; border-color: #0E6E5A; color: #fff; }
+  .sb-expind-note {
+    display: none; margin-top: 7px; padding: 5px 7px;
+    font-size: 0.55rem; line-height: 1.4; font-weight: 600; color: #0E6E5A;
+    background: rgba(14,110,90,0.08); border: 1px solid rgba(14,110,90,0.2);
+    border-radius: 7px;
+  }
+  body.expind-mode .sb-expind-note { display: block; }
+  body.expind-mode .price-tag { background: rgba(14,110,90,0.88); }
+  body.expind-mode .price-badge[data-orig="IMP"] .price-tag::after {
+    content: '\26A0 IMPORTADO \B7 taxas dif.';
+    display: block; margin-top: 2px;
+    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.2px;
+    color: #ffdf8a; line-height: 1.1;
+  }
+  .os-warn-imp {
+    font-size: 0.6rem; font-weight: 700; color: #0E6E5A; margin-top: 4px;
+    background: rgba(14,110,90,0.09); border-radius: 5px; padding: 3px 6px;
+    line-height: 1.3;
+  }
+  .pm-price-box.pm-expind {
+    grid-column: 1 / -1;
+    background: #e6f4f0; border: 1px solid rgba(14,110,90,0.25);
+  }
+  .pm-price-box.pm-expind .pm-price-val { color: #0E6E5A; }
+  .pm-imp-note {
+    font-size: 0.68rem; font-weight: 700; color: #0E6E5A; line-height: 1.4;
+    background: rgba(14,110,90,0.09); border: 1px solid rgba(14,110,90,0.2);
+    border-radius: 8px; padding: 7px 10px; margin-bottom: 10px;
+  }
+  @media print {
+    body.expind-mode .price-tag { background: #0E6E5A !important; }
+  }
   </style>
 </head>
 <body>
@@ -771,8 +814,10 @@
         <button class="sb-icms-btn active" data-icms="p18"   onclick="setIcms('p18',this)">ICMS 18%</button>
         <button class="sb-icms-btn"        data-icms="p12rs" onclick="setIcms('p12rs',this)">12% RS</button>
         <button class="sb-icms-btn"        data-icms="p12"   onclick="setIcms('p12',this)">12% SC/PR/SP</button>
-        <button class="sb-icms-btn"        data-icms="p7"    onclick="setIcms('p7',this)">ICMS 7%</button>
+        <button class="sb-icms-btn"        data-icms="p7"   onclick="setIcms('p7',this)">ICMS 7%</button>
+        <button class="sb-icms-btn expind" data-icms="expind" onclick="setIcms('expind',this)">EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta</button>
       </div>
+      <div class="sb-expind-note">Tabela de <b>exporta&ccedil;&atilde;o indireta</b>. Produtos <b>importados</b> t&ecirc;m carga tribut&aacute;ria diferente &mdash; confira antes de fechar o pedido.</div>
     </div>
 
     <a href="sumario.html" class="sb-back">
@@ -1420,16 +1465,37 @@
   setLang(currentLang);
 
 
-  let currentIcms = localStorage.getItem('xalingo-icms') || 'p18';
+  let currentIcms = (localStorage.getItem('xalingo-expind') === '1')
+    ? 'expind'
+    : (localStorage.getItem('xalingo-icms') || 'p18');
+
+  // Guarda a escolha de tabela. EXP-IND vai numa chave separada para nao quebrar
+  // paginas antigas que so entendem p18/p12rs/p12/p7.
+  function saveTabela(key) {
+    if (key === 'expind') {
+      localStorage.setItem('xalingo-expind', '1');
+    } else {
+      localStorage.setItem('xalingo-expind', '0');
+      localStorage.setItem('xalingo-icms', key);
+    }
+  }
+  function applyExpIndMode(key) {
+    if (document.body) document.body.classList.toggle('expind-mode', key === 'expind');
+  }
   function setIcms(key, btn) {
     currentIcms = key;
-    localStorage.setItem('xalingo-icms', key);
+    osIcms = key;
+    saveTabela(key);
+    applyExpIndMode(key);
+    document.querySelectorAll('.os-icms-btn').forEach(b =>
+      b.classList.toggle('active', b.getAttribute('data-icms') === key));
+    if (typeof renderOrder === 'function') renderOrder();
     document.querySelectorAll('.sb-icms-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-icms') === key));
     document.querySelectorAll('.price-badge').forEach(badge => {
       const ref = badge.dataset.ref;
       const d = PRICE_CONFIG[ref];
       if (!d) return;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.querySelector('.price-tag').innerHTML = `<div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(getDiscountedPrice(d[key]))}</div>`;
     });
   }
@@ -1439,44 +1505,44 @@
 
     const PRICE_CONFIG = {
     // ─── jogos-p0003 (pág 115) ───
-    '12809': { img:'jogos-p0003', x:4, y:15, p18:115, p12rs:123.8, p12:115, p7:115, cx:6, estoque:643, disponivel:643, origem:'IMP', nome:'XADREZ BRINCANDO DE ENGENHEIRO', ean:'7896640415853', dun:'17896640415850' },
+    '12809': { img:'jogos-p0003', x:4, y:15, p18:115, p12rs:123.8, p12:115, p7:115, expind:58, cx:6, estoque:643, disponivel:643, origem:'IMP', nome:'XADREZ BRINCANDO DE ENGENHEIRO', ean:'7896640415853', dun:'17896640415850' },
     // ─── jogos-p0004 (pág 116) ───
-    '60009': { img:'jogos-p0004', x:4, y:15, p18:127.5, p12rs:121, p12:121, p7:115.6, cx:4, estoque:68, disponivel:768, origem:'NAC', nome:'XADREZ OFICIAL', ean:'7896640460006', dun:'17896640460003' },
-    '60065': { img:'jogos-p0004', x:4, y:60, p18:245.5, p12rs:233, p12:233, p7:222.6, cx:4, estoque:119, disponivel:619, origem:'NAC', nome:'XADREZ E DAMAS', ean:'7896640460068', dun:'17896640460065' },
+    '60009': { img:'jogos-p0004', x:4, y:15, p18:127.5, p12rs:121, p12:121, p7:115.6, expind:47, cx:4, estoque:68, disponivel:768, origem:'NAC', nome:'XADREZ OFICIAL', ean:'7896640460006', dun:'17896640460003' },
+    '60065': { img:'jogos-p0004', x:4, y:60, p18:245.5, p12rs:233, p12:233, p7:222.6, expind:90, cx:4, estoque:119, disponivel:619, origem:'NAC', nome:'XADREZ E DAMAS', ean:'7896640460068', dun:'17896640460065' },
     // ─── jogos-p0005 (pág 117) ───
-    '7821': { img:'jogos-p0005', x:80, y:70, p18:28.2, p12rs:26.8, p12:26.8, p7:25.6, cx:6, estoque:1162, disponivel:3162, origem:'NAC', nome:'XADREZ ESCOLAR PLÁSTICO', ean:'7896640407827', dun:'17896640407824' },
-    '60087': { img:'jogos-p0005', x:80, y:40, p18:33.6, p12rs:31.9, p12:31.9, p7:30.5, cx:6, estoque:577, disponivel:2577, origem:'NAC', nome:'XADREZ ESCOLAR JOGOS TRADICIONAIS EM MADEIRA', ean:'7896640440008', dun:'17896640440005' },
-    '60010': { img:'jogos-p0005', x:80, y:10, p18:37.9, p12rs:35.9, p12:35.9, p7:34.3, cx:6, estoque:0, disponivel:1649, origem:'NAC', nome:'XADREZ ESCOLAR', ean:'7896640460013', dun:'17896640460010' },
+    '7821': { img:'jogos-p0005', x:80, y:70, p18:28.2, p12rs:26.8, p12:26.8, p7:25.6, expind:11, cx:6, estoque:1162, disponivel:3162, origem:'NAC', nome:'XADREZ ESCOLAR PLÁSTICO', ean:'7896640407827', dun:'17896640407824' },
+    '60087': { img:'jogos-p0005', x:80, y:40, p18:33.6, p12rs:31.9, p12:31.9, p7:30.5, expind:13, cx:6, estoque:577, disponivel:2577, origem:'NAC', nome:'XADREZ ESCOLAR JOGOS TRADICIONAIS EM MADEIRA', ean:'7896640440008', dun:'17896640440005' },
+    '60010': { img:'jogos-p0005', x:80, y:10, p18:37.9, p12rs:35.9, p12:35.9, p7:34.3, expind:14, cx:6, estoque:0, disponivel:1649, origem:'NAC', nome:'XADREZ ESCOLAR', ean:'7896640460013', dun:'17896640460010' },
     // ─── jogos-p0007 (pág 119) ───
-    '7098': { img:'jogos-p0007', x:80, y:60, p18:6.6, p12rs:6.3, p12:6.3, p7:6, cx:24, estoque:269, disponivel:4269, origem:'NAC', nome:'PEGA VARETAS', ean:'7896640407094', dun:'17896640407091' },
-    '20498': { img:'jogos-p0007', x:4, y:15, p18:23.7, p12rs:22.5, p12:22.5, p7:21.5, cx:6, estoque:68, disponivel:568, origem:'NAC', nome:'ADIVINHA PRIMEIRO!', ean:'7896640426859', dun:'17896640426856', lancamento:'01/04/2026' },
+    '7098': { img:'jogos-p0007', x:80, y:60, p18:6.6, p12rs:6.3, p12:6.3, p7:6, expind:3, cx:24, estoque:269, disponivel:4269, origem:'NAC', nome:'PEGA VARETAS', ean:'7896640407094', dun:'17896640407091' },
+    '20498': { img:'jogos-p0007', x:4, y:15, p18:23.7, p12rs:22.5, p12:22.5, p7:21.5, expind:9, cx:6, estoque:68, disponivel:568, origem:'NAC', nome:'ADIVINHA PRIMEIRO!', ean:'7896640426859', dun:'17896640426856', lancamento:'01/04/2026' },
     // ─── jogos-p0008 (pág 120) ───
-    '54709': { img:'jogos-p0008', x:4, y:15, p18:51.7, p12rs:49, p12:49, p7:46.8, cx:6, estoque:1205, disponivel:2205, origem:'NAC', nome:'LUDO TRIDIMENSIONAL', ean:'7896640490324', dun:'17896640490321' },
-    '65598': { img:'jogos-p0009', x:4, y:60, p18:74.8, p12rs:71, p12:71, p7:67.8, cx:3, estoque:0, disponivel:0, origem:'NAC', nome:'JOGO 5 X 1', ean:'7896640465599', dun:'17896640465596' },
+    '54709': { img:'jogos-p0008', x:4, y:15, p18:51.7, p12rs:49, p12:49, p7:46.8, expind:19, cx:6, estoque:1205, disponivel:2205, origem:'NAC', nome:'LUDO TRIDIMENSIONAL', ean:'7896640490324', dun:'17896640490321' },
+    '65598': { img:'jogos-p0009', x:4, y:60, p18:74.8, p12rs:71, p12:71, p7:67.8, expind:28, cx:3, estoque:0, disponivel:0, origem:'NAC', nome:'JOGO 5 X 1', ean:'7896640465599', dun:'17896640465596' },
     // ─── jogos-p0009 (pág 121) ───
-    '65587': { img:'jogos-p0011', x:4, y:20, p18:39.5, p12rs:37.5, p12:37.5, p7:35.8, cx:6, estoque:788, disponivel:788, origem:'NAC', nome:'18 JOGOS', ean:'7896640465582', dun:'17896640465589' },
-    '65576': { img:'jogos-p0009', x:4, y:15, p18:48.5, p12rs:46, p12:46, p7:43.95, cx:3, estoque:0, disponivel:482, origem:'NAC', nome:'JOGO 4 X 1', ean:'7896640465575', dun:'17896640465572' },
+    '65587': { img:'jogos-p0011', x:4, y:20, p18:39.5, p12rs:37.5, p12:37.5, p7:35.8, expind:15, cx:6, estoque:788, disponivel:788, origem:'NAC', nome:'18 JOGOS', ean:'7896640465582', dun:'17896640465589' },
+    '65576': { img:'jogos-p0009', x:4, y:15, p18:48.5, p12rs:46, p12:46, p7:43.95, expind:18, cx:3, estoque:0, disponivel:482, origem:'NAC', nome:'JOGO 4 X 1', ean:'7896640465575', dun:'17896640465572' },
     // ─── jogos-p0010 (pág 122) ───
-    '60210': { img:'jogos-p0010', x:80, y:5, p18:42.7, p12rs:40.5, p12:40.5, p7:38.7, cx:6, estoque:0, disponivel:402, origem:'NAC', nome:'DAMAS E LUDO', ean:'7896640460211', dun:'17896640460218' },
-    '60198': { img:'jogos-p0010', x:80, y:38, p18:42.6, p12rs:40.5, p12:40.5, p7:38.7, cx:6, estoque:628, disponivel:1128, origem:'NAC', nome:'DAMAS E TRILHA', ean:'7896640460198', dun:'17896640460195' },
+    '60210': { img:'jogos-p0010', x:80, y:5, p18:42.7, p12rs:40.5, p12:40.5, p7:38.7, expind:16, cx:6, estoque:0, disponivel:402, origem:'NAC', nome:'DAMAS E LUDO', ean:'7896640460211', dun:'17896640460218' },
+    '60198': { img:'jogos-p0010', x:80, y:38, p18:42.6, p12rs:40.5, p12:40.5, p7:38.7, expind:16, cx:6, estoque:628, disponivel:1128, origem:'NAC', nome:'DAMAS E TRILHA', ean:'7896640460198', dun:'17896640460195' },
     // ─── jogos-p0011 (pág 123) ───
-    '65554': { img:'jogos-p0011', x:4, y:60, p18:13, p12rs:12.4, p12:12.4, p7:11.8, cx:12, estoque:96, disponivel:1096, origem:'NAC', nome:'DAMAS', ean:'7896640470388', dun:'17896640470385' },
-    '65543': { img:'jogos-p0011', x:50, y:60, p18:13.1, p12rs:12.4, p12:12.4, p7:11.9, cx:12, estoque:1495, disponivel:1495, origem:'NAC', nome:'LUDO', ean:'7896640470395', dun:'17896640470392' },
+    '65554': { img:'jogos-p0011', x:4, y:60, p18:13, p12rs:12.4, p12:12.4, p7:11.8, expind:5, cx:12, estoque:96, disponivel:1096, origem:'NAC', nome:'DAMAS', ean:'7896640470388', dun:'17896640470385' },
+    '65543': { img:'jogos-p0011', x:50, y:60, p18:13.1, p12rs:12.4, p12:12.4, p7:11.9, expind:5, cx:12, estoque:1495, disponivel:1495, origem:'NAC', nome:'LUDO', ean:'7896640470395', dun:'17896640470392' },
     // ─── jogos-p0012 (pág 124) ───
-    '52909': { img:'jogos-p0012', x:80, y:10, p18:41.1, p12rs:39, p12:39, p7:37.2, cx:6, estoque:707, disponivel:1207, origem:'NAC', nome:'BINGO EM MADEIRA', ean:'7896640452902', dun:'17896640452909' },
-    '52943': { img:'jogos-p0012', x:80, y:78, p18:46.9, p12rs:44.5, p12:44.5, p7:42.5, cx:6, estoque:131, disponivel:631, origem:'NAC', nome:'LOTO - 48 CARTELAS', ean:'7896640452940', dun:'17896640452947' },
-    '68510': { img:'jogos-p0012', x:80, y:38, p18:50.7, p12rs:54.6, p12:50.7, p7:50.7, cx:4, estoque:4950, disponivel:4950, origem:'IMP', nome:'BINGO SHOW -  24 CARTELAS', ean:'7896640411336', dun:'17896640411333' },
+    '52909': { img:'jogos-p0012', x:80, y:10, p18:41.1, p12rs:39, p12:39, p7:37.2, expind:15, cx:6, estoque:707, disponivel:1207, origem:'NAC', nome:'BINGO EM MADEIRA', ean:'7896640452902', dun:'17896640452909' },
+    '52943': { img:'jogos-p0012', x:80, y:78, p18:46.9, p12rs:44.5, p12:44.5, p7:42.5, expind:17, cx:6, estoque:131, disponivel:631, origem:'NAC', nome:'LOTO - 48 CARTELAS', ean:'7896640452940', dun:'17896640452947' },
+    '68510': { img:'jogos-p0012', x:80, y:38, p18:50.7, p12rs:54.6, p12:50.7, p7:50.7, expind:26, cx:4, estoque:4950, disponivel:4950, origem:'IMP', nome:'BINGO SHOW -  24 CARTELAS', ean:'7896640411336', dun:'17896640411333' },
     // ─── jogos-p0013 (pág 125) ───
-    '7043': { img:'jogos-p0013', x:4, y:15, p18:9.3, p12rs:8.8, p12:8.8, p7:8.41, cx:12, estoque:1917, disponivel:1917, origem:'NAC', nome:'RESTA UM', ean:'7896640407049', dun:'17896640407046' },
-    '16687': { img:'jogos-p0013', x:4, y:60, p18:175.0, p12rs:200.0, p12:175.0, p7:175.0, cx:6, estoque:0, disponivel:0, origem:'IMP', nome:'BASQUETE DE MESA', ean:'7896640412579', dun:'17896640412576' },
+    '7043': { img:'jogos-p0013', x:4, y:15, p18:9.3, p12rs:8.8, p12:8.8, p7:8.41, expind:4, cx:12, estoque:1917, disponivel:1917, origem:'NAC', nome:'RESTA UM', ean:'7896640407049', dun:'17896640407046' },
+    '16687': { img:'jogos-p0013', x:4, y:60, p18:175.0, p12rs:200.0, p12:175.0, p7:175.0, expind:0, cx:6, estoque:0, disponivel:0, origem:'IMP', nome:'BASQUETE DE MESA', ean:'7896640412579', dun:'17896640412576' },
     // ─── jogos-p0014 (pág 126) ───
-    '60598': { img:'jogos-p0014', x:4, y:15, p18:64.3, p12rs:61, p12:61, p7:58.3, cx:6, estoque:1, disponivel:1, origem:'NAC', nome:'JOGO DE TABULEIRO CORRE PIRATA', ean:'7896640499297', dun:'17896640499294' },
-    '60576': { img:'jogos-p0014', x:4, y:60, p18:79, p12rs:75, p12:75, p7:71.6, cx:6, estoque:866, disponivel:866, origem:'NAC', nome:'JOGO DE TABULEIRO PANGEIA', ean:'7896640499273', dun:'17896640499270' },
+    '60598': { img:'jogos-p0014', x:4, y:15, p18:64.3, p12rs:61, p12:61, p7:58.3, expind:24, cx:6, estoque:1, disponivel:1, origem:'NAC', nome:'JOGO DE TABULEIRO CORRE PIRATA', ean:'7896640499297', dun:'17896640499294' },
+    '60576': { img:'jogos-p0014', x:4, y:60, p18:79, p12rs:75, p12:75, p7:71.6, expind:29, cx:6, estoque:866, disponivel:866, origem:'NAC', nome:'JOGO DE TABULEIRO PANGEIA', ean:'7896640499273', dun:'17896640499270' },
     // ─── jogos-p0015 (pág 127) ───
-    '12732': { img:'jogos-p0015', x:4, y:15, p18:74.8, p12rs:71, p12:71, p7:67.8, cx:6, estoque:576, disponivel:576, origem:'NAC', nome:'JOGO DE TABULEIRO CAMPOS DA FORTUNA', ean:'7896640489533', dun:'17896640489530' },
-    '60565': { img:'jogos-p0015', x:4, y:60, p18:82.8, p12rs:78.6, p12:78.6, p7:75.1, cx:6, estoque:491, disponivel:491, origem:'NAC', nome:'JOGO DE TABULEIRO XALINGÓPOLIS', ean:'', dun:'' },
+    '12732': { img:'jogos-p0015', x:4, y:15, p18:74.8, p12rs:71, p12:71, p7:67.8, expind:28, cx:6, estoque:576, disponivel:576, origem:'NAC', nome:'JOGO DE TABULEIRO CAMPOS DA FORTUNA', ean:'7896640489533', dun:'17896640489530' },
+    '60565': { img:'jogos-p0015', x:4, y:60, p18:82.8, p12rs:78.6, p12:78.6, p7:75.1, expind:31, cx:6, estoque:491, disponivel:491, origem:'NAC', nome:'JOGO DE TABULEIRO XALINGÓPOLIS', ean:'', dun:'' },
     // ─── jogos-p0016 (pág 128) ───
-    '12810': { img:'jogos-p0016', x:4, y:20, p18:85.4, p12rs:81, p12:81, p7:77.4, cx:6, estoque:78, disponivel:78, origem:'NAC', nome:'JOGO DE TABULEIRO PISANDO FUNDO', ean:'7896640489601', dun:'17896640489608' },
+    '12810': { img:'jogos-p0016', x:4, y:20, p18:85.4, p12rs:81, p12:81, p7:77.4, expind:31, cx:6, estoque:78, disponivel:78, origem:'NAC', nome:'JOGO DE TABULEIRO PISANDO FUNDO', ean:'7896640489601', dun:'17896640489608' },
   };
 
   function renderPriceBadges() {
@@ -1496,8 +1562,9 @@
       badge.style.left = d.x + '%';
       badge.style.top  = d.y + '%';
       badge.dataset.ref = ref;
+      badge.dataset.orig = d.origem || 'IMP';
       d.ref = ref;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.innerHTML = `<div class="price-tag"><div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(d[currentIcms])}</div></div><button class="badge-info-btn" title="Ver detalhes">ⓘ</button>`;
       badge.querySelector('.price-tag').addEventListener('click', (e) => { e.stopPropagation(); toggleProduct(ref); });
       badge.querySelector('.badge-info-btn').addEventListener('click', (e) => { e.stopPropagation(); openPriceModal(ref, d); });
@@ -1506,7 +1573,7 @@
   }
 
   function openPriceModal(ref, d) {
-    const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+    const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
     const stockClass = d.estoque > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
     const stockLabel = d.estoque > 0 ? d.estoque + ' un.' : 'Sem estoque';
     const dispClass  = d.disponivel > 0 ? 'pm-stock-ok' : 'pm-stock-zero';
@@ -1514,11 +1581,15 @@
     document.getElementById('pmContent').innerHTML = `
       <div class="pm-ref">REF ${ref}</div>
       <div class="pm-nome">${d.nome}</div>
+      ${(currentIcms === 'expind' && (d.origem||'IMP') === 'IMP')
+        ? '<div class="pm-imp-note">&#9888;&#65039; Produto <b>importado</b> &mdash; na tabela EXP-IND a carga tribut&aacute;ria &eacute; diferente da dos produtos nacionais. Confirme os impostos antes de faturar.</div>'
+        : ''}
       <div class="pm-prices">
         <div class="pm-price-box"><div class="pm-price-label">ICMS 18%</div><div class="pm-price-val">${fmtPrice(d.p18)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 12% RS</div><div class="pm-price-val">${fmtPrice(d.p12rs)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 12% SC/PR/SP/RJ/MG</div><div class="pm-price-val">${fmtPrice(d.p12)}</div></div>
         <div class="pm-price-box"><div class="pm-price-label">ICMS 7%</div><div class="pm-price-val">${fmtPrice(d.p7)}</div></div>
+        <div class="pm-price-box pm-expind"><div class="pm-price-label">EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta</div><div class="pm-price-val">${fmtPrice(d.expind)}</div></div>
       </div>
       <div class="pm-info">
         <div class="pm-info-item">CX: <span>${d.cx} un.</span></div>
@@ -1533,6 +1604,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     renderPriceBadges();
     applyIcmsOnLoad();
+  applyExpIndMode(currentIcms);
+  document.addEventListener('DOMContentLoaded', () => applyExpIndMode(currentIcms));
     // Restore cart from localStorage
     loadCart();
     if (Object.keys(osCart).length) {
@@ -1623,7 +1696,9 @@
   }
 
   // ── ORDER SIDEBAR ──────────────────────────────────────────────────────────
-  let osIcms = localStorage.getItem('xalingo-icms') || 'p18';
+  let osIcms = (localStorage.getItem('xalingo-expind') === '1')
+    ? 'expind'
+    : (localStorage.getItem('xalingo-icms') || 'p18');
   const osCart = {};     // ref -> {data, qty}
   const imgCache = {};   // ref -> imageUrl (pre-fetched em background)
   // ── Cart persisted across pages via localStorage ──────────────────────────
@@ -1657,11 +1732,12 @@
     } catch(e){}
   }
 
-  const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%'};
+  const ICMS_NAMES = {p18:'ICMS 18%',p12rs:'ICMS 12% RS',p12:'ICMS 12% SC/PR/SP/RJ/MG',p7:'ICMS 7%',expind:'EXP-IND \u00b7 Exporta\u00e7\u00e3o Indireta'};
 
   function setOsIcms(btn, key) {
     osIcms = key;
-    localStorage.setItem('xalingo-icms', key);
+    saveTabela(key);
+    applyExpIndMode(key);
     document.querySelectorAll('.os-icms-btn').forEach(b => b.classList.toggle('active', b===btn));
     // Sync with main ICMS selector
     currentIcms = key;
@@ -1672,7 +1748,7 @@
       const ref = badge.dataset.ref;
       const d = PRICE_CONFIG[ref];
       if (!d) return;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       badge.querySelector('.price-main').textContent = fmtPrice(getDiscountedPrice(d[key]));
     });
     renderOrder();
@@ -1749,7 +1825,7 @@
     saveCart();
   }
 
-  function fmtMoney(v) { return v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar'; }
+  function fmtMoney(v) { return v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar'); }
 
   function renderOrder() {
     const body = document.getElementById('osBody');
@@ -1795,7 +1871,9 @@
               ${d.pedido_min>1?`<span class="os-badge" style="background:#fff0cc;color:#8a5000">Mín: ${d.pedido_min}</span>`:''}
               ${estLabel}${lancDate}
             </div>
-            ${warnMin}
+            ${warnMin}${(osIcms === 'expind' && (d.origem||'IMP') === 'IMP')
+              ? '<div class="os-warn-imp">&#9888;&#65039; Importado &mdash; carga tribut&aacute;ria diferente na exporta&ccedil;&atilde;o indireta</div>'
+              : ''}
           </div>
           <div class="os-item-right">
             <div class="os-qty-row">
@@ -1928,6 +2006,12 @@
         <table style="width:100%;border-collapse:collapse;margin-bottom:4px">${thead}<tbody>${renderRows(lanc)}</tbody></table>
         <p style="text-align:right;font-size:0.82rem;font-weight:700;color:#555;margin:4px 0 20px">Subtotal lançamentos: ${fmtMoney(totalLanc)}</p>`;
     }
+    if (osIcms === 'expind') {
+      const impCount = items.filter(i => (i.data.origem||'IMP') === 'IMP').length;
+      body += `<div style="background:#e6f4f0;border:1px solid rgba(14,110,90,0.3);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:0.78rem;color:#0E6E5A;font-weight:700">
+        Tabela EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta.${impCount ? ' &#9888;&#65039; ' + impCount + ' item(ns) importado(s) neste pedido &mdash; carga tribut&aacute;ria diferente da dos produtos nacionais.' : ''}
+      </div>`;
+    }
     body += `<div style="border-top:2px solid #1B3A5C;padding-top:10px;display:flex;justify-content:flex-end">
       <table style="font-size:0.85rem;border-collapse:collapse">
         <tr><td style="color:#888;padding:3px 12px">Itens:</td><td style="font-weight:700;padding:3px 0">${items.length}</td></tr>
@@ -2027,8 +2111,9 @@
 
   // Sync ICMS on load
   (function() {
-    const saved = localStorage.getItem('xalingo-icms') || 'p18';
+    const saved = currentIcms;
     osIcms = saved;
+    applyExpIndMode(saved);
     document.querySelectorAll('.os-icms-btn').forEach(b =>
       b.classList.toggle('active', b.getAttribute('data-icms') === saved));
   })();
@@ -2311,9 +2396,9 @@
       if (globalDiscount > 0 && orig !== v) {
         mainEl.innerHTML =
           '<span style="display:block;text-decoration:line-through;opacity:0.4;font-size:0.72rem;font-weight:400;line-height:1.2">R$ ' + orig.toFixed(2).replace('.',',') + '</span>' +
-          (v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar');
+          (v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar'));
       } else {
-        mainEl.textContent = v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : 'Aguardar';
+        mainEl.textContent = v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
       }
     });
   }
@@ -2395,6 +2480,7 @@
     <button class="os-icms-btn"        data-icms="p12rs" onclick="setOsIcms(this,'p12rs')">12% RS</button>
     <button class="os-icms-btn"        data-icms="p12"   onclick="setOsIcms(this,'p12')">12% SC/PR/SP</button>
     <button class="os-icms-btn"        data-icms="p7"    onclick="setOsIcms(this,'p7')">7%</button>
+    <button class="os-icms-btn expind" data-icms="expind" onclick="setOsIcms(this,'expind')">EXP-IND</button>
   </div>
 
   <div class="os-body" id="osBody">
