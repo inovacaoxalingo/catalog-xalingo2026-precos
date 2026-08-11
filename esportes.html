@@ -1259,6 +1259,15 @@
     <div id="sbSearchResults" class="sb-search-results"></div>
   </div>
 
+
+  <!-- ===== PDF DO CATÁLOGO COMPLETO ===== -->
+  <div class="btn-print-wrap">
+    <button class="btn-print" onclick="XalingoPDF.abrir()" title="Gera um PDF único com as 7 categorias, capa e sumário">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      <span data-i18n="pdfCompleto">Catálogo completo em PDF</span>
+    </button>
+  </div>
+
 </aside>
 
 <!-- ===== MAIN CONTENT ===== -->
@@ -2812,5 +2821,6 @@
   </div>
 </div>
 
+<script src="pdf-catalogo.js" defer></script>
 </body>
 </html>
