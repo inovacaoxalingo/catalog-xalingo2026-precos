@@ -2458,13 +2458,49 @@
     });
   }
 
-  // Baixa a foto e devolve JPEG 96×96 em base64 (fetch → canvas, sem taint)
-  async function thumbBase64(url) {
+  /* Pega os BYTES da foto. O <img> do pedido em HTML não precisa de permissão,
+     mas ler os bytes para embutir no xlsx precisa de CORS — e o servidor das
+     fotos não libera. Por isso a cascata: direto → proxies que devolvem
+     Access-Control-Allow-Origin. */
+  async function bytesDaFoto(url) {
+    const semProto = url.replace(/^https?:\/\//, '');
+    const tentativas = [
+      url,
+      'https://images.weserv.nl/?url=' + encodeURIComponent(semProto) + '&w=192&h=192&fit=inside&output=jpg',
+      'https://corsproxy.io/?url=' + encodeURIComponent(url)
+    ];
+    for (const alvo of tentativas) {
+      try {
+        const resp = await fetch(alvo, { cache: 'force-cache', signal: AbortSignal.timeout(12000) });
+        if (!resp.ok) continue;
+        const blob = await resp.blob();
+        if (blob && blob.size > 100 && /^image\//.test(blob.type || 'image/jpeg')) return blob;
+      } catch (e) { /* tenta a próxima */ }
+    }
+    return null;
+  }
+
+  function blobParaDataURL(blob) {
+    return new Promise(ok => {
+      const fr = new FileReader();
+      fr.onload = () => ok(fr.result);
+      fr.onerror = () => ok(null);
+      fr.readAsDataURL(blob);
+    });
+  }
+
+  // Devolve {base64, extension} de um quadrado 96×96, ou null
+  async function thumbFoto(url) {
     if (!url) return null;
+    let blob = null;
+    if (url.startsWith('data:')) {
+      try { blob = await (await fetch(url)).blob(); } catch (e) { return null; }
+    } else {
+      blob = await bytesDaFoto(url);
+    }
+    if (!blob) return null;
     try {
-      const resp = await fetch(url, { mode: 'cors', cache: 'force-cache' });
-      if (!resp.ok) return null;
-      const bmp = await createImageBitmap(await resp.blob());
+      const bmp = await createImageBitmap(blob);
       const S = 96, c = document.createElement('canvas');
       c.width = S; c.height = S;
       const ctx = c.getContext('2d');
@@ -2473,8 +2509,14 @@
       const w = bmp.width * k, h = bmp.height * k;
       ctx.drawImage(bmp, (S - w) / 2, (S - h) / 2, w, h);
       bmp.close && bmp.close();
-      return c.toDataURL('image/jpeg', 0.8);
-    } catch (e) { return null; }
+      return { base64: c.toDataURL('image/jpeg', 0.82), extension: 'jpeg' };
+    } catch (e) {
+      // sem canvas: embute o arquivo original como veio
+      const dataURL = await blobParaDataURL(blob);
+      if (!dataURL) return null;
+      const tipo = (blob.type || '').indexOf('png') >= 0 ? 'png' : 'jpeg';
+      return { base64: dataURL, extension: tipo };
+    }
   }
 
   async function exportExcel(btn) {
@@ -2502,9 +2544,12 @@
         }));
       }
       const fotos = {};
+      let comFoto = 0, semFoto = 0;
       await Promise.all(items.map(async item => {
         const ref = item.data.ref || '';
-        fotos[ref] = await thumbBase64(imgCache[ref] || '');
+        const f = await thumbFoto(imgCache[ref] || '');
+        fotos[ref] = f;
+        if (f) comFoto++; else if (imgCache[ref]) semFoto++;
       }));
 
       /* 2 · dados */
@@ -2586,8 +2631,10 @@
         const price = getDiscountedPrice(d[osIcms] || 0);
         const ref = d.ref || '';
         const isNac = (d.origem || 'IMP') === 'NAC';
+        // ref numérica entra como número — senão o Excel marca "texto" com o triângulo verde
+        const refCel = /^[1-9]\d*$/.test(ref) ? Number(ref) : ref;
         const row = ws.addRow([
-          '', ref, d.nome, d.origem || 'IMP', d.cx, d.pedido_min || 1,
+          '', refCel, d.nome, d.origem || 'IMP', d.cx, d.pedido_min || 1,
           price > 0 ? price : (osIcms === 'expind' ? 'Sob consulta' : 'Aguardar'),
           item.qty,
           price > 0 ? parseFloat((price * item.qty).toFixed(2)) : '',
@@ -2601,6 +2648,8 @@
           cell.border = { bottom: { style: 'thin', color: { argb: 'FFE3E9EF' } } };
         });
         row.getCell(2).font = { size: 10, bold: true, color: { argb: 'FF666666' } };
+        if (typeof refCel === 'number') row.getCell(2).numFmt = '0';
+        row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
         row.getCell(3).font = { size: 10, bold: true, color: { argb: AZUL } };
         row.getCell(3).alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
         row.getCell(4).font = { size: 9.5, bold: true, color: { argb: isNac ? 'FF2A6A2A' : AZUL } };
@@ -2619,9 +2668,9 @@
           row.getCell(10).font = { size: 9.5, bold: true, color: { argb: 'FF8A5000' } };
           pintar(row.getCell(10), 'FFFFF3CC');
         }
-        const b64 = fotos[ref];
-        if (b64) {
-          const id = wb.addImage({ base64: b64, extension: 'jpeg' });
+        const foto = fotos[ref];
+        if (foto) {
+          const id = wb.addImage({ base64: foto.base64, extension: foto.extension });
           ws.addImage(id, {
             tl: { col: 0.14, row: row.number - 1 + 0.07 },
             ext: { width: 52, height: 52 },
@@ -2727,6 +2776,11 @@
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 30000);
+
+      if (semFoto) console.warn('[Pedido] ' + semFoto + ' foto(s) não puderam ser baixadas para o Excel.');
+      if (semFoto && !comFoto) {
+        alert('O Excel foi gerado, mas sem as fotos: o servidor das imagens não liberou o download delas para o navegador. O restante do pedido está completo.');
+      }
     } catch (e) {
       alert('Não deu para gerar o Excel: ' + (e && e.message ? e.message : e));
     } finally {
