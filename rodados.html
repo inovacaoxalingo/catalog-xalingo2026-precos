@@ -2435,14 +2435,25 @@
 
 
 
-  /* ── Excel do pedido — espelha o layout do pedido em HTML ─────────────────
-     Cabeçalho com título/data/ICMS, seções Linha e Lançamentos, foto do
-     produto embutida na 1ª coluna, subtotais e bloco de totais.            */
+  /* ── Excel do pedido / da vertical / do catálogo ──────────────────────────
+     Espelha o layout do pedido em HTML: cabeçalho, seções, foto do produto,
+     subtotais e totais. A coluna Qtd é editável no Excel — Subtotal e totais
+     são fórmulas, então dá para preencher direto na planilha.               */
 
   const XLS_CDNS = [
     'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js',
     'https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js'
+  ];
+
+  const XLS_CATEGORIAS = [
+    { arquivo: 'blocos-de-montar.html', nome: 'Blocos de Montar' },
+    { arquivo: 'educativos.html',       nome: 'Educativos' },
+    { arquivo: 'jogos.html',            nome: 'Jogos' },
+    { arquivo: 'faz-de-conta.html',     nome: 'Faz de Conta' },
+    { arquivo: 'rodados.html',          nome: 'Rodados' },
+    { arquivo: 'esportes.html',         nome: 'Esportes' },
+    { arquivo: 'playground.html',       nome: 'Playground' }
   ];
 
   function loadExcelJS(i) {
@@ -2458,15 +2469,16 @@
     });
   }
 
-  /* Pega os BYTES da foto. O <img> do pedido em HTML não precisa de permissão,
-     mas ler os bytes para embutir no xlsx precisa de CORS — e o servidor das
-     fotos não libera. Por isso a cascata: direto → proxies que devolvem
-     Access-Control-Allow-Origin. */
+  /* ── Fotos ────────────────────────────────────────────────────────────────
+     O <img> do pedido em HTML não precisa de permissão do servidor; ler os
+     BYTES para embutir no xlsx precisa de CORS — e o servidor das fotos não
+     libera. Daí a cascata: direto → proxies que devolvem CORS. O proxy sai
+     em PNG para a transparência não virar fundo preto.                      */
   async function bytesDaFoto(url) {
     const semProto = url.replace(/^https?:\/\//, '');
     const tentativas = [
       url,
-      'https://images.weserv.nl/?url=' + encodeURIComponent(semProto) + '&w=192&h=192&fit=inside&output=jpg',
+      'https://images.weserv.nl/?url=' + encodeURIComponent(semProto) + '&w=220&h=220&fit=inside&output=png',
       'https://corsproxy.io/?url=' + encodeURIComponent(url)
     ];
     for (const alvo of tentativas) {
@@ -2489,7 +2501,7 @@
     });
   }
 
-  // Devolve {base64, extension} de um quadrado 96×96, ou null
+  // Quadrado 96×96 com fundo BRANCO (PNG transparente não vira preto)
   async function thumbFoto(url) {
     if (!url) return null;
     let blob = null;
@@ -2504,74 +2516,241 @@
       const S = 96, c = document.createElement('canvas');
       c.width = S; c.height = S;
       const ctx = c.getContext('2d');
-      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, S, S);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, S, S);
       const k = Math.min(S / bmp.width, S / bmp.height);
       const w = bmp.width * k, h = bmp.height * k;
       ctx.drawImage(bmp, (S - w) / 2, (S - h) / 2, w, h);
       bmp.close && bmp.close();
       return { base64: c.toDataURL('image/jpeg', 0.82), extension: 'jpeg' };
     } catch (e) {
-      // sem canvas: embute o arquivo original como veio
       const dataURL = await blobParaDataURL(blob);
       if (!dataURL) return null;
-      const tipo = (blob.type || '').indexOf('png') >= 0 ? 'png' : 'jpeg';
-      return { base64: dataURL, extension: tipo };
+      return { base64: dataURL, extension: (blob.type || '').indexOf('png') >= 0 ? 'png' : 'jpeg' };
     }
   }
 
-  async function exportExcel(btn) {
-    const items = Object.values(osCart);
-    if (!items.length) { alert('Adicione produtos ao pedido primeiro.'); return; }
+  /* ── Leitura das outras verticais (mesma origem no site publicado) ─────── */
 
-    const rotulo = btn ? btn.innerHTML : null;
-    const liberar = () => { if (btn) { btn.innerHTML = rotulo; btn.disabled = false; } };
-    if (btn) { btn.innerHTML = '⏳ Montando…'; btn.disabled = true; }
+  function recortarLiteralXls(txt, nome, abre, fecha) {
+    const m = new RegExp('(?:const|let|var)\\s+' + nome + '\\s*=').exec(txt);
+    if (!m) return null;
+    const ini = txt.indexOf(abre, m.index);
+    if (ini < 0) return null;
+    let nivel = 0, aspas = null, escapado = false;
+    for (let j = ini; j < txt.length; j++) {
+      const c = txt[j];
+      if (escapado) { escapado = false; continue; }
+      if (aspas) {
+        if (c === '\\') escapado = true;
+        else if (c === aspas) aspas = null;
+        continue;
+      }
+      if (c === '"' || c === "'" || c === '`') { aspas = c; continue; }
+      if (c === '/' && txt[j + 1] === '/') { j = txt.indexOf('\n', j); if (j < 0) break; continue; }
+      if (c === '/' && txt[j + 1] === '*') { j = txt.indexOf('*/', j) + 1; if (j < 1) break; continue; }
+      if (c === abre) nivel++;
+      else if (c === fecha) { nivel--; if (nivel === 0) return txt.slice(ini, j + 1); }
+    }
+    return null;
+  }
+
+  async function lerCategoriaXls(arquivo) {
+    const resp = await fetch(arquivo, { cache: 'force-cache' });
+    if (!resp.ok) throw new Error(arquivo + ' (HTTP ' + resp.status + ')');
+    const html = await resp.text();
+    const avaliar = (nome, abre, fecha) => {
+      const lit = recortarLiteralXls(html, nome, abre, fecha);
+      if (!lit) return null;
+      try { return new Function('return ' + lit)(); } catch (e) { return null; }
+    };
+    return {
+      precos:  avaliar('PRICE_CONFIG', '{', '}') || {},
+      urls:    avaliar('PRODUCT_URLS', '{', '}') || {},
+      ocultas: new Set(avaliar('REFS_OCULTAS', '[', ']') || [])
+    };
+  }
+
+  /* ── Menu de escopo ───────────────────────────────────────────────────── */
+
+  function nomeVerticalAtual() {
+    const t = (document.title || '').split('|')[0].trim();
+    return t || 'Vertical';
+  }
+
+  function fecharExcelMenu() {
+    const f = document.getElementById('xlsMenu');
+    if (f) f.remove();
+  }
+
+  function abrirExcelMenu() {
+    fecharExcelMenu();
+    const nCart = Object.keys(osCart).length;
+    const ocultas = (typeof REFS_OCULTAS !== 'undefined') ? REFS_OCULTAS : new Set();
+    const nVert = Object.keys(PRICE_CONFIG).filter(r => !ocultas.has(r)).length;
+    const vert = nomeVerticalAtual();
+
+    const opcao = (escopo, titulo, sub, ativo) =>
+      '<button class="xls-op" data-escopo="' + escopo + '"' + (ativo ? '' : ' disabled') + '>' +
+      '<b>' + titulo + '</b><span>' + sub + '</span></button>';
+
+    const f = document.createElement('div');
+    f.id = 'xlsMenu';
+    f.style.cssText = 'position:fixed;inset:0;background:rgba(12,20,32,.55);z-index:9999;display:flex;' +
+      'align-items:center;justify-content:center;padding:18px;font-family:Quicksand,Arial,sans-serif';
+    f.innerHTML =
+      '<div style="background:#fff;border-radius:16px;padding:20px 20px 16px;width:390px;max-width:100%;' +
+      'box-shadow:0 20px 50px rgba(0,0,0,.3)">' +
+        '<div style="font-size:1rem;font-weight:700;color:#1B3A5C;margin-bottom:3px">📊 Gerar Excel</div>' +
+        '<div style="font-size:.75rem;color:#1B3A5C;opacity:.6;font-weight:600;margin-bottom:14px">' +
+          'Preços da tabela ' + ICMS_NAMES[osIcms] + (globalDiscount > 0 ? ' · desconto ' + globalDiscount + '%' : '') +
+        '</div>' +
+        '<style>' +
+        '.xls-op{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid rgba(27,58,92,.16);' +
+        'border-radius:11px;padding:10px 13px;margin-bottom:8px;cursor:pointer;font-family:inherit;transition:.15s}' +
+        '.xls-op:hover:not(:disabled){border-color:#1B3A5C;transform:translateY(-1px)}' +
+        '.xls-op:disabled{opacity:.4;cursor:default}' +
+        '.xls-op b{display:block;font-size:.85rem;color:#1B3A5C;font-weight:700}' +
+        '.xls-op span{font-size:.68rem;color:#1B3A5C;opacity:.6;font-weight:600}' +
+        '</style>' +
+        opcao('pedido', '🛒 Pedido atual', nCart ? nCart + ' produto(s) selecionado(s)' : 'nenhum produto no pedido', nCart > 0) +
+        opcao('vertical', '📁 Esta vertical — ' + vert, nVert + ' produtos, com a quantidade em branco', nVert > 0) +
+        opcao('catalogo', '📚 Catálogo inteiro', '7 verticais · a busca das fotos leva alguns minutos', true) +
+        '<label style="display:flex;align-items:center;gap:7px;margin:10px 2px 4px;font-size:.75rem;' +
+        'font-weight:700;color:#1B3A5C;cursor:pointer">' +
+          '<input type="checkbox" id="xlsFotos" checked style="width:15px;height:15px;accent-color:#1B3A5C">' +
+          'Incluir as fotos dos produtos</label>' +
+        '<div id="xlsStatus" style="font-size:.72rem;font-weight:700;color:#1B3A5C;opacity:.75;' +
+        'min-height:30px;line-height:1.4;margin-top:6px"></div>' +
+        '<button id="xlsFechar" style="width:100%;background:none;border:none;padding:8px;cursor:pointer;' +
+        'font-family:inherit;font-size:.75rem;font-weight:700;color:#1B3A5C;opacity:.55">Fechar</button>' +
+      '</div>';
+    document.body.appendChild(f);
+
+    f.addEventListener('click', e => { if (e.target === f) fecharExcelMenu(); });
+    f.querySelector('#xlsFechar').onclick = fecharExcelMenu;
+    f.querySelectorAll('.xls-op').forEach(b => {
+      b.onclick = () => {
+        const status = document.getElementById('xlsStatus');
+        f.querySelectorAll('.xls-op').forEach(o => { o.disabled = true; });
+        exportExcel({
+          escopo: b.getAttribute('data-escopo'),
+          fotos: document.getElementById('xlsFotos').checked,
+          status: txt => { if (status) status.textContent = txt; },
+          aoTerminar: () => setTimeout(fecharExcelMenu, 1500)
+        });
+      };
+    });
+  }
+
+  /* ── Geração ──────────────────────────────────────────────────────────── */
+
+  async function exportExcel(opts) {
+    // compatibilidade: exportExcel(botao) continua gerando o pedido atual
+    if (opts && opts.tagName) opts = { btn: opts };
+    opts = opts || {};
+    const escopo = opts.escopo || 'pedido';
+    const comFotos = opts.fotos !== false;
+    const btn = opts.btn || null;
+    const rotuloBtn = btn ? btn.innerHTML : null;
+    const dizer = txt => {
+      if (opts.status) opts.status(txt);
+      if (btn) btn.innerHTML = txt;
+    };
+
+    if (escopo === 'pedido' && !Object.keys(osCart).length) {
+      alert('Adicione produtos ao pedido primeiro.');
+      return;
+    }
+    if (btn) btn.disabled = true;
 
     try {
+      dizer('⏳ Carregando…');
       await loadExcelJS();
 
-      /* 1 · fotos — mesma resolução usada no pedido em HTML */
-      const pendentes = items.filter(i => {
-        const ref = i.data.ref || '';
-        return PRODUCT_URLS[ref] && !(ref in imgCache && imgCache[ref] !== null);
-      });
-      if (pendentes.length) {
-        await Promise.all(pendentes.map(async item => {
-          const ref = item.data.ref || '';
-          const pageUrl = PRODUCT_URLS[ref] || '';
-          if (!pageUrl) return;
-          imgCache[ref] = await resolveImgUrl(pageUrl.replace(/\/$/, '').split('/').pop());
-        }));
+      /* 1 · grupos {titulo, itens:[{data, qty}]} + mapa de URLs das fotos */
+      const grupos = [];
+      const urlsRef = Object.assign({}, PRODUCT_URLS);
+      const ocultasLocais = (typeof REFS_OCULTAS !== 'undefined') ? REFS_OCULTAS : new Set();
+      const hoje = new Date().toLocaleDateString('pt-BR').replace(/[/]/g, '-');
+      let tituloDoc, nomeArq, editavel = false;
+
+      const doConfig = (precos, ocultas) => Object.keys(precos)
+        .filter(ref => !ocultas.has(ref))
+        .map(ref => {
+          const d = Object.assign({ ref: ref }, precos[ref]);
+          if (!d.origem) d.origem = 'IMP';
+          if (!d.pedido_min) d.pedido_min = 1;
+          return { data: d, qty: null };
+        });
+
+      if (escopo === 'pedido') {
+        const items = Object.values(osCart);
+        const linha = items.filter(i => !i.data.is_lanc && !i.data.lancamento);
+        const lanc  = items.filter(i =>  i.data.is_lanc ||  i.data.lancamento);
+        if (linha.length) grupos.push({ titulo: 'Linha', cor: 'FF1B3A5C', itens: linha });
+        if (lanc.length)  grupos.push({ titulo: 'Lançamentos', cor: 'FFC07000', itens: lanc });
+        tituloDoc = 'Pedido de Venda — Xalingo';
+        nomeArq = 'Pedido_Xalingo_' + hoje + '.xlsx';
+      } else if (escopo === 'vertical') {
+        const vert = nomeVerticalAtual();
+        grupos.push({ titulo: vert, cor: 'FF1B3A5C', itens: doConfig(PRICE_CONFIG, ocultasLocais) });
+        tituloDoc = 'Xalingo — ' + vert;
+        nomeArq = 'Xalingo_' + vert.replace(/[^0-9A-Za-zÀ-ÿ]+/g, '-') + '_' + hoje + '.xlsx';
+        editavel = true;
+      } else {
+        for (let i = 0; i < XLS_CATEGORIAS.length; i++) {
+          const cat = XLS_CATEGORIAS[i];
+          dizer('📚 Lendo as verticais… ' + (i + 1) + '/' + XLS_CATEGORIAS.length);
+          let dados;
+          try { dados = await lerCategoriaXls(cat.arquivo); } catch (e) { continue; }
+          Object.assign(urlsRef, dados.urls);
+          const itens = doConfig(dados.precos, dados.ocultas);
+          if (itens.length) grupos.push({ titulo: cat.nome, cor: 'FF1B3A5C', itens: itens });
+        }
+        if (!grupos.length) throw new Error('não deu para ler as outras verticais desta pasta');
+        tituloDoc = 'Xalingo — Catálogo Completo 2026';
+        nomeArq = 'Xalingo_Catalogo_Completo_' + hoje + '.xlsx';
+        editavel = true;
       }
+
+      const todos = grupos.reduce((a, g) => a.concat(g.itens), []);
+
+      /* 2 · fotos, com fila de 6 em 6 */
       const fotos = {};
       let comFoto = 0, semFoto = 0;
-      await Promise.all(items.map(async item => {
-        const ref = item.data.ref || '';
-        const f = await thumbFoto(imgCache[ref] || '');
-        fotos[ref] = f;
-        if (f) comFoto++; else if (imgCache[ref]) semFoto++;
-      }));
-
-      /* 2 · dados */
-      const linha = items.filter(i => !i.data.is_lanc && !i.data.lancamento);
-      const lanc  = items.filter(i =>  i.data.is_lanc ||  i.data.lancamento);
-      const icmsLabel  = ICMS_NAMES[osIcms];
-      const agora      = new Date();
-      const carimbo    = agora.toLocaleDateString('pt-BR') + ' ' +
-                         agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      const totalLinha = linha.reduce((s, i) => s + getDiscountedPrice(i.data[osIcms] || 0) * i.qty, 0);
-      const totalLanc  = lanc.reduce((s, i) => s + getDiscountedPrice(i.data[osIcms] || 0) * i.qty, 0);
-      const totalQtd   = items.reduce((s, i) => s + i.qty, 0);
-      const totalGeral = totalLinha + totalLanc;
-
-      const AZUL = 'FF1B3A5C', VINHO = 'FFA01E1E', AMBAR = 'FFC07000';
-      const MOEDA = 'R$ #,##0.00';
+      if (comFotos && todos.length) {
+        const refs = todos.map(i => i.data.ref).filter(r => urlsRef[r]);
+        const fila = refs.slice();
+        let feitas = 0;
+        const trabalhador = async () => {
+          while (fila.length) {
+            const ref = fila.shift();
+            if (!(ref in imgCache) || imgCache[ref] === null) {
+              const slug = (urlsRef[ref] || '').replace(/\/$/, '').split('/').pop();
+              try { imgCache[ref] = await resolveImgUrl(slug); } catch (e) { imgCache[ref] = ''; }
+            }
+            const f = await thumbFoto(imgCache[ref] || '');
+            fotos[ref] = f;
+            if (f) comFoto++; else if (imgCache[ref]) semFoto++;
+            feitas++;
+            if (feitas % 3 === 0 || feitas === refs.length) dizer('🖼 Fotos ' + feitas + '/' + refs.length + '…');
+          }
+        };
+        await Promise.all(Array.from({ length: Math.min(6, refs.length) }, trabalhador));
+      }
 
       /* 3 · planilha */
+      dizer('📄 Montando a planilha…');
+      const AZUL = 'FF1B3A5C', VINHO = 'FFA01E1E', MOEDA = 'R$ #,##0.00';
+      const agora = new Date();
+      const carimbo = agora.toLocaleDateString('pt-BR') + ' ' +
+                      agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
       const wb = new ExcelJS.Workbook();
       wb.creator = 'Xalingo S.A. Indústria e Comércio';
       wb.created = agora;
-      const ws = wb.addWorksheet('Pedido', {
+      const ws = wb.addWorksheet(escopo === 'pedido' ? 'Pedido' : 'Produtos', {
         pageSetup: {
           paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
           margins: { left: .4, right: .4, top: .5, bottom: .5, header: .2, footer: .2 }
@@ -2583,15 +2762,15 @@
       const pintar = (cell, argb) => { cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb } }; };
       const faixa  = (row, argb) => { for (let c = 1; c <= 10; c++) pintar(row.getCell(c), argb); };
 
-      /* cabeçalho do documento */
-      let r = ws.addRow(['Pedido de Venda — Xalingo']);
+      let r = ws.addRow([tituloDoc]);
       ws.mergeCells(r.number, 1, r.number, 10);
       r.getCell(1).font = { bold: true, size: 16, color: { argb: AZUL } };
       r.getCell(1).alignment = { vertical: 'middle' };
       r.height = 28;
 
-      r = ws.addRow([carimbo + '   ·   ' + icmsLabel +
-                     (globalDiscount > 0 ? '   ·   Desconto ' + globalDiscount + '%' : '')]);
+      r = ws.addRow([carimbo + '   ·   ' + ICMS_NAMES[osIcms] +
+                     (globalDiscount > 0 ? '   ·   Desconto ' + globalDiscount + '%' : '') +
+                     (editavel ? '   ·   preencha a coluna Qtd — os totais se calculam sozinhos' : '')]);
       ws.mergeCells(r.number, 1, r.number, 10);
       r.getCell(1).font = { bold: true, size: 10, color: { argb: 'FF8C8C8C' } };
       r.getCell(1).alignment = { vertical: 'middle' };
@@ -2599,11 +2778,22 @@
       for (let c = 1; c <= 10; c++) r.getCell(c).border = { bottom: { style: 'medium', color: { argb: AZUL } } };
       ws.addRow([]).height = 7;
 
-      /* blocos reutilizáveis */
       const CAB = ['Foto', 'REF', 'Produto', 'Orig.', 'CX', 'Mín.', 'Preço un.', 'Qtd', 'Subtotal', 'Entrega'];
       let primeiroCab = 0;
+      const linhasSubtotal = [], faixasQtd = [];
 
-      function cabecalho() {
+      /* 4 · seções */
+      grupos.forEach(g => {
+        if (!g.itens.length) return;
+
+        const s = ws.addRow([]);
+        ws.mergeCells(s.number, 1, s.number, 10);
+        faixa(s, 'FFEDF2F7');
+        s.getCell(1).value = g.titulo.toUpperCase();
+        s.getCell(1).font = { bold: true, size: 11, color: { argb: g.cor } };
+        s.getCell(1).alignment = { vertical: 'middle', indent: 1 };
+        s.height = 21;
+
         const h = ws.addRow(CAB);
         h.height = 22;
         h.eachCell({ includeEmpty: true }, cell => {
@@ -2613,109 +2803,100 @@
         });
         h.getCell(3).alignment = { horizontal: 'left', vertical: 'middle' };
         if (!primeiroCab) primeiroCab = h.number;
-        return h;
-      }
 
-      function secao(texto, cor) {
-        const s = ws.addRow([]);
-        ws.mergeCells(s.number, 1, s.number, 10);
-        faixa(s, 'FFEDF2F7');
-        s.getCell(1).value = texto.toUpperCase();
-        s.getCell(1).font = { bold: true, size: 11, color: { argb: cor } };
-        s.getCell(1).alignment = { vertical: 'middle', indent: 1 };
-        s.height = 21;
-      }
+        let primeira = 0, ultima = 0;
+        g.itens.forEach((item, i) => {
+          const d = item.data;
+          const price = getDiscountedPrice(d[osIcms] || 0);
+          const ref = d.ref || '';
+          const isNac = (d.origem || 'IMP') === 'NAC';
+          const refCel = /^[1-9]\d*$/.test(ref) ? Number(ref) : ref;
 
-      function itemLinha(item, par) {
-        const d = item.data;
-        const price = getDiscountedPrice(d[osIcms] || 0);
-        const ref = d.ref || '';
-        const isNac = (d.origem || 'IMP') === 'NAC';
-        // ref numérica entra como número — senão o Excel marca "texto" com o triângulo verde
-        const refCel = /^[1-9]\d*$/.test(ref) ? Number(ref) : ref;
-        const row = ws.addRow([
-          '', refCel, d.nome, d.origem || 'IMP', d.cx, d.pedido_min || 1,
-          price > 0 ? price : (osIcms === 'expind' ? 'Sob consulta' : 'Aguardar'),
-          item.qty,
-          price > 0 ? parseFloat((price * item.qty).toFixed(2)) : '',
-          d.lancamento ? '🚀 ' + d.lancamento : ''
-        ]);
-        row.height = 42;
-        row.eachCell({ includeEmpty: true }, cell => {
-          pintar(cell, par ? 'FFF6F9FC' : 'FFFFFFFF');
-          cell.font = { size: 10 };
-          cell.alignment = { horizontal: 'center', vertical: 'middle' };
-          cell.border = { bottom: { style: 'thin', color: { argb: 'FFE3E9EF' } } };
-        });
-        row.getCell(2).font = { size: 10, bold: true, color: { argb: 'FF666666' } };
-        if (typeof refCel === 'number') row.getCell(2).numFmt = '0';
-        row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
-        row.getCell(3).font = { size: 10, bold: true, color: { argb: AZUL } };
-        row.getCell(3).alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
-        row.getCell(4).font = { size: 9.5, bold: true, color: { argb: isNac ? 'FF2A6A2A' : AZUL } };
-        pintar(row.getCell(4), isNac ? 'FFE0F0E0' : 'FFDCE8F5');
-        if ((d.pedido_min || 1) > 1) {
-          row.getCell(6).font = { size: 10, bold: true, color: { argb: 'FF8A5000' } };
-          pintar(row.getCell(6), 'FFFFF0CC');
-        }
-        if (price > 0) row.getCell(7).numFmt = MOEDA;
-        row.getCell(7).alignment = { horizontal: 'right', vertical: 'middle' };
-        row.getCell(8).font = { size: 10, bold: true };
-        if (price > 0) row.getCell(9).numFmt = MOEDA;
-        row.getCell(9).font = { size: 10, bold: true, color: { argb: VINHO } };
-        row.getCell(9).alignment = { horizontal: 'right', vertical: 'middle' };
-        if (d.lancamento) {
-          row.getCell(10).font = { size: 9.5, bold: true, color: { argb: 'FF8A5000' } };
-          pintar(row.getCell(10), 'FFFFF3CC');
-        }
-        const foto = fotos[ref];
-        if (foto) {
-          const id = wb.addImage({ base64: foto.base64, extension: foto.extension });
-          ws.addImage(id, {
-            tl: { col: 0.14, row: row.number - 1 + 0.07 },
-            ext: { width: 52, height: 52 },
-            editAs: 'oneCell'
+          const row = ws.addRow([
+            '', refCel, d.nome, d.origem || 'IMP', d.cx, d.pedido_min || 1,
+            price > 0 ? price : (osIcms === 'expind' ? 'Sob consulta' : 'Aguardar'),
+            item.qty == null ? null : item.qty,
+            null,
+            d.lancamento ? '🚀 ' + d.lancamento : ''
+          ]);
+          if (!primeira) primeira = row.number;
+          ultima = row.number;
+
+          // Subtotal como fórmula: a Qtd continua editável dentro do Excel
+          if (price > 0) {
+            row.getCell(9).value = {
+              formula: 'IFERROR(IF(H' + row.number + '="","",G' + row.number + '*H' + row.number + '),"")',
+              result: item.qty ? parseFloat((price * item.qty).toFixed(2)) : ''
+            };
+          }
+
+          row.height = 42;
+          row.eachCell({ includeEmpty: true }, cell => {
+            pintar(cell, i % 2 ? 'FFF6F9FC' : 'FFFFFFFF');
+            cell.font = { size: 10 };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.border = { bottom: { style: 'thin', color: { argb: 'FFE3E9EF' } } };
           });
-        }
-      }
+          row.getCell(2).font = { size: 10, bold: true, color: { argb: 'FF666666' } };
+          if (typeof refCel === 'number') row.getCell(2).numFmt = '0';
+          row.getCell(3).font = { size: 10, bold: true, color: { argb: AZUL } };
+          row.getCell(3).alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+          row.getCell(4).font = { size: 9.5, bold: true, color: { argb: isNac ? 'FF2A6A2A' : AZUL } };
+          pintar(row.getCell(4), isNac ? 'FFE0F0E0' : 'FFDCE8F5');
+          if ((d.pedido_min || 1) > 1) {
+            row.getCell(6).font = { size: 10, bold: true, color: { argb: 'FF8A5000' } };
+            pintar(row.getCell(6), 'FFFFF0CC');
+          }
+          if (price > 0) row.getCell(7).numFmt = MOEDA;
+          row.getCell(7).alignment = { horizontal: 'right', vertical: 'middle' };
+          row.getCell(8).font = { size: 10, bold: true };
+          row.getCell(8).border = {
+            bottom: { style: 'thin', color: { argb: 'FFE3E9EF' } },
+            left:   { style: 'thin', color: { argb: 'FFB9C7D6' } },
+            right:  { style: 'thin', color: { argb: 'FFB9C7D6' } }
+          };
+          row.getCell(9).numFmt = MOEDA;
+          row.getCell(9).font = { size: 10, bold: true, color: { argb: VINHO } };
+          row.getCell(9).alignment = { horizontal: 'right', vertical: 'middle' };
+          if (d.lancamento) {
+            row.getCell(10).font = { size: 9.5, bold: true, color: { argb: 'FF8A5000' } };
+            pintar(row.getCell(10), 'FFFFF3CC');
+          }
 
-      function subtotal(rotulo, valor) {
-        const s = ws.addRow([]);
-        ws.mergeCells(s.number, 3, s.number, 8);
-        faixa(s, 'FFEDF2F7');
-        s.getCell(3).value = rotulo;
-        s.getCell(3).font = { bold: true, size: 10, color: { argb: 'FF555555' } };
-        s.getCell(3).alignment = { horizontal: 'right', vertical: 'middle' };
-        s.getCell(9).value = parseFloat(valor.toFixed(2));
-        s.getCell(9).numFmt = MOEDA;
-        s.getCell(9).font = { bold: true, size: 10.5, color: { argb: AZUL } };
-        s.getCell(9).alignment = { horizontal: 'right', vertical: 'middle' };
-        s.height = 20;
-      }
+          const foto = fotos[ref];
+          if (foto) {
+            const id = wb.addImage({ base64: foto.base64, extension: foto.extension });
+            ws.addImage(id, {
+              tl: { col: 0.14, row: row.number - 1 + 0.07 },
+              ext: { width: 52, height: 52 },
+              editAs: 'oneCell'
+            });
+          }
+        });
 
-      /* 4 · corpo */
-      if (linha.length) {
-        secao('Linha', AZUL);
-        cabecalho();
-        linha.forEach((it, i) => itemLinha(it, i % 2 === 1));
-        subtotal('Subtotal Linha', totalLinha);
+        const st = ws.addRow([]);
+        ws.mergeCells(st.number, 3, st.number, 8);
+        faixa(st, 'FFEDF2F7');
+        st.getCell(3).value = 'Subtotal ' + g.titulo;
+        st.getCell(3).font = { bold: true, size: 10, color: { argb: 'FF555555' } };
+        st.getCell(3).alignment = { horizontal: 'right', vertical: 'middle' };
+        st.getCell(9).value = { formula: 'SUM(I' + primeira + ':I' + ultima + ')' };
+        st.getCell(9).numFmt = MOEDA;
+        st.getCell(9).font = { bold: true, size: 10.5, color: { argb: AZUL } };
+        st.getCell(9).alignment = { horizontal: 'right', vertical: 'middle' };
+        st.height = 20;
+        linhasSubtotal.push(st.number);
+        faixasQtd.push('H' + primeira + ':H' + ultima);
         ws.addRow([]).height = 7;
-      }
-      if (lanc.length) {
-        secao('Lançamentos', AMBAR);
-        cabecalho();
-        lanc.forEach((it, i) => itemLinha(it, i % 2 === 1));
-        subtotal('Subtotal Lançamentos', totalLanc);
-        ws.addRow([]).height = 7;
-      }
+      });
 
       if (osIcms === 'expind') {
-        const impCount = items.filter(i => (i.data.origem || 'IMP') === 'IMP').length;
+        const impCount = todos.filter(i => (i.data.origem || 'IMP') === 'IMP').length;
         const n = ws.addRow([]);
         ws.mergeCells(n.number, 1, n.number, 10);
         faixa(n, 'FFE6F4F0');
         n.getCell(1).value = 'Tabela EXP-IND · Exportação Indireta.' +
-          (impCount ? ' ⚠️ ' + impCount + ' item(ns) importado(s) neste pedido — carga tributária diferente da dos produtos nacionais.' : '');
+          (impCount ? ' ⚠️ ' + impCount + ' item(ns) importado(s) — carga tributária diferente da dos produtos nacionais.' : '');
         n.getCell(1).font = { bold: true, size: 9.5, color: { argb: 'FF0E6E5A' } };
         n.getCell(1).alignment = { vertical: 'middle', indent: 1 };
         n.height = 22;
@@ -2723,10 +2904,10 @@
       }
 
       /* 5 · totais */
-      function total(rotulo, valor, moeda, destaque) {
+      const totalLinha = (rot, valor, moeda, destaque) => {
         const t = ws.addRow([]);
         ws.mergeCells(t.number, 6, t.number, 8);
-        t.getCell(6).value = rotulo;
+        t.getCell(6).value = rot;
         t.getCell(9).value = valor;
         if (moeda) t.getCell(9).numFmt = MOEDA;
         if (destaque) {
@@ -2741,24 +2922,17 @@
         }
         t.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
         t.getCell(9).alignment = { horizontal: 'right', vertical: 'middle' };
-      }
+      };
 
-      total('Itens:', items.length, false, false);
-      total('Qtd total:', totalQtd + ' un.', false, false);
-      if (globalDiscount > 0) {
-        const bruto = items.reduce((s, i) => s + (i.data[osIcms] || 0) * i.qty, 0);
-        const t = ws.addRow([]);
-        ws.mergeCells(t.number, 6, t.number, 8);
-        t.getCell(6).value = 'Economia (' + globalDiscount + '%):';
-        t.getCell(6).font = { size: 10, color: { argb: 'FF0E8A5F' } };
-        t.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
-        t.getCell(9).value = -parseFloat((bruto - totalGeral).toFixed(2));
-        t.getCell(9).numFmt = MOEDA;
-        t.getCell(9).font = { bold: true, size: 10, color: { argb: 'FF0E8A5F' } };
-        t.getCell(9).alignment = { horizontal: 'right', vertical: 'middle' };
-        t.height = 18;
+      totalLinha(escopo === 'pedido' ? 'Itens:' : 'Produtos na lista:', todos.length, false, false);
+      totalLinha('Qtd total:', faixasQtd.length ? { formula: 'SUM(' + faixasQtd.join(',') + ')' } : 0, false, false);
+      if (globalDiscount > 0 && escopo === 'pedido') {
+        const bruto = todos.reduce((s, i) => s + (i.data[osIcms] || 0) * (i.qty || 0), 0);
+        const liq   = todos.reduce((s, i) => s + getDiscountedPrice(i.data[osIcms] || 0) * (i.qty || 0), 0);
+        totalLinha('Economia (' + globalDiscount + '%):', -parseFloat((bruto - liq).toFixed(2)), true, false);
       }
-      total('TOTAL GERAL:', parseFloat(totalGeral.toFixed(2)), true, true);
+      totalLinha('TOTAL GERAL:',
+        linhasSubtotal.length ? { formula: linhasSubtotal.map(n => 'I' + n).join('+') } : 0, true, true);
 
       if (primeiroCab) {
         ws.views = [{ state: 'frozen', ySplit: primeiroCab }];
@@ -2771,20 +2945,26 @@
         { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'Pedido_Xalingo_' + agora.toLocaleDateString('pt-BR').replace(/[/]/g, '-') + '.xlsx';
+      a.download = nomeArq;
       document.body.appendChild(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 30000);
 
-      if (semFoto) console.warn('[Pedido] ' + semFoto + ' foto(s) não puderam ser baixadas para o Excel.');
-      if (semFoto && !comFoto) {
-        alert('O Excel foi gerado, mas sem as fotos: o servidor das imagens não liberou o download delas para o navegador. O restante do pedido está completo.');
+      if (semFoto) console.warn('[Excel] ' + semFoto + ' foto(s) não puderam ser baixadas.');
+      dizer('✅ Pronto — ' + todos.length + ' produto(s)' + (comFotos ? ', ' + comFoto + ' com foto' : '') + '.');
+      if (comFotos && semFoto && !comFoto) {
+        alert('O Excel foi gerado, mas sem as fotos: o servidor das imagens não liberou o download delas para o navegador. O restante está completo.');
       }
+      if (opts.aoTerminar) opts.aoTerminar();
     } catch (e) {
-      alert('Não deu para gerar o Excel: ' + (e && e.message ? e.message : e));
+      const msg = (location.protocol === 'file:' && escopo === 'catalogo')
+        ? 'Abrindo o arquivo direto do disco o navegador bloqueia a leitura das outras verticais. Rode pelo site publicado.'
+        : 'Não deu para gerar o Excel: ' + (e && e.message ? e.message : e);
+      dizer('⚠️ ' + msg);
+      alert(msg);
     } finally {
-      liberar();
+      if (btn) { btn.innerHTML = rotuloBtn; btn.disabled = false; }
     }
   }
 
@@ -2999,6 +3179,9 @@
     <div class="os-action-btns">
       <button class="os-btn-clear" onclick="clearOrder()">Limpar</button>
       <button class="os-btn-print" onclick="printOrder()">📄 Gerar Pedido</button>
+    </div>
+    <div class="os-action-btns" style="margin-top:6px">
+      <button class="os-btn-xls" onclick="abrirExcelMenu()" style="flex:1;background:#1d6f42;color:#fff;border:none;border-radius:8px;padding:8px;font-family:'Quicksand',sans-serif;font-size:0.75rem;font-weight:700;cursor:pointer">📊 Excel — pedido, vertical ou catálogo</button>
     </div>
   </div>
 </div>
