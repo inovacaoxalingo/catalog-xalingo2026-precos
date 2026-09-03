@@ -133,6 +133,13 @@
       } catch (e) { /* segue sem ocultar */ }
     }
 
+    var indisponiveis = {};
+    var litInd = recortarLiteral(html, 'REFS_INDISPONIVEIS', '{', '}');
+    if (litInd) {
+      try { indisponiveis = new Function('return ' + litInd)() || {}; }
+      catch (e) { indisponiveis = {}; /* segue sem o véu */ }
+    }
+
     // âncora de seção -> índice da imagem onde a seção começa
     var ancoras = {};
     Array.prototype.forEach.call(doc.querySelectorAll('.section-anchor[id]'), function (a) {
@@ -156,7 +163,21 @@
       if (alvo >= 0) selosPorPagina[alvo].push({ ref: ref, d: d });
     });
 
-    return { cat: cat, paginas: paginas, selos: selosPorPagina, ancoras: ancoras };
+    // ref -> véu de "indisponível" na página em que o produto aparece
+    var veusPorPagina = paginas.map(function () { return []; });
+    Object.keys(indisponiveis).forEach(function (ref) {
+      var v = indisponiveis[ref] || {};
+      var chave = v.img || (precos[ref] && precos[ref].img);
+      if (!chave) return;
+      var alvo = -1;
+      for (var i = 0; i < paginas.length; i++) {
+        if (paginas[i].chave === chave) { alvo = i; break; }
+        if (alvo < 0 && paginas[i].chave.indexOf(chave) >= 0) alvo = i;
+      }
+      if (alvo >= 0) veusPorPagina[alvo].push(v);
+    });
+
+    return { cat: cat, paginas: paginas, selos: selosPorPagina, veus: veusPorPagina, ancoras: ancoras };
   }
 
   // Nomes das seções vêm da sidebar da página atual (já traduzida pelo idioma ativo)
@@ -191,6 +212,29 @@
   }
 
   /* ── Desenho do selo de preço ─────────────────────────────────────────── */
+
+  // Véu branco sobre a área de um produto indisponível.
+  // Caixa em % da página (top/left/width/height), igual à do HTML.
+  function desenharVeu(page, fonte, rgb, v) {
+    var num = function (valor, padrao) { return (valor == null ? padrao : valor) / 100; };
+    var larg = num(v.width, 94) * PW;
+    var alt  = num(v.height, 50) * PH;
+    var x    = num(v.left, 0) * PW;
+    var y    = PH - num(v.top, 0) * PH - alt;
+
+    page.drawRectangle({ x: x, y: y, width: larg, height: alt, color: rgb(1, 1, 1), opacity: 0.84 });
+
+    var texto = limpar(v.texto || 'Indispon\u00edvel no momento');
+    if (!texto) return;
+    var tam = PW * 0.0245;
+    // textoY vem em % da página (topo → base), igual ao HTML
+    var rotuloY = v.textoY != null ? v.textoY : (v.top == null ? 0 : v.top) + (v.height == null ? 50 : v.height) / 2;
+    page.drawText(texto, {
+      x: x + (larg - fonte.widthOfTextAtSize(texto, tam)) / 2,
+      y: PH - rotuloY / 100 * PH - tam * 0.35,
+      size: tam, font: fonte, color: rgb(0.2, 0.2, 0.2)
+    });
+  }
 
   function desenharSelo(page, fonte, fonteNeg, rgb, item, icms) {
     var d = item.d;
@@ -463,12 +507,12 @@
         passo(3 + (i + 1) / CATEGORIAS.length * 5, 'Lendo as categorias… ' + (i + 1) + '/7');
       }
 
-      var fila = [{ url: new URL(CAPA, location.href).href, selos: [] }];
+      var fila = [{ url: new URL(CAPA, location.href).href, selos: [], veus: [] }];
       var plano = [];
       var numero = 3; // 1 = capa · 2 = sumário
       blocos.forEach(function (b) {
         plano.push({ cat: b.cat, primeira: numero, total: b.paginas.length, ancoras: b.ancoras });
-        b.paginas.forEach(function (p, k) { fila.push({ url: p.url, selos: b.selos[k] }); });
+        b.paginas.forEach(function (p, k) { fila.push({ url: p.url, selos: b.selos[k], veus: (b.veus || [])[k] || [] }); });
         numero += b.paginas.length;
       });
       var totalPag = fila.length + 1;
@@ -508,6 +552,7 @@
           var page = pdf.addPage();
           page.setSize(PW, PH);
           page.drawImage(img, { x: 0, y: 0, width: PW, height: PH });
+          fila[k].veus.forEach(function (v) { desenharVeu(page, fonte, rgb, v); });
           fila[k].selos.forEach(function (s) { desenharSelo(page, fonte, fonteNeg, rgb, s, icms); });
         } catch (e) {
           falhas++;

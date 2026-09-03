@@ -210,6 +210,30 @@
 
   /* ===== PRICE OVERLAYS ===== */
   .page-wrap { position:relative; display:block; line-height:0; }
+
+  /* ── Véu de produto indisponível ─────────────────────────── */
+  .page-veil {
+    position: absolute;
+    z-index: 4;
+    pointer-events: none;
+    background: rgba(255,255,255,0.84);
+    container-type: inline-size;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page-veil span {
+    position: absolute;
+    left: 50%;
+    top: var(--rotulo-y, 50%);
+    transform: translate(-50%, -50%);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    color: #333;
+    line-height: 1;
+    white-space: nowrap;
+    font-size: 0.85rem;      /* fallback p/ navegador sem container query */
+    font-size: 2.6cqw;       /* acompanha a largura da página */
+  }
     .price-badge {
     position: absolute;
     z-index: 20;
@@ -1554,18 +1578,70 @@
     '12810': { img:'jogos-p0016', x:4, y:20, p18:85.4, p12rs:81, p12:81, p7:77.4, expind:31, cx:6, estoque:78, disponivel:78, origem:'NAC', nome:'JOGO DE TABULEIRO PISANDO FUNDO', ean:'7896640489601', dun:'17896640489608' },
   };
 
+  // ── Refs com tag de preço desativada (ocultas) ───────────
+  // Some com o balão de preço na página e tira a ref do Excel e do PDF.
+  const REFS_OCULTAS = new Set([
+    '60598'
+  ]);
+
+  // ── Refs marcadas como INDISPONÍVEIS ─────────────────────
+  // Cobre a área do produto com um véu branco + o rótulo.
+  // A caixa é em % da PÁGINA inteira: top / left / width / height.
+  //   página com 2 produtos → bloco de cima {top:0, height:50}
+  //                           bloco de baixo {top:50, height:50}
+  //   a faixa colorida da lateral começa em 94% → width:94 para não cobri-la.
+  // textoY = altura do rótulo, também em % da página (sem ele, fica no meio do véu).
+  // A ref também precisa estar em REFS_OCULTAS acima para o preço sumir.
+  const REFS_INDISPONIVEIS = {
+    '60598': { top: 0, left: 0, width: 94, height: 50, textoY: 22, texto: 'Indisponível no momento' }
+  };
+
+  // devolve (criando se preciso) o .page-wrap da imagem de uma página
+  function pageWrapDe(chaveImg) {
+    const img = document.querySelector(`img[src*="${chaveImg}"]`);
+    if (!img) return null;
+    let wrap = img.parentElement;
+    if (!wrap.classList.contains('page-wrap')) {
+      const newWrap = document.createElement('div');
+      newWrap.className = 'page-wrap';
+      img.parentNode.insertBefore(newWrap, img);
+      newWrap.appendChild(img);
+      wrap = newWrap;
+    }
+    return wrap;
+  }
+
+  function renderVeils() {
+    Object.entries(REFS_INDISPONIVEIS).forEach(([ref, v]) => {
+      const d = PRICE_CONFIG[ref];
+      const chave = v.img || (d && d.img);
+      if (!chave) return;
+      const wrap = pageWrapDe(chave);
+      if (!wrap) return;
+      const topo = v.top != null ? v.top : 0;
+      const altura = v.height != null ? v.height : 50;
+      const veu = document.createElement('div');
+      veu.className = 'page-veil';
+      veu.dataset.ref = ref;
+      veu.style.top    = topo   + '%';
+      veu.style.left   = (v.left  != null ? v.left  : 0)  + '%';
+      veu.style.width  = (v.width != null ? v.width : 94) + '%';
+      veu.style.height = altura + '%';
+      // textoY vem em % da página; o rótulo é posicionado dentro do véu
+      const rotuloY = v.textoY != null ? v.textoY : topo + altura / 2;
+      veu.style.setProperty('--rotulo-y', ((rotuloY - topo) / altura * 100) + '%');
+      const rotulo = document.createElement('span');
+      rotulo.textContent = v.texto || 'Indisponível no momento';
+      veu.appendChild(rotulo);
+      wrap.appendChild(veu);
+    });
+  }
+
   function renderPriceBadges() {
     Object.entries(PRICE_CONFIG).forEach(([ref, d]) => {
-      const img = document.querySelector(`img[src*="${d.img}"]`);
-      if (!img) return;
-      let wrap = img.parentElement;
-      if (!wrap.classList.contains('page-wrap')) {
-        const newWrap = document.createElement('div');
-        newWrap.className = 'page-wrap';
-        img.parentNode.insertBefore(newWrap, img);
-        newWrap.appendChild(img);
-        wrap = newWrap;
-      }
+      if (REFS_OCULTAS.has(ref)) return;
+      const wrap = pageWrapDe(d.img);
+      if (!wrap) return;
       const badge = document.createElement('div');
       badge.className = 'price-badge';
       badge.style.left = d.x + '%';
@@ -1612,6 +1688,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     renderPriceBadges();
+    renderVeils();
     applyIcmsOnLoad();
   applyExpIndMode(currentIcms);
   document.addEventListener('DOMContentLoaded', () => applyExpIndMode(currentIcms));
