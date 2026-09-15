@@ -3235,17 +3235,39 @@
 
       const todos = grupos.reduce((a, g) => a.concat(g.itens), []);
 
+      /* 1.5 · o pedido (e a vertical) pode ter produtos de outras verticais —
+         carrega o mapa de fotos delas para o Excel puxar imagem de TODOS,
+         exatamente como o escopo de catálogo já fazia. */
+      if (comFotos && escopo !== 'catalogo' && todos.length) {
+        const faltaUrl = () => todos.some(i => {
+          const r = i.data.ref;
+          return r && !urlsRef[r] && !imgCache[r];
+        });
+        if (faltaUrl()) {
+          const aqui = (location.pathname.split('/').pop() || '').toLowerCase();
+          const outras = XLS_CATEGORIAS.filter(c => c.arquivo.toLowerCase() !== aqui);
+          for (let i = 0; i < outras.length; i++) {
+            if (!faltaUrl()) break;
+            dizer('🔗 Localizando as fotos… ' + (i + 1) + '/' + outras.length);
+            try {
+              const dados = await lerCategoriaXls(outras[i].arquivo);
+              Object.assign(urlsRef, dados.urls);
+            } catch (e) { /* segue com o que já tem em mãos */ }
+          }
+        }
+      }
+
       /* 2 · fotos, com fila de 6 em 6 */
       const fotos = {};
       let comFoto = 0, semFoto = 0;
       if (comFotos && todos.length) {
-        const refs = todos.map(i => i.data.ref).filter(r => urlsRef[r]);
+        const refs = todos.map(i => i.data.ref).filter(r => r && (urlsRef[r] || imgCache[r]));
         const fila = refs.slice();
         let feitas = 0;
         const trabalhador = async () => {
           while (fila.length) {
             const ref = fila.shift();
-            if (!(ref in imgCache) || imgCache[ref] === null) {
+            if (!imgCache[ref] && urlsRef[ref]) {
               const slug = (urlsRef[ref] || '').replace(/\/$/, '').split('/').pop();
               try { imgCache[ref] = await resolveImgUrl(slug); } catch (e) { imgCache[ref] = ''; }
             }
@@ -3257,6 +3279,7 @@
           }
         };
         await Promise.all(Array.from({ length: Math.min(6, refs.length) }, trabalhador));
+        if (escopo === 'pedido') { try { saveCart(); } catch (e) {} }
       }
 
       /* 3 · planilha */
