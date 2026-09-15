@@ -1073,6 +1073,37 @@
   @media print {
     body.expind-mode .price-tag { background: #0E6E5A !important; }
   }
+  /* ── Preço especial por produto (liberado só com a senha comercial) ─────── */
+  .os-ovr { margin-top: 6px; border-top: 1px dashed rgba(27,58,92,0.18); padding-top: 6px; }
+  .os-ovr-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .os-ovr-lbl { font-size: 0.56rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: #1B3A5C; opacity: 0.55; }
+  .os-ovr-mode { display: flex; border: 1.5px solid rgba(27,58,92,0.2); border-radius: 6px; overflow: hidden; }
+  .os-ovr-mode button {
+    font-family: 'Quicksand', sans-serif; font-size: 0.62rem; font-weight: 800;
+    padding: 2px 8px; border: none; background: transparent; color: #8a94a0; cursor: pointer;
+  }
+  .os-ovr-mode button.active { background: #1B3A5C; color: #fff; }
+  .os-ovr-input {
+    width: 66px; height: 22px; border: 1px solid rgba(0,0,0,0.15); border-radius: 5px;
+    text-align: center; font-family: 'Quicksand', sans-serif; font-size: 0.72rem; font-weight: 700;
+  }
+  .os-ovr-input:focus { outline: none; border-color: #0E8A5F; }
+  .os-ovr-clear { background: none; border: none; color: #bbb; cursor: pointer; font-size: 0.7rem; font-weight: 700; padding: 2px 3px; }
+  .os-ovr-clear:hover { color: #A01E1E; }
+  .os-ovr-res { font-size: 0.62rem; font-weight: 800; color: #0E8A5F; }
+  .os-badge.ovr { background: #e8f5ee; color: #0E6E5A; border: 1px solid rgba(14,110,90,0.35); }
+  .os-badge.ovr-warn { background: #fff0cc; color: #8a5000; }
+  .os-item.has-ovr { border-color: rgba(14,138,95,0.55); background: #f7fdfa; }
+  .os-item.has-ovr.is-lanc { border-color: #f0a030; background: #fffbf2; }
+  .os-ovr-clearall {
+    width: 100%; margin-top: 7px; font-family: 'Quicksand', sans-serif; font-size: 0.62rem;
+    font-weight: 800; padding: 5px; border-radius: 6px; border: 1.5px solid rgba(160,30,30,0.25);
+    background: transparent; color: #A01E1E; cursor: pointer;
+  }
+  .os-ovr-clearall:hover { background: rgba(160,30,30,0.06); }
+  .os-ovr-hint { font-size: 0.62rem; color: #1B3A5C; opacity: 0.6; font-weight: 600; line-height: 1.3; }
+  .price-badge.has-ovr .price-tag { box-shadow: 0 0 0 2px #0E8A5F; }
+
   </style>
 </head>
 <body>
@@ -1824,13 +1855,7 @@
       b.classList.toggle('active', b.getAttribute('data-icms') === key));
     if (typeof renderOrder === 'function') renderOrder();
     document.querySelectorAll('.sb-icms-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-icms') === key));
-    document.querySelectorAll('.price-badge').forEach(badge => {
-      const ref = badge.dataset.ref;
-      const d = PRICE_CONFIG[ref];
-      if (!d) return;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
-      badge.querySelector('.price-tag').innerHTML = `<div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(getDiscountedPrice(d[key]))}</div>`;
-    });
+    refreshBadges(key);
   }
   function applyIcmsOnLoad() {
     document.querySelectorAll('.sb-icms-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-icms') === currentIcms));
@@ -1880,7 +1905,7 @@
       badge.dataset.orig = d.origem || 'IMP';
       d.ref = ref;
       const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
-      badge.innerHTML = `<div class="price-tag"><div class="price-ref">${ref}</div><div class="price-main">${fmtPrice(d[currentIcms])}</div></div><button class="badge-info-btn" title="Ver detalhes">ⓘ</button>`;
+      badge.innerHTML = `<div class="price-tag"><div class="price-ref">${ref}</div><div class="price-main">${badgeMainHTML(ref, d, currentIcms)}</div></div><button class="badge-info-btn" title="Ver detalhes">ⓘ</button>`;
       badge.querySelector('.price-tag').addEventListener('click', (e) => { e.stopPropagation(); toggleProduct(ref); });
       badge.querySelector('.badge-info-btn').addEventListener('click', (e) => { e.stopPropagation(); openPriceModal(ref, d); });
       wrap.appendChild(badge);
@@ -2002,7 +2027,7 @@
   let osIcms = (localStorage.getItem('xalingo-expind') === '1')
     ? 'expind'
     : (localStorage.getItem('xalingo-icms') || 'p18');
-  const osCart = {};     // ref -> {data, qty}
+  const osCart = {};     // ref -> {data, qty, ovr, ovrMode}
   const imgCache = {};   // ref -> imageUrl (pre-fetched em background)
   // ── Cart persisted across pages via localStorage ──────────────────────────
   const CART_KEY = 'xalingo-cart';
@@ -2010,7 +2035,8 @@
     try {
       const slim = {};
       Object.keys(osCart).forEach(ref => {
-        slim[ref] = { qty: osCart[ref].qty, data: osCart[ref].data, img: imgCache[ref] || null };
+        slim[ref] = { qty: osCart[ref].qty, data: osCart[ref].data, img: imgCache[ref] || null,
+                      ovr: osCart[ref].ovr || null, ovrMode: osCart[ref].ovrMode || null };
       });
       localStorage.setItem(CART_KEY, JSON.stringify(slim));
     } catch(e){}
@@ -2028,7 +2054,7 @@
         if (d.lancamento && d.is_lanc === undefined) d.is_lanc = true;
         if (!d.origem) d.origem = 'IMP';
         if (!d.pedido_min) d.pedido_min = 1;
-        osCart[ref] = { data: d, qty: item.qty || 1 };
+        osCart[ref] = { data: d, qty: item.qty || 1, ovr: item.ovr || null, ovrMode: item.ovrMode || null };
         // Restore cached image URL
         if (item.img) imgCache[ref] = item.img;
       });
@@ -2047,13 +2073,7 @@
     document.querySelectorAll('.sb-icms-btn').forEach(b =>
       b.classList.toggle('active', b.getAttribute('data-icms') === key));
     // Update all badges
-    document.querySelectorAll('.price-badge').forEach(badge => {
-      const ref = badge.dataset.ref;
-      const d = PRICE_CONFIG[ref];
-      if (!d) return;
-      const fmtPrice = v => v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
-      badge.querySelector('.price-main').textContent = fmtPrice(getDiscountedPrice(d[key]));
-    });
+    refreshBadges(key);
     renderOrder();
   }
 
@@ -2070,7 +2090,7 @@
       const d = PRICE_CONFIG[ref];
       if (!d) return;
       const pm = d.pedido_min || 1;
-      osCart[ref] = { data: d, qty: pm };
+      osCart[ref] = { data: d, qty: pm, ovr: null, ovrMode: 'val' };
       document.querySelectorAll(`.price-badge[data-ref="${ref}"]`).forEach(b => b.classList.add('selected'));
       // Pré-busca imagem em background — nunca bloqueia o render
       if (!(ref in imgCache)) {
@@ -2147,7 +2167,9 @@
     const renderItem = (item) => {
       const d = item.data;
       const priceOrig = d[osIcms] || 0;
-      const price = getDiscountedPrice(priceOrig);
+      const price = itemUnitPrice(item);
+      const ovr = (item.ovr && item.ovr.v > 0) ? item.ovr : null;
+      const ovrModo = ovr ? ovr.t : (item.ovrMode || 'val');
       const belowMin = d.pedido_min > 1 && item.qty < d.pedido_min;
       const estLabel = d.estoque > 0
         ? `<span class="os-badge est-ok">Est: ${d.estoque}</span>`
@@ -2157,26 +2179,48 @@
       const warnMin = belowMin
         ? `<div class="os-warn">⚠️ Ped. mín: ${d.pedido_min} un.</div>` : '';
       const ref = d.ref || item.data.ref || '';
+      const ovrBadge = !ovr ? '' :
+        ('<span class="os-badge ovr">' + (ovr.t === 'pct' ? '\u2605 -' + ovr.v + '%' : '\u2605 Pre\u00e7o manual') + '</span>' +
+         (ovr.t === 'val' && ovr.icms && ovr.icms !== osIcms
+           ? '<span class="os-badge ovr-warn">definido em ' + (ICMS_NAMES[ovr.icms] || ovr.icms) + '</span>' : ''));
+
+      const ovrHtml = !discountUnlocked ? '' : `
+            <div class="os-ovr">
+              <div class="os-ovr-row">
+                <span class="os-ovr-lbl">Preço especial</span>
+                <div class="os-ovr-mode">
+                  <button class="${ovrModo==='val'?'active':''}" onclick="setItemOvrMode('${ref}','val')" title="Informar o valor unitário">R$</button>
+                  <button class="${ovrModo==='pct'?'active':''}" onclick="setItemOvrMode('${ref}','pct')" title="Informar o % de desconto sobre a tabela">%</button>
+                </div>
+                <input class="os-ovr-input" type="number" min="0" step="${ovrModo==='pct'?'0.5':'0.01'}"
+                  placeholder="${ovrModo==='pct'?'0,0 %':'0,00'}" value="${ovr ? ovr.v : ''}"
+                  onchange="setItemOvrValor('${ref}', this.value)"
+                  onkeydown="if(event.key==='Enter')this.blur()">
+                ${ovr ? `<span class="os-ovr-res">= ${fmtMoney(price)}</span>
+                <button class="os-ovr-clear" onclick="clearItemOvr('${ref}')" title="Voltar ao preço de tabela">✕</button>` : ''}
+              </div>
+            </div>`;
       const cachedImg = imgCache[ref];
       const thumbHtml = cachedImg
         ? `<img class="os-item-thumb" src="${cachedImg}" alt="">`
         : `<div class="os-item-thumb-empty"></div>`;
       return `
-        <div class="os-item${d.is_lanc?' is-lanc':''}">
+        <div class="os-item${d.is_lanc?' is-lanc':''}${ovr?' has-ovr':''}">
           ${thumbHtml}
           <div class="os-item-left">
             <div class="os-ref">REF ${ref}</div>
             <div class="os-nome" title="${d.nome}">${d.nome}</div>
-            <div class="os-price">${globalDiscount > 0 && priceOrig !== price ? '<span style="text-decoration:line-through;opacity:0.35;font-size:0.75rem;font-weight:400;margin-right:3px">R$ ' + priceOrig.toFixed(2).replace('.',',') + '</span> ' : ''}${fmtMoney(price)} <span style="font-size:0.68rem;color:#999">× ${item.qty} = ${fmtMoney(price*item.qty)}</span></div>
+            <div class="os-price">${priceOrig > 0 && price < priceOrig - 0.005 ? '<span style="text-decoration:line-through;opacity:0.35;font-size:0.75rem;font-weight:400;margin-right:3px">R$ ' + priceOrig.toFixed(2).replace('.',',') + '</span> ' : ''}${fmtMoney(price)} <span style="font-size:0.68rem;color:#999">× ${item.qty} = ${fmtMoney(price*item.qty)}</span></div>
             <div class="os-meta">
               <span class="os-badge ${(d.origem||'IMP')==='NAC'?'nac':'imp'}">${d.origem||'IMP'}</span>
               <span class="os-badge">CX: ${d.cx}</span>
               ${d.pedido_min>1?`<span class="os-badge" style="background:#fff0cc;color:#8a5000">Mín: ${d.pedido_min}</span>`:''}
-              ${estLabel}${lancDate}
+              ${estLabel}${lancDate}${ovrBadge}
             </div>
             ${warnMin}${(osIcms === 'expind' && (d.origem||'IMP') === 'IMP')
               ? '<div class="os-warn-imp">&#9888;&#65039; Importado &mdash; carga tribut&aacute;ria diferente na exporta&ccedil;&atilde;o indireta</div>'
               : ''}
+            ${ovrHtml}
           </div>
           <div class="os-item-right">
             <div class="os-qty-row">
@@ -2190,13 +2234,13 @@
     };
 
     if (linha.length) {
-      const subLinha = linha.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
+      const subLinha = linha.reduce((s,i)=>s+itemUnitPrice(i)*i.qty,0);
       html += `<div class="os-section-label">Linha <span class="os-section-sub">${fmtMoney(subLinha)}</span></div>`;
       html += linha.map(renderItem).join('');
     }
 
     if (lanc.length) {
-      const subLanc = lanc.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
+      const subLanc = lanc.reduce((s,i)=>s+itemUnitPrice(i)*i.qty,0);
       html += `<div class="os-section-label" style="margin-top:10px">Lançamentos <span class="os-section-sub">${fmtMoney(subLanc)}</span></div>`;
       html += lanc.map(renderItem).join('');
     }
@@ -2204,8 +2248,8 @@
     body.innerHTML = html;
 
     // Totals
-    const totalLinha = linha.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
-    const totalLanc  = lanc.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
+    const totalLinha = linha.reduce((s,i)=>s+itemUnitPrice(i)*i.qty,0);
+    const totalLanc  = lanc.reduce((s,i)=>s+itemUnitPrice(i)*i.qty,0);
     const totalQtd   = items.reduce((s,i)=>s+i.qty,0);
     const totalGeral = totalLinha + totalLanc;
 
@@ -2214,11 +2258,15 @@
     if (lanc.length)  totHtml += `<div class="os-total-row"><span class="lbl">Subtotal lançamentos</span><span class="val">${fmtMoney(totalLanc)}</span></div>`;
     totHtml += `<div class="os-total-row"><span class="lbl">Qtd total</span><span class="val">${totalQtd} un.</span></div>`;
     totHtml += `<div class="os-total-row os-total-main"><span class="lbl" style="font-weight:700">TOTAL GERAL</span><span class="val">${fmtMoney(totalGeral)}</span></div>`;
-    if (globalDiscount > 0) {
-      const totalOrigLinha = linha.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
-      const totalOrigLanc  = lanc.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
-      const economia = (totalOrigLinha + totalOrigLanc) - totalGeral;
-      totHtml += `<div class="os-total-row" style="color:#0E8A5F;border-top:1px dashed rgba(14,138,95,0.3);margin-top:4px;padding-top:4px"><span class="lbl">🏷️ Economia (${globalDiscount}%)</span><span class="val">- ${fmtMoney(economia)}</span></div>`;
+    const totalOrigLinha = linha.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
+    const totalOrigLanc  = lanc.reduce((s,i)=>s+(i.data[osIcms]||0)*i.qty,0);
+    const economia = (totalOrigLinha + totalOrigLanc) - totalGeral;
+    if (economia > 0.005) {
+      const nOvr = countOvr();
+      const rotEcon = nOvr
+        ? ('Economia' + (globalDiscount > 0 ? ' (' + globalDiscount + '% + ' + nOvr + ' pre\u00e7o' + (nOvr>1?'s':'') + ' especial' + (nOvr>1?'is':'') + ')' : ' (' + nOvr + ' pre\u00e7o' + (nOvr>1?'s':'') + ' especial' + (nOvr>1?'is':'') + ')'))
+        : ('Economia (' + globalDiscount + '%)');
+      totHtml += `<div class="os-total-row" style="color:#0E8A5F;border-top:1px dashed rgba(14,138,95,0.3);margin-top:4px;padding-top:4px"><span class="lbl">🏷️ ${rotEcon}</span><span class="val">- ${fmtMoney(economia)}</span></div>`;
     }
     document.getElementById('osTotals').innerHTML = totHtml;
   }
@@ -2268,7 +2316,7 @@
 
     const renderRows = (arr) => arr.map(item => {
       const d = item.data; const priceOrig = d[osIcms]||0;
-      const price = getDiscountedPrice(priceOrig);
+      const price = itemUnitPrice(item);
       const origBg = (d.origem||'IMP')==='NAC' ? '#e0f0e0' : '#dce8f5';
       const origTx = (d.origem||'IMP')==='NAC' ? '#2a6a2a' : '#1B3A5C';
       const minBadge = (d.pedido_min||1)>1
@@ -2293,8 +2341,8 @@
       </tr>`;
     }).join('');
 
-    const totalLinha = linha.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
-    const totalLanc  = lanc.reduce((s,i)=>s+(getDiscountedPrice(i.data[osIcms]||0))*i.qty,0);
+    const totalLinha = linha.reduce((s,i)=>s+itemUnitPrice(i)*i.qty,0);
+    const totalLanc  = lanc.reduce((s,i)=>s+itemUnitPrice(i)*i.qty,0);
     const totalQtd   = items.reduce((s,i)=>s+i.qty,0);
     const totalGeral = totalLinha + totalLanc;
 
@@ -2604,6 +2652,7 @@
         '<div style="font-size:1rem;font-weight:700;color:#1B3A5C;margin-bottom:3px">📊 Gerar Excel</div>' +
         '<div style="font-size:.75rem;color:#1B3A5C;opacity:.6;font-weight:600;margin-bottom:14px">' +
           'Preços da tabela ' + ICMS_NAMES[osIcms] + (globalDiscount > 0 ? ' · desconto ' + globalDiscount + '%' : '') +
+          (countOvr() > 0 ? ' · ' + countOvr() + ' preço(s) especial(is) no pedido' : '') +
         '</div>' +
         '<style>' +
         '.xls-op{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid rgba(27,58,92,.16);' +
@@ -2770,6 +2819,7 @@
 
       r = ws.addRow([carimbo + '   ·   ' + ICMS_NAMES[osIcms] +
                      (globalDiscount > 0 ? '   ·   Desconto ' + globalDiscount + '%' : '') +
+                     (escopo === 'pedido' && countOvr() > 0 ? '   ·   ' + countOvr() + ' preço(s) especial(is)' : '') +
                      (editavel ? '   ·   preencha a coluna Qtd — os totais se calculam sozinhos' : '')]);
       ws.mergeCells(r.number, 1, r.number, 10);
       r.getCell(1).font = { bold: true, size: 10, color: { argb: 'FF8C8C8C' } };
@@ -2807,7 +2857,7 @@
         let primeira = 0, ultima = 0;
         g.itens.forEach((item, i) => {
           const d = item.data;
-          const price = getDiscountedPrice(d[osIcms] || 0);
+          const price = itemUnitPrice(item);
           const ref = d.ref || '';
           const isNac = (d.origem || 'IMP') === 'NAC';
           const refCel = /^[1-9]\d*$/.test(ref) ? Number(ref) : ref;
@@ -2926,10 +2976,12 @@
 
       totalLinha(escopo === 'pedido' ? 'Itens:' : 'Produtos na lista:', todos.length, false, false);
       totalLinha('Qtd total:', faixasQtd.length ? { formula: 'SUM(' + faixasQtd.join(',') + ')' } : 0, false, false);
-      if (globalDiscount > 0 && escopo === 'pedido') {
+      if ((globalDiscount > 0 || countOvr() > 0) && escopo === 'pedido') {
         const bruto = todos.reduce((s, i) => s + (i.data[osIcms] || 0) * (i.qty || 0), 0);
-        const liq   = todos.reduce((s, i) => s + getDiscountedPrice(i.data[osIcms] || 0) * (i.qty || 0), 0);
-        totalLinha('Economia (' + globalDiscount + '%):', -parseFloat((bruto - liq).toFixed(2)), true, false);
+        const liq   = todos.reduce((s, i) => s + itemUnitPrice(i) * (i.qty || 0), 0);
+        const dif   = parseFloat((bruto - liq).toFixed(2));
+        if (dif > 0.005)
+        totalLinha('Economia' + (globalDiscount > 0 ? ' (' + globalDiscount + '%)' : '') + ':', -dif, true, false);
       }
       totalLinha('TOTAL GERAL:',
         linhasSubtotal.length ? { formula: linhasSubtotal.map(n => 'I' + n).join('+') } : 0, true, true);
@@ -2987,12 +3039,114 @@
     return parseFloat((v * (1 - globalDiscount / 100)).toFixed(2));
   }
 
+  // ── PREÇO ESPECIAL POR PRODUTO ───────────────────────────────────────────
+  // osCart[ref].ovr = { t:'val'|'pct', v:Number, icms:'p18'|... } | null
+  // O preço especial do item SEMPRE vence o desconto global por cluster.
+  function itemUnitPrice(item) {
+    if (!item || !item.data) return 0;
+    var base = item.data[osIcms] || 0;
+    var o = item.ovr;
+    if (o && o.v > 0) {
+      if (o.t === 'val') return parseFloat(Number(o.v).toFixed(2));
+      return parseFloat((base * (1 - Number(o.v) / 100)).toFixed(2));
+    }
+    return getDiscountedPrice(base);
+  }
+
+  function precoFinalRef(ref, key) {
+    var d = PRICE_CONFIG[ref];
+    if (!d) return 0;
+    var it = osCart[ref];
+    if (it && it.ovr && it.ovr.v > 0) {
+      if (it.ovr.t === 'val') return parseFloat(Number(it.ovr.v).toFixed(2));
+      return parseFloat(((d[key] || 0) * (1 - Number(it.ovr.v) / 100)).toFixed(2));
+    }
+    return getDiscountedPrice(d[key] || 0);
+  }
+
+  function badgeMainHTML(ref, d, key) {
+    var orig = d[key] || 0;
+    var fin  = precoFinalRef(ref, key);
+    var txt  = fin > 0 ? 'R$ ' + fin.toFixed(2).replace('.', ',')
+                       : (key === 'expind' ? 'Sob consulta' : 'Aguardar');
+    if (orig > 0 && fin < orig - 0.005) {
+      return '<span style="display:block;text-decoration:line-through;opacity:0.4;font-size:0.72rem;font-weight:400;line-height:1.2">R$ ' +
+             orig.toFixed(2).replace('.', ',') + '</span>' + txt;
+    }
+    return txt;
+  }
+
+  // Redesenha o valor de todos os selos do catálogo na tabela informada
+  function refreshBadges(key) {
+    var k = key || currentIcms || osIcms;
+    document.querySelectorAll('.price-badge').forEach(function (sel) {
+      var ref = sel.dataset.ref;
+      var d = PRICE_CONFIG[ref];
+      if (!d) return;
+      var main = sel.querySelector('.price-main');
+      if (main) main.innerHTML = badgeMainHTML(ref, d, k);
+      sel.classList.toggle('has-ovr', !!(osCart[ref] && osCart[ref].ovr));
+    });
+  }
+
+  function countOvr() {
+    return Object.keys(osCart).filter(function(r) { return !!osCart[r].ovr; }).length;
+  }
+
+  function _ovrSync() { renderOrder(); refreshBadges(); _updateOvrClearAll(); saveCart(); }
+
+  function setItemOvrMode(ref, t) {
+    var it = osCart[ref];
+    if (!it || !discountUnlocked) return;
+    it.ovrMode = t;
+    if (it.ovr) it.ovr = { t: t, v: it.ovr.v, icms: osIcms };
+    _ovrSync();
+  }
+
+  function setItemOvrValor(ref, val) {
+    var it = osCart[ref];
+    if (!it || !discountUnlocked) return;
+    var t = (it.ovr && it.ovr.t) || it.ovrMode || 'val';
+    var n = parseFloat(String(val).replace(',', '.'));
+    if (!isFinite(n) || n <= 0) {
+      it.ovr = null;
+    } else if (t === 'pct') {
+      it.ovr = { t: 'pct', v: Math.min(100, n), icms: osIcms };
+    } else {
+      it.ovr = { t: 'val', v: n, icms: osIcms };
+    }
+    it.ovrMode = t;
+    _ovrSync();
+  }
+
+  function clearItemOvr(ref) {
+    var it = osCart[ref];
+    if (!it) return;
+    it.ovr = null;
+    _ovrSync();
+  }
+
+  function clearAllOvr() {
+    var n = 0;
+    Object.keys(osCart).forEach(function(r) { if (osCart[r].ovr) { osCart[r].ovr = null; n++; } });
+    if (n) _ovrSync();
+  }
+
+  function _updateOvrClearAll() {
+    var b = document.getElementById('osOvrClearAll');
+    if (!b) return;
+    var n = countOvr();
+    b.style.display = n ? 'block' : 'none';
+    b.textContent = '✕ Limpar preços especiais (' + n + ')';
+  }
+
   function openDiscountAuth() {
     const bar = document.getElementById('osDiscountBar');
     if (bar && bar.classList.contains('open')) {
       // Fecha barra e trava novamente
       bar.classList.remove('open');
       discountUnlocked = false;
+      renderOrder();
       return;
     }
     // Sempre exige senha para abrir/editar
@@ -3020,6 +3174,8 @@
           var pct = m ? parseFloat(m[1]) : -1;
           b.classList.toggle('active', pct === globalDiscount || (!m && globalDiscount === 0));
         });
+        renderOrder();
+        _updateOvrClearAll();
         if (!document.getElementById('orderSidebar').classList.contains('open')) {
           toggleOrderSidebar();
         }
@@ -3070,23 +3226,8 @@
   function _applyDiscount() {
     _updateDiscTrigger();
     renderOrder();
-    var icmsKey = currentIcms || osIcms;
-    document.querySelectorAll('.price-badge').forEach(function(badge) {
-      var ref = badge.dataset.ref;
-      var d = PRICE_CONFIG[ref];
-      if (!d) return;
-      var orig = d[icmsKey] || 0;
-      var v = getDiscountedPrice(orig);
-      var mainEl = badge.querySelector('.price-main');
-      if (!mainEl) return;
-      if (globalDiscount > 0 && orig !== v) {
-        mainEl.innerHTML =
-          '<span style="display:block;text-decoration:line-through;opacity:0.4;font-size:0.72rem;font-weight:400;line-height:1.2">R$ ' + orig.toFixed(2).replace('.',',') + '</span>' +
-          (v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar'));
-      } else {
-        mainEl.textContent = v > 0 ? 'R$ ' + v.toFixed(2).replace('.',',') : (currentIcms === 'expind' ? 'Sob consulta' : 'Aguardar');
-      }
-    });
+    _updateOvrClearAll();
+    refreshBadges(currentIcms || osIcms);
   }
 
   // ── Restaurar desconto salvo no localStorage (sem pedir senha) ───────────
@@ -3159,6 +3300,9 @@
         oninput="setManualDiscount(this.value)" onchange="setManualDiscount(this.value)">
       <span class="os-disc-manual-unit">%</span>
     </div>
+    <div class="os-disc-section-label" style="margin-top:4px">Preço por produto</div>
+    <div class="os-ovr-hint">Com a área liberada, cada produto do pedido ganha um campo <b>Preço especial</b>: informe o valor unitário (R$) ou o % de desconto só daquele item. O preço do item sempre prevalece sobre o desconto do cluster.</div>
+    <button class="os-ovr-clearall" id="osOvrClearAll" style="display:none" onclick="clearAllOvr()">✕ Limpar preços especiais (0)</button>
   </div>
 
   <div class="os-icms-bar">
