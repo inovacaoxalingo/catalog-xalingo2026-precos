@@ -818,6 +818,77 @@
   .os-ovr-hint { font-size: 0.62rem; color: #1B3A5C; opacity: 0.6; font-weight: 600; line-height: 1.3; }
   .price-badge.has-ovr .price-tag { box-shadow: 0 0 0 2px #0E8A5F; }
 
+  /* ── Modal de dados do pedido (antes de gerar o PDF) ────────────────────── */
+  .ped-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(12,20,32,0.55);
+    z-index: 400; align-items: center; justify-content: center; padding: 18px;
+    backdrop-filter: blur(3px);
+  }
+  .ped-overlay.open { display: flex; }
+  .ped-box {
+    background: #fff; border-radius: 16px; width: 640px; max-width: 100%;
+    max-height: 92vh; display: flex; flex-direction: column; overflow: hidden;
+    font-family: 'Quicksand', sans-serif; box-shadow: 0 26px 70px rgba(0,0,0,0.35);
+  }
+  .ped-head {
+    background: #1B3A5C; color: #fff; padding: 14px 18px;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  }
+  .ped-title { font-size: 0.98rem; font-weight: 800; }
+  .ped-sub { font-size: 0.7rem; opacity: 0.7; margin-top: 3px; }
+  .ped-x { background: none; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; opacity: 0.7; }
+  .ped-x:hover { opacity: 1; }
+  .ped-body { padding: 14px 18px 18px; overflow-y: auto; }
+  .ped-sec {
+    font-size: 0.63rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px;
+    color: #1B3A5C; opacity: 0.55; margin: 14px 0 7px; display: flex; align-items: center; gap: 8px;
+  }
+  .ped-sec:first-child { margin-top: 0; }
+  .ped-sec::after { content: ''; flex: 1; height: 1px; background: rgba(27,58,92,0.12); }
+  .ped-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ped-f { display: flex; flex-direction: column; gap: 3px; }
+  .ped-f.ped-2 { grid-column: 1/-1; }
+  .ped-f span { font-size: 0.62rem; font-weight: 700; color: #1B3A5C; opacity: 0.6; }
+  .ped-f input, .ped-f select, #pedObs {
+    width: 100%; font-family: 'Quicksand', sans-serif; font-size: 0.78rem; font-weight: 600;
+    padding: 7px 9px; border: 1.5px solid rgba(27,58,92,0.16); border-radius: 8px;
+    color: #1a2634; background: #fff;
+  }
+  .ped-f input:focus, .ped-f select:focus, #pedObs:focus { outline: none; border-color: #1B3A5C; }
+  #pedObs { resize: vertical; line-height: 1.45; }
+  .ped-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 7px; }
+  .ped-chips button {
+    font-family: 'Quicksand', sans-serif; font-size: 0.64rem; font-weight: 700;
+    padding: 3px 9px; border-radius: 20px; border: 1.5px solid rgba(27,58,92,0.18);
+    background: transparent; color: #1B3A5C; cursor: pointer;
+  }
+  .ped-chips button:hover { background: #1B3A5C; color: #fff; border-color: #1B3A5C; }
+  .ped-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 12px; }
+  .ped-opts label {
+    display: flex; align-items: center; gap: 7px; font-size: 0.72rem;
+    font-weight: 600; color: #26374a; cursor: pointer; padding: 3px 0;
+  }
+  .ped-opts input { width: 15px; height: 15px; accent-color: #1B3A5C; cursor: pointer; }
+  .ped-foot {
+    border-top: 1px solid rgba(0,0,0,0.08); padding: 12px 18px; background: #f7f5f2;
+    display: flex; gap: 8px; justify-content: flex-end;
+  }
+  .ped-cancel {
+    font-family: 'Quicksand', sans-serif; font-size: 0.78rem; font-weight: 700;
+    padding: 9px 18px; border-radius: 9px; border: 1.5px solid rgba(0,0,0,0.15);
+    background: transparent; color: #555; cursor: pointer;
+  }
+  .ped-ok {
+    font-family: 'Quicksand', sans-serif; font-size: 0.8rem; font-weight: 800;
+    padding: 9px 22px; border-radius: 9px; border: none;
+    background: #1B3A5C; color: #fff; cursor: pointer;
+  }
+  .ped-ok:hover { background: #24507e; }
+  .ped-ok:disabled { opacity: 0.6; cursor: default; }
+  @media (max-width: 560px) {
+    .ped-grid, .ped-opts { grid-template-columns: 1fr; }
+  }
+
   </style>
 </head>
 <body>
@@ -2052,108 +2123,295 @@
     document.getElementById('osTotals').innerHTML = totHtml;
   }
 
-  async function printOrder() {
+  // ── PEDIDO: modal de dados antes de gerar o PDF ───────────────────────────
+  const PED_KEY = 'xalingo-pedido-cfg';
+  const PED_TEXTOS = ['pedCliente','pedCnpj','pedCidade','pedContato','pedVendedor',
+                      'pedNum','pedData','pedPgto','pedFrete','pedTransp','pedPrevisao',
+                      'pedValidade','pedObs'];
+  // padrão = o documento que o pedido já gerava antes
+  const PED_CHECKS = {
+    pedFotos: true,  pedDePor: true,   pedDesc: false,  pedEspecial: false,
+    pedOrigem: true, pedCx: true,      pedMin: true,    pedEstoque: false,
+    pedEan: false,   pedEntrega: true, pedResumo: true, pedAssinatura: false
+  };
+
+  function pedCfgLer() {
+    try { return JSON.parse(localStorage.getItem(PED_KEY) || '{}'); } catch (e) { return {}; }
+  }
+  function pedCfgGravar(cfg) {
+    try { localStorage.setItem(PED_KEY, JSON.stringify(cfg)); } catch (e) {}
+  }
+  function pedLerForm() {
+    const cfg = {};
+    PED_TEXTOS.forEach(function (id) {
+      const el = document.getElementById(id);
+      cfg[id] = el ? String(el.value || '').trim() : '';
+    });
+    Object.keys(PED_CHECKS).forEach(function (id) {
+      const el = document.getElementById(id);
+      cfg[id] = el ? el.checked : PED_CHECKS[id];
+    });
+    return cfg;
+  }
+
+  // O botão "Gerar Pedido" agora abre o modal; o documento sai em gerarPedidoDoc()
+  function printOrder() {
     const items = Object.values(osCart);
     if (!items.length) { alert('Adicione produtos ao pedido primeiro.'); return; }
-
-    // Busca só os que ainda não estão em cache
-    const pendentes = items.filter(i => {
-      const ref = i.data.ref || '';
-      return PRODUCT_URLS[ref] && !(ref in imgCache && imgCache[ref] !== null);
+    const cfg = pedCfgLer();
+    PED_TEXTOS.forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.value = cfg[id] || '';
     });
-    if (pendentes.length) {
-      const btn = document.querySelector('.os-btn-print');
-      if (btn) { btn.textContent = '⏳ Buscando imagens…'; btn.disabled = true; }
-      await Promise.all(pendentes.map(async item => {
-        const ref = item.data.ref || '';
-        const pageUrl = PRODUCT_URLS[ref] || '';
-        if (!pageUrl) return;
-        const slug = pageUrl.replace(/\/$/, '').split('/').pop();
-        imgCache[ref] = await resolveImgUrl(slug);
-      }));
-      const btn2 = document.querySelector('.os-btn-print');
-      if (btn2) { btn2.textContent = '📄 Gerar Pedido'; btn2.disabled = false; }
+    Object.keys(PED_CHECKS).forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.checked = (cfg[id] === undefined) ? PED_CHECKS[id] : !!cfg[id];
+    });
+    const dt = document.getElementById('pedData');
+    if (dt) {
+      const hoje = new Date();
+      dt.value = new Date(hoje.getTime() - hoje.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
     }
+    const res = document.getElementById('pedResumoItens');
+    if (res) {
+      const q = items.reduce(function (s, i) { return s + i.qty; }, 0);
+      const t = items.reduce(function (s, i) { return s + itemUnitPrice(i) * i.qty; }, 0);
+      const nOvr = countOvr();
+      res.textContent = items.length + ' produto(s) · ' + q + ' un. · ' + fmtMoney(t) +
+        ' · ' + ICMS_NAMES[osIcms] +
+        (globalDiscount > 0 ? ' · desconto ' + globalDiscount + '%' : '') +
+        (nOvr ? ' · ' + nOvr + ' preço(s) especial(is)' : '');
+    }
+    document.getElementById('pedidoModal').classList.add('open');
+  }
 
-    const linha = items.filter(i => !i.data.is_lanc && !i.data.lancamento);
-    const lanc  = items.filter(i =>  i.data.is_lanc ||  i.data.lancamento);
-    const now = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    const discBadge = globalDiscount > 0 ? ' &nbsp;&middot;&nbsp; <span style="background:#f0c040;color:#3a2800;padding:1px 7px;border-radius:10px;font-weight:700">Desconto: ' + globalDiscount + '%</span>' : '';
+  function fecharPedidoModal() {
+    document.getElementById('pedidoModal').classList.remove('open');
+  }
+
+  function pedObsSugestao(tipo) {
+    const t = document.getElementById('pedObs');
+    if (!t) return;
+    const val = document.getElementById('pedValidade');
+    const prev = document.getElementById('pedPrevisao');
+    const textos = {
+      validade:  'Proposta válida por ' + ((val && val.value.trim()) || '7 dias') + ', sujeita à confirmação de estoque.',
+      impostos:  'Preços na tabela ' + ICMS_NAMES[osIcms] + ', com os impostos já inclusos.',
+      entrega:   'Prazo de entrega ' + ((prev && prev.value.trim()) ? 'de ' + prev.value.trim() + ' ' : '') + 'após a confirmação do pedido.',
+      minimo:    'As quantidades seguem múltiplos do pedido mínimo de cada produto.',
+      frete:     'Frete por conta do cliente (FOB); transportadora a combinar.',
+      lancamento:'Itens de lançamento são faturados a partir da data prevista de entrega.',
+      troca:     'Avarias ou divergências devem ser comunicadas em até 7 dias após o recebimento.'
+    };
+    const txt = textos[tipo];
+    if (!txt || t.value.indexOf(txt) >= 0) return;
+    t.value = t.value.trim() ? t.value.trim() + '\n' + txt : txt;
+    t.scrollTop = t.scrollHeight;
+  }
+
+  async function gerarPedidoDoc(btn) {
+    const items = Object.values(osCart);
+    if (!items.length) { alert('Adicione produtos ao pedido primeiro.'); return; }
+    const cfg = pedLerForm();
+    pedCfgGravar(cfg);
+
+    const rotulo = btn ? btn.innerHTML : null;
+    if (cfg.pedFotos) {
+      // mesmo padrão do Excel: se faltar a URL de algum produto (veio de outra
+      // vertical), lê as outras páginas até achar antes de baixar as fotos
+      const urls = Object.assign({}, PRODUCT_URLS);
+      const falta = function () {
+        return items.some(function (i) {
+          const r = i.data.ref || '';
+          return r && !imgCache[r] && !urls[r];
+        });
+      };
+      if (falta()) {
+        if (btn) { btn.innerHTML = '🔗 Localizando as fotos…'; btn.disabled = true; }
+        const aqui = (location.pathname.split('/').pop() || '').toLowerCase();
+        const outras = XLS_CATEGORIAS.filter(function (c) { return c.arquivo.toLowerCase() !== aqui; });
+        for (let k = 0; k < outras.length; k++) {
+          if (!falta()) break;
+          try { Object.assign(urls, (await lerCategoriaXls(outras[k].arquivo)).urls); } catch (e) {}
+        }
+      }
+      const pendentes = items.filter(function (i) {
+        const r = i.data.ref || '';
+        return r && urls[r] && !imgCache[r];
+      });
+      if (pendentes.length) {
+        if (btn) { btn.innerHTML = '⏳ Buscando imagens…'; btn.disabled = true; }
+        await Promise.all(pendentes.map(async function (item) {
+          const r = item.data.ref || '';
+          const slug = (urls[r] || '').replace(/\/$/, '').split('/').pop();
+          try { imgCache[r] = await resolveImgUrl(slug); } catch (e) { imgCache[r] = ''; }
+        }));
+        saveCart();
+      }
+    }
+    if (btn) { btn.innerHTML = rotulo; btn.disabled = false; }
+    fecharPedidoModal();
+
+    const esc = function (t) {
+      return String(t == null ? '' : t)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    };
+    const linha = items.filter(function (i) { return !i.data.is_lanc && !i.data.lancamento; });
+    const lanc  = items.filter(function (i) { return  i.data.is_lanc ||  i.data.lancamento; });
+    const dataPed = cfg.pedData
+      ? cfg.pedData.split('-').reverse().join('/')
+      : new Date().toLocaleDateString('pt-BR');
+    const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
     const tdS = 'padding:6px 8px;border-bottom:1px solid #eee;font-size:0.8rem';
     const thS = 'background:#1B3A5C;color:#fff;padding:7px 8px;font-size:0.78rem;font-weight:700';
-    const thead = `<thead><tr>
-      <th style="${thS};text-align:center;width:62px">Foto</th>
-      <th style="${thS}">REF</th>
-      <th style="${thS}">Produto</th>
-      <th style="${thS};text-align:center">Orig.</th>
-      <th style="${thS};text-align:center">CX</th>
-      <th style="${thS};text-align:center">Mín.</th>
-      <th style="${thS};text-align:right">Preço un.</th>
-      <th style="${thS};text-align:center">Qtd</th>
-      <th style="${thS};text-align:right">Subtotal</th>
-      <th style="${thS}">Entrega</th>
-    </tr></thead>`;
+    let usouEstrela = false;
 
-    const renderRows = (arr) => arr.map(item => {
-      const d = item.data; const priceOrig = d[osIcms]||0;
-      const price = itemUnitPrice(item);
-      const origBg = (d.origem||'IMP')==='NAC' ? '#e0f0e0' : '#dce8f5';
-      const origTx = (d.origem||'IMP')==='NAC' ? '#2a6a2a' : '#1B3A5C';
-      const minBadge = (d.pedido_min||1)>1
-        ? `<span style="background:#fff0cc;color:#8a5000;padding:1px 5px;border-radius:3px;font-weight:700">${d.pedido_min}</span>`
-        : `${d.pedido_min||1}`;
-      const ref = d.ref || '';
-      const imgSrc = imgCache[ref] || '';
-      const thumbCell = imgSrc
-        ? `<img src="${imgSrc}" alt="" style="width:54px;height:54px;object-fit:contain;border-radius:5px;background:#f5f5f5;display:block;margin:0 auto">`
-        : `<div style="width:54px;height:54px;background:#eee;border-radius:5px;margin:0 auto"></div>`;
-      return `<tr>
-        <td style="${tdS};text-align:center;padding:3px 6px">${thumbCell}</td>
-        <td style="${tdS}">${ref}</td>
-        <td style="${tdS}">${d.nome}</td>
-        <td style="${tdS};text-align:center"><span style="background:${origBg};color:${origTx};padding:1px 5px;border-radius:3px;font-weight:700;font-size:0.72rem">${d.origem||'IMP'}</span></td>
-        <td style="${tdS};text-align:center">${d.cx}</td>
-        <td style="${tdS};text-align:center">${minBadge}</td>
-        <td style="${tdS};text-align:right">${fmtMoney(price)}</td>
-        <td style="${tdS};text-align:center;font-weight:700">${item.qty}</td>
-        <td style="${tdS};text-align:right;font-weight:700;color:#A01E1E">${fmtMoney(price*item.qty)}</td>
-        <td style="${tdS};color:#8a5000;font-weight:700;font-size:0.75rem">${d.lancamento?'🚀 '+d.lancamento:''}</td>
-      </tr>`;
-    }).join('');
+    /* colunas conforme a seleção do modal */
+    const cols = [];
+    if (cfg.pedFotos) cols.push({ h: 'Foto', al: 'center', w: '62px', pad: '3px 6px', v: function (i) {
+      const src = imgCache[i.data.ref || ''] || '';
+      return src
+        ? '<img src="' + src + '" alt="" style="width:54px;height:54px;object-fit:contain;border-radius:5px;background:#f5f5f5;display:block;margin:0 auto">'
+        : '<div style="width:54px;height:54px;background:#eee;border-radius:5px;margin:0 auto"></div>';
+    } });
+    cols.push({ h: 'REF', v: function (i) { return esc(i.data.ref || ''); } });
+    cols.push({ h: 'Produto', al: 'left', v: function (i) { return esc(i.data.nome); } });
+    if (cfg.pedOrigem) cols.push({ h: 'Orig.', al: 'center', v: function (i) {
+      const nac = (i.data.origem || 'IMP') === 'NAC';
+      return '<span style="background:' + (nac ? '#e0f0e0' : '#dce8f5') + ';color:' + (nac ? '#2a6a2a' : '#1B3A5C') +
+             ';padding:1px 5px;border-radius:3px;font-weight:700;font-size:0.72rem">' + (i.data.origem || 'IMP') + '</span>';
+    } });
+    if (cfg.pedCx) cols.push({ h: 'CX', al: 'center', v: function (i) { return i.data.cx; } });
+    if (cfg.pedMin) cols.push({ h: 'Mín.', al: 'center', v: function (i) {
+      const pm = i.data.pedido_min || 1;
+      return pm > 1 ? '<span style="background:#fff0cc;color:#8a5000;padding:1px 5px;border-radius:3px;font-weight:700">' + pm + '</span>' : String(pm);
+    } });
+    if (cfg.pedEstoque) cols.push({ h: 'Estoque', al: 'center', v: function (i) {
+      return (i.data.estoque > 0)
+        ? '<span style="color:#2a6a2a;font-weight:700">' + i.data.estoque + '</span>'
+        : '<span style="color:#A01E1E;font-weight:700">0</span>';
+    } });
+    if (cfg.pedEan) cols.push({ h: 'EAN', al: 'center', v: function (i) {
+      return '<span style="font-size:0.72rem;color:#666">' + esc(i.data.ean || '') + '</span>';
+    } });
+    cols.push({ h: 'Preço un.', al: 'right', v: function (i) {
+      const p = itemUnitPrice(i), po = i.data[osIcms] || 0;
+      let out = '';
+      if (cfg.pedDePor && po > p + 0.005) {
+        out += '<span style="display:block;text-decoration:line-through;color:#bbb;font-size:0.7rem;font-weight:400">' + fmtMoney(po) + '</span>';
+      }
+      out += fmtMoney(p);
+      if (cfg.pedEspecial && i.ovr) { usouEstrela = true; out += ' <span style="color:#0E8A5F;font-weight:700">★</span>'; }
+      return out;
+    } });
+    cols.push({ h: 'Qtd', al: 'center', bold: true, v: function (i) { return i.qty; } });
+    cols.push({ h: 'Subtotal', al: 'right', v: function (i) {
+      return '<span style="font-weight:700;color:#A01E1E">' + fmtMoney(itemUnitPrice(i) * i.qty) + '</span>';
+    } });
+    if (cfg.pedEntrega) cols.push({ h: 'Entrega', v: function (i) {
+      return i.data.lancamento ? '<span style="color:#8a5000;font-weight:700;font-size:0.75rem">🚀 ' + esc(i.data.lancamento) + '</span>' : '';
+    } });
 
-    const totalLinha = linha.reduce((s,i)=>s+itemUnitPrice(i)*i.qty,0);
-    const totalLanc  = lanc.reduce((s,i)=>s+itemUnitPrice(i)*i.qty,0);
-    const totalQtd   = items.reduce((s,i)=>s+i.qty,0);
-    const totalGeral = totalLinha + totalLanc;
+    const thead = '<thead><tr>' + cols.map(function (c) {
+      return '<th style="' + thS + ';text-align:' + (c.al || 'left') + (c.w ? ';width:' + c.w : '') + '">' + c.h + '</th>';
+    }).join('') + '</tr></thead>';
+
+    const renderRows = function (arr) {
+      return arr.map(function (item) {
+        return '<tr>' + cols.map(function (c) {
+          return '<td style="' + tdS + ';text-align:' + (c.al || 'left') +
+                 (c.pad ? ';padding:' + c.pad : '') + (c.bold ? ';font-weight:700' : '') + '">' +
+                 c.v(item) + '</td>';
+        }).join('') + '</tr>';
+      }).join('');
+    };
+
+    const somaFinal = function (arr) { return arr.reduce(function (s, i) { return s + itemUnitPrice(i) * i.qty; }, 0); };
+    const somaTabela = function (arr) { return arr.reduce(function (s, i) { return s + (i.data[osIcms] || 0) * i.qty; }, 0); };
+    const totalGeral = somaFinal(items);
+    const totalQtd = items.reduce(function (s, i) { return s + i.qty; }, 0);
+    const economia = somaTabela(items) - totalGeral;
+
+    const tabela = function (arr) {
+      return '<table style="width:100%;border-collapse:collapse;margin-bottom:4px">' + thead + '<tbody>' + renderRows(arr) + '</tbody></table>';
+    };
 
     let body = '';
-    if (linha.length) {
-      body += `<h3 style="color:#1B3A5C;font-size:0.88rem;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.5px">Linha</h3>
-        <table style="width:100%;border-collapse:collapse;margin-bottom:4px">${thead}<tbody>${renderRows(linha)}</tbody></table>
-        <p style="text-align:right;font-size:0.82rem;font-weight:700;color:#555;margin:4px 0 20px">Subtotal linha: ${fmtMoney(totalLinha)}</p>`;
+    if (cfg.pedResumo) {
+      if (linha.length) {
+        body += '<h3 style="color:#1B3A5C;font-size:0.88rem;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.5px">Linha</h3>' +
+          tabela(linha) +
+          '<p style="text-align:right;font-size:0.82rem;font-weight:700;color:#555;margin:4px 0 20px">Subtotal linha: ' + fmtMoney(somaFinal(linha)) + '</p>';
+      }
+      if (lanc.length) {
+        body += '<h3 style="color:#c07000;font-size:0.88rem;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.5px">Lançamentos</h3>' +
+          tabela(lanc) +
+          '<p style="text-align:right;font-size:0.82rem;font-weight:700;color:#555;margin:4px 0 20px">Subtotal lançamentos: ' + fmtMoney(somaFinal(lanc)) + '</p>';
+      }
+    } else {
+      body += tabela(linha.concat(lanc)) + '<div style="height:12px"></div>';
     }
-    if (lanc.length) {
-      body += `<h3 style="color:#c07000;font-size:0.88rem;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.5px">Lançamentos</h3>
-        <table style="width:100%;border-collapse:collapse;margin-bottom:4px">${thead}<tbody>${renderRows(lanc)}</tbody></table>
-        <p style="text-align:right;font-size:0.82rem;font-weight:700;color:#555;margin:4px 0 20px">Subtotal lançamentos: ${fmtMoney(totalLanc)}</p>`;
-    }
+
     if (osIcms === 'expind') {
-      const impCount = items.filter(i => (i.data.origem||'IMP') === 'IMP').length;
-      body += `<div style="background:#e6f4f0;border:1px solid rgba(14,110,90,0.3);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:0.78rem;color:#0E6E5A;font-weight:700">
-        Tabela EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta.${impCount ? ' &#9888;&#65039; ' + impCount + ' item(ns) importado(s) neste pedido &mdash; carga tribut&aacute;ria diferente da dos produtos nacionais.' : ''}
-      </div>`;
+      const impCount = items.filter(function (i) { return (i.data.origem || 'IMP') === 'IMP'; }).length;
+      body += '<div style="background:#e6f4f0;border:1px solid rgba(14,110,90,0.3);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:0.78rem;color:#0E6E5A;font-weight:700">' +
+        'Tabela EXP-IND &middot; Exporta&ccedil;&atilde;o Indireta.' +
+        (impCount ? ' &#9888;&#65039; ' + impCount + ' item(ns) importado(s) neste pedido &mdash; carga tribut&aacute;ria diferente da dos produtos nacionais.' : '') +
+        '</div>';
     }
-    body += `<div style="border-top:2px solid #1B3A5C;padding-top:10px;display:flex;justify-content:flex-end">
-      <table style="font-size:0.85rem;border-collapse:collapse">
-        <tr><td style="color:#888;padding:3px 12px">Itens:</td><td style="font-weight:700;padding:3px 0">${items.length}</td></tr>
-        <tr><td style="color:#888;padding:3px 12px">Qtd total:</td><td style="font-weight:700;padding:3px 0">${totalQtd} un.</td></tr>
-        <tr><td style="color:#333;padding:6px 12px 3px;font-weight:700;font-size:1rem">TOTAL GERAL:</td><td style="font-weight:700;font-size:1rem;color:#A01E1E;padding:6px 0 3px">${fmtMoney(totalGeral)}</td></tr>
-      </table>
-    </div>`;
+
+    body += '<div style="border-top:2px solid #1B3A5C;padding-top:10px;display:flex;justify-content:flex-end">' +
+      '<table style="font-size:0.85rem;border-collapse:collapse">' +
+      '<tr><td style="color:#888;padding:3px 12px">Itens:</td><td style="font-weight:700;padding:3px 0;text-align:right">' + items.length + '</td></tr>' +
+      '<tr><td style="color:#888;padding:3px 12px">Qtd total:</td><td style="font-weight:700;padding:3px 0;text-align:right">' + totalQtd + ' un.</td></tr>' +
+      (cfg.pedDePor && economia > 0.005
+        ? '<tr><td style="color:#0E8A5F;padding:3px 12px">Economia:</td><td style="font-weight:700;color:#0E8A5F;padding:3px 0;text-align:right">- ' + fmtMoney(economia) + '</td></tr>'
+        : '') +
+      '<tr><td style="color:#333;padding:6px 12px 3px;font-weight:700;font-size:1rem">TOTAL GERAL:</td>' +
+      '<td style="font-weight:700;font-size:1rem;color:#A01E1E;padding:6px 0 3px;text-align:right">' + fmtMoney(totalGeral) + '</td></tr>' +
+      '</table></div>';
+
+    if (usouEstrela) {
+      body += '<p style="font-size:0.7rem;color:#0E8A5F;margin:8px 0 0;font-weight:700">★ preço negociado para este pedido.</p>';
+    }
+    if (cfg.pedObs) {
+      body += '<div style="margin-top:16px;border:1px solid #e2e2e2;border-radius:8px;padding:10px 12px;background:#fafafa">' +
+        '<div style="font-size:0.68rem;font-weight:800;color:#1B3A5C;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Observações</div>' +
+        '<div style="font-size:0.78rem;color:#444;line-height:1.5;white-space:pre-wrap">' + esc(cfg.pedObs) + '</div></div>';
+    }
+    if (cfg.pedAssinatura) {
+      body += '<div style="margin-top:38px;display:flex;gap:40px">' +
+        '<div style="flex:1;border-top:1px solid #999;padding-top:6px;text-align:center;font-size:0.74rem;color:#666">' +
+          (cfg.pedCliente ? esc(cfg.pedCliente) : 'Cliente') + '</div>' +
+        '<div style="flex:1;border-top:1px solid #999;padding-top:6px;text-align:center;font-size:0.74rem;color:#666">' +
+          'Xalingo' + (cfg.pedVendedor ? ' &middot; ' + esc(cfg.pedVendedor) : '') + '</div></div>';
+    }
+
+    /* cabeçalho com os dados do cliente */
+    const dadosCli = [
+      ['Cliente', cfg.pedCliente], ['CNPJ / CPF', cfg.pedCnpj], ['Cidade / UF', cfg.pedCidade],
+      ['Contato', cfg.pedContato], ['Vendedor', cfg.pedVendedor], ['Pagamento', cfg.pedPgto],
+      ['Frete', cfg.pedFrete], ['Transportadora', cfg.pedTransp],
+      ['Previsão de entrega', cfg.pedPrevisao], ['Validade da proposta', cfg.pedValidade]
+    ].filter(function (l) { return l[1]; });
+
+    const boxCli = dadosCli.length
+      ? '<div style="border:1px solid #dfe5ec;border-radius:10px;padding:10px 14px;margin-bottom:16px;' +
+        'display:grid;grid-template-columns:repeat(3,1fr);gap:7px 18px">' +
+        dadosCli.map(function (l) {
+          return '<div><div style="font-size:0.6rem;font-weight:800;color:#8a97a6;text-transform:uppercase;letter-spacing:0.4px">' +
+            l[0] + '</div><div style="font-size:0.82rem;font-weight:700;color:#1a2634">' + esc(l[1]) + '</div></div>';
+        }).join('') + '</div>'
+      : '';
+
+    const descBadge = (cfg.pedDesc && globalDiscount > 0)
+      ? ' &nbsp;&middot;&nbsp; <span style="background:#f0c040;color:#3a2800;padding:1px 7px;border-radius:10px;font-weight:700">Desconto: ' + globalDiscount + '%</span>'
+      : '';
+    const tituloJanela = 'Pedido Xalingo' + (cfg.pedNum ? ' ' + cfg.pedNum : '') + (cfg.pedCliente ? ' - ' + cfg.pedCliente : '');
 
     const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
-      <title>Pedido Xalingo</title>
+      <title>${esc(tituloJanela)}</title>
       <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
       <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2164,16 +2422,17 @@
         @media print {
           body { padding: 12px 18px; }
           @page { margin: 10mm 12mm; }
+          .noprint { display: none !important; }
         }
       </style>
     </head><body>
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #1B3A5C">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #1B3A5C">
         <div>
           <h1 style="color:#1B3A5C;font-size:1.3rem;font-weight:700;margin:0">Pedido de Venda — Xalingo</h1>
-          <p style="color:#999;font-size:0.78rem;margin:4px 0 0">${now} &nbsp;·&nbsp; ${ICMS_NAMES[osIcms]}</p>
+          <p style="color:#999;font-size:0.78rem;margin:4px 0 0">${dataPed} ${hora} &nbsp;·&nbsp; ${ICMS_NAMES[osIcms]}${cfg.pedNum ? ' &nbsp;·&nbsp; Pedido nº ' + esc(cfg.pedNum) : ''}${descBadge}</p>
         </div>
-        <div style="display:flex;gap:8px">
-          <button onclick="window.print()" style="background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,Arial,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">
+        <div style="display:flex;gap:8px" class="noprint">
+          <button onclick="compressAndPrint()" style="background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,Arial,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">
             🖨 Imprimir / PDF
           </button>
           <button onclick="window.opener.exportExcel(this)" style="background:#1d6f42;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,Arial,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">
@@ -2181,8 +2440,8 @@
           </button>
         </div>
       </div>
+      ${boxCli}
       ${body}
-      <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>
       <script>
         async function compressAndPrint() {
           const imgs = Array.from(document.querySelectorAll('td img[src]'));
@@ -2208,38 +2467,15 @@
           })));
           window.print();
         }
-        document.getElementById('xlsxBtn') && document.getElementById('xlsxBtn').addEventListener('click', function() {
-          const rows = [['REF','Produto','Origem','CX','Ped. Mínimo','Preço unit.','Qtd','Subtotal','Entrega','Tipo']];
-          document.querySelectorAll('tbody tr').forEach(tr => {
-            const cells = tr.querySelectorAll('td');
-            if (cells.length < 8) return;
-            rows.push([
-              cells[0].textContent.trim(),
-              cells[1].textContent.trim(),
-              cells[2].textContent.trim(),
-              cells[3].textContent.trim(),
-              cells[4].textContent.trim(),
-              cells[5].textContent.trim(),
-              cells[6].textContent.trim(),
-              cells[7].textContent.trim(),
-              cells[8] ? cells[8].textContent.trim() : '',
-              cells[9] ? cells[9].textContent.trim() : '',
-            ]);
-          });
-          const wb = XLSX.utils.book_new();
-          const ws = XLSX.utils.aoa_to_sheet(rows);
-          ws['!cols'] = [{wch:8},{wch:45},{wch:8},{wch:6},{wch:8},{wch:12},{wch:6},{wch:12},{wch:14},{wch:12}];
-          XLSX.utils.book_append_sheet(wb, ws, 'Pedido');
-          const date = new Date().toLocaleDateString('pt-BR').replace(/[/]/g,'-');
-          XLSX.writeFile(wb, 'Pedido_Xalingo_' + date + '.xlsx');
-        });
       <\/script>
     </body></html>`;
 
     const win = window.open('', '_blank', 'width=900,height=700');
+    if (!win) { alert('O navegador bloqueou a janela do pedido. Libere os pop-ups deste site e tente de novo.'); return; }
     win.document.write(html);
     win.document.close();
   }
+
 
   // Sync ICMS on load
   (function() {
@@ -2630,6 +2866,24 @@
       r.getCell(1).alignment = { vertical: 'middle' };
       r.height = 18;
       for (let c = 1; c <= 10; c++) r.getCell(c).border = { bottom: { style: 'medium', color: { argb: AZUL } } };
+      if (escopo === 'pedido') {
+        const cfgPed = pedCfgLer();
+        const infoPed = [];
+        if (cfgPed.pedCliente) infoPed.push('Cliente: ' + cfgPed.pedCliente);
+        if (cfgPed.pedCnpj)    infoPed.push('CNPJ: ' + cfgPed.pedCnpj);
+        if (cfgPed.pedNum)     infoPed.push('Pedido nº ' + cfgPed.pedNum);
+        if (cfgPed.pedVendedor)infoPed.push('Vendedor: ' + cfgPed.pedVendedor);
+        if (cfgPed.pedPgto)    infoPed.push('Pagamento: ' + cfgPed.pedPgto);
+        if (cfgPed.pedFrete)   infoPed.push('Frete: ' + cfgPed.pedFrete);
+        if (infoPed.length) {
+          const rc = ws.addRow([]);
+          ws.mergeCells(rc.number, 1, rc.number, 10);
+          rc.getCell(1).value = infoPed.join('   ·   ');
+          rc.getCell(1).font = { bold: true, size: 10.5, color: { argb: AZUL } };
+          rc.getCell(1).alignment = { vertical: 'middle' };
+          rc.height = 18;
+        }
+      }
       ws.addRow([]).height = 7;
 
       const CAB = ['Foto', 'REF', 'Produto', 'Orig.', 'CX', 'Mín.', 'Preço un.', 'Qtd', 'Subtotal', 'Entrega'];
@@ -2789,6 +3043,19 @@
       }
       totalLinha('TOTAL GERAL:',
         linhasSubtotal.length ? { formula: linhasSubtotal.map(n => 'I' + n).join('+') } : 0, true, true);
+
+      if (escopo === 'pedido') {
+        const obsPed = (pedCfgLer().pedObs || '').trim();
+        if (obsPed) {
+          ws.addRow([]).height = 6;
+          const ro = ws.addRow([]);
+          ws.mergeCells(ro.number, 1, ro.number, 10);
+          ro.getCell(1).value = 'Observações: ' + obsPed.replace(/\s*\n\s*/g, '   ·   ');
+          ro.getCell(1).font = { size: 10, italic: true, color: { argb: 'FF666666' } };
+          ro.getCell(1).alignment = { vertical: 'middle', wrapText: true };
+          ro.height = 20;
+        }
+      }
 
       if (primeiroCab) {
         ws.views = [{ state: 'frozen', ySplit: primeiroCab }];
@@ -3141,6 +3408,80 @@
     <div style="margin-top:16px;display:flex;gap:8px">
       <button onclick="compressAndPrint()" style="background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:Quicksand,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">🖨 Imprimir / PDF</button>
       <button onclick="document.getElementById('printModal').classList.remove('open')" style="background:transparent;border:1px solid #ccc;border-radius:8px;padding:9px 20px;font-family:Quicksand,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer">Fechar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal: dados do pedido antes de gerar o PDF -->
+<div class="ped-overlay" id="pedidoModal" onclick="if(event.target===this)fecharPedidoModal()">
+  <div class="ped-box">
+    <div class="ped-head">
+      <div>
+        <div class="ped-title">📄 Gerar Pedido</div>
+        <div class="ped-sub" id="pedResumoItens"></div>
+      </div>
+      <button class="ped-x" onclick="fecharPedidoModal()">✕</button>
+    </div>
+
+    <div class="ped-body">
+      <div class="ped-sec">Cliente</div>
+      <div class="ped-grid">
+        <label class="ped-f ped-2"><span>Cliente / razão social</span><input id="pedCliente" type="text" placeholder="Nome do cliente"></label>
+        <label class="ped-f"><span>CNPJ / CPF</span><input id="pedCnpj" type="text" placeholder="00.000.000/0000-00"></label>
+        <label class="ped-f"><span>Cidade / UF</span><input id="pedCidade" type="text" placeholder="Santa Cruz do Sul / RS"></label>
+        <label class="ped-f"><span>Contato / comprador</span><input id="pedContato" type="text" placeholder="nome, telefone ou e-mail"></label>
+        <label class="ped-f"><span>Vendedor / representante</span><input id="pedVendedor" type="text"></label>
+      </div>
+
+      <div class="ped-sec">Pedido</div>
+      <div class="ped-grid">
+        <label class="ped-f"><span>Nº / referência</span><input id="pedNum" type="text" placeholder="ex.: 2026-0143"></label>
+        <label class="ped-f"><span>Data</span><input id="pedData" type="date"></label>
+        <label class="ped-f"><span>Condição de pagamento</span><input id="pedPgto" type="text" placeholder="ex.: 30/60/90 dias"></label>
+        <label class="ped-f"><span>Frete</span>
+          <select id="pedFrete">
+            <option value="">—</option>
+            <option>CIF — por conta da Xalingo</option>
+            <option>FOB — por conta do cliente</option>
+          </select></label>
+        <label class="ped-f"><span>Transportadora</span><input id="pedTransp" type="text"></label>
+        <label class="ped-f"><span>Previsão de entrega</span><input id="pedPrevisao" type="text" placeholder="ex.: 20 dias"></label>
+        <label class="ped-f"><span>Validade da proposta</span><input id="pedValidade" type="text" placeholder="ex.: 7 dias"></label>
+      </div>
+
+      <div class="ped-sec">Observações</div>
+      <div class="ped-chips">
+        <button type="button" onclick="pedObsSugestao('validade')">+ validade</button>
+        <button type="button" onclick="pedObsSugestao('impostos')">+ impostos</button>
+        <button type="button" onclick="pedObsSugestao('entrega')">+ prazo de entrega</button>
+        <button type="button" onclick="pedObsSugestao('minimo')">+ pedido mínimo</button>
+        <button type="button" onclick="pedObsSugestao('frete')">+ frete</button>
+        <button type="button" onclick="pedObsSugestao('lancamento')">+ lançamentos</button>
+        <button type="button" onclick="pedObsSugestao('troca')">+ avarias</button>
+      </div>
+      <textarea id="pedObs" rows="3" placeholder="Texto livre que sai no rodapé do pedido"></textarea>
+
+      <div class="ped-sec">O que mostrar no documento</div>
+      <div class="ped-opts">
+        <label><input type="checkbox" id="pedFotos"><span>Fotos dos produtos</span></label>
+        <label><input type="checkbox" id="pedDePor"><span>Preço de tabela riscado + economia</span></label>
+        <label><input type="checkbox" id="pedDesc"><span>% de desconto no cabeçalho</span></label>
+        <label><input type="checkbox" id="pedEspecial"><span>Marcar ★ os preços negociados</span></label>
+        <label><input type="checkbox" id="pedOrigem"><span>Coluna Origem (NAC/IMP)</span></label>
+        <label><input type="checkbox" id="pedCx"><span>Coluna CX</span></label>
+        <label><input type="checkbox" id="pedMin"><span>Coluna Pedido mínimo</span></label>
+        <label><input type="checkbox" id="pedEstoque"><span>Coluna Estoque</span></label>
+        <label><input type="checkbox" id="pedEan"><span>Coluna EAN</span></label>
+        <label><input type="checkbox" id="pedEntrega"><span>Coluna Entrega (lançamentos)</span></label>
+        <label><input type="checkbox" id="pedResumo"><span>Separar Linha e Lançamentos</span></label>
+        <label><input type="checkbox" id="pedAssinatura"><span>Campo de assinatura</span></label>
+      </div>
+    </div>
+
+    <div class="ped-foot">
+      <button class="ped-cancel" onclick="fecharPedidoModal()">Cancelar</button>
+      <button class="ped-ok" id="pedGerarBtn" onclick="gerarPedidoDoc(this)">📄 Gerar pedido</button>
     </div>
   </div>
 </div>
