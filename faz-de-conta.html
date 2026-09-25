@@ -496,6 +496,18 @@
 
   /* ===== PRICE OVERLAYS ===== */
   .page-wrap { position:relative; display:block; line-height:0; }
+  /* Véu "Indisponível no momento" (REFS_INDISPONIVEIS) */
+  .page-veil {
+    position:absolute; z-index:15; pointer-events:none;
+    background:rgba(255,255,255,0.84);
+    container-type:inline-size;
+  }
+  .page-veil-label {
+    position:absolute; left:0; right:0; top:var(--rotulo-y,50%);
+    transform:translateY(-50%); text-align:center;
+    font-family:'Open Sans','Quicksand',sans-serif; font-weight:400;
+    color:#333; line-height:1.2; font-size:var(--rotulo-fs,2.6cqw);
+  }
     .price-badge {
     position: absolute;
     z-index: 20;
@@ -1960,8 +1972,49 @@
     '62554': { img:'fazdeconta-p8', x:4, y:15, p18:170, p12rs:183, p12:170, p7:170, expind:85, cx:6, estoque:542, disponivel:542, origem:'IMP', nome:'MESA DE ÁGUA AREIA PLAY', ean:'7896640412487', dun:'17896640412484' },
   };
 
+  // Refs sem selo de preço/compra (somem do catálogo, do Excel e do PDF)
+  const REFS_OCULTAS = new Set(['55025', '93945']);
+
+  // Refs indisponíveis: véu branco + rótulo sobre a área do produto.
+  // top/left/width/height/textoY em % da PÁGINA (bloco de cima 0–50, de baixo 50–100)
+  const REFS_INDISPONIVEIS = {
+    '93945': { img:'fazdeconta-p8', top:50, left:0, width:94, height:50, textoY:72, texto:'Indisponível no momento' }
+  };
+
+  function renderVeils() {
+    Object.entries(REFS_INDISPONIVEIS).forEach(([ref, v]) => {
+      const img = document.querySelector(`img[src*="${v.img}"]`);
+      if (!img) return;
+      let wrap = img.parentElement;
+      if (!wrap.classList.contains('page-wrap')) {
+        const newWrap = document.createElement('div');
+        newWrap.className = 'page-wrap';
+        img.parentNode.insertBefore(newWrap, img);
+        newWrap.appendChild(img);
+        wrap = newWrap;
+      }
+      if (wrap.querySelector(`.page-veil[data-ref="${ref}"]`)) return;
+      const veu = document.createElement('div');
+      veu.className = 'page-veil';
+      veu.dataset.ref = ref;
+      veu.style.top = v.top + '%';
+      veu.style.left = v.left + '%';
+      veu.style.width = v.width + '%';
+      veu.style.height = v.height + '%';
+      // posição e tamanho do rótulo são dados em % da página → convertidos para o véu
+      veu.style.setProperty('--rotulo-y', ((v.textoY - v.top) / v.height * 100) + '%');
+      veu.style.setProperty('--rotulo-fs', (2.45 / v.width * 100) + 'cqw');
+      const lbl = document.createElement('div');
+      lbl.className = 'page-veil-label';
+      lbl.textContent = v.texto || 'Indisponível no momento';
+      veu.appendChild(lbl);
+      wrap.appendChild(veu);
+    });
+  }
+
   function renderPriceBadges() {
     Object.entries(PRICE_CONFIG).forEach(([ref, d]) => {
+      if (REFS_OCULTAS.has(ref)) return;
       const img = document.querySelector(`img[src*="${d.img}"]`);
       if (!img) return;
       let wrap = img.parentElement;
@@ -2018,6 +2071,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     renderPriceBadges();
+    renderVeils();
     applyIcmsOnLoad();
   applyExpIndMode(currentIcms);
   document.addEventListener('DOMContentLoaded', () => applyExpIndMode(currentIcms));
@@ -2122,6 +2176,7 @@
       Object.keys(saved).forEach(ref => {
         const item = saved[ref];
         if (!item || !item.data) return;
+        if (REFS_OCULTAS.has(ref)) return; // ocultas/indisponíveis saem do pedido salvo
         // Use live PRICE_CONFIG data if available (same page), else use saved data
         const d = PRICE_CONFIG[ref] || item.data;
         d.ref = ref;
