@@ -496,6 +496,18 @@
 
   /* ===== PRICE OVERLAYS ===== */
   .page-wrap { position:relative; display:block; line-height:0; }
+  /* Véu "Indisponível no momento" (REFS_INDISPONIVEIS) */
+  .page-veil {
+    position:absolute; z-index:15; pointer-events:none;
+    background:rgba(255,255,255,0.84);
+    container-type:inline-size;
+  }
+  .page-veil-label {
+    position:absolute; left:0; right:0; top:var(--rotulo-y,50%);
+    transform:translateY(-50%); text-align:center;
+    font-family:'Open Sans','Quicksand',sans-serif; font-weight:400;
+    color:#333; line-height:1.2; font-size:var(--rotulo-fs,2.6cqw);
+  }
     .price-badge {
     position: absolute;
     z-index: 20;
@@ -1952,8 +1964,48 @@
     '67287': { img:'esportes-p5', x:8, y:70, p18:1548.7, p12rs:1470, p12:1470, p7:1404.4, expind:562, cx:1, estoque:12, disponivel:32, origem:'NAC', nome:'MESA DOBRÁVEL DE MADEIRA COM PÉS', ean:'7896640467289', dun:'17896640467286' },
   };
 
+  // Refs sem selo de preço/compra (somem do catálogo, do Excel e do PDF)
+  const REFS_OCULTAS = new Set(['28676']);
+
+  // Refs indisponíveis: véu branco + rótulo sobre a área do produto.
+  // top/left/width/height/textoY em % da PÁGINA (bloco de cima 0–50, de baixo 50–100)
+  const REFS_INDISPONIVEIS = {
+    '28676': { img:'esportes-p3', top:0, left:51, width:43, height:49, textoY:24, texto:'Indisponível no momento' }
+  };
+
+  function renderVeils() {
+    Object.entries(REFS_INDISPONIVEIS).forEach(([ref, v]) => {
+      const img = document.querySelector(`img[src*="${v.img}"]`);
+      if (!img) return;
+      let wrap = img.parentElement;
+      if (!wrap.classList.contains('page-wrap')) {
+        const newWrap = document.createElement('div');
+        newWrap.className = 'page-wrap';
+        img.parentNode.insertBefore(newWrap, img);
+        newWrap.appendChild(img);
+        wrap = newWrap;
+      }
+      if (wrap.querySelector(`.page-veil[data-ref="${ref}"]`)) return;
+      const veu = document.createElement('div');
+      veu.className = 'page-veil';
+      veu.dataset.ref = ref;
+      veu.style.top = v.top + '%';
+      veu.style.left = v.left + '%';
+      veu.style.width = v.width + '%';
+      veu.style.height = v.height + '%';
+      veu.style.setProperty('--rotulo-y', ((v.textoY - v.top) / v.height * 100) + '%');
+      veu.style.setProperty('--rotulo-fs', (2.45 / v.width * 100) + 'cqw');
+      const lbl = document.createElement('div');
+      lbl.className = 'page-veil-label';
+      lbl.textContent = v.texto || 'Indisponível no momento';
+      veu.appendChild(lbl);
+      wrap.appendChild(veu);
+    });
+  }
+
   function renderPriceBadges() {
     Object.entries(PRICE_CONFIG).forEach(([ref, d]) => {
+      if (REFS_OCULTAS.has(ref)) return;
       const img = document.querySelector(`img[src*="${d.img}"]`);
       if (!img) return;
       let wrap = img.parentElement;
@@ -2010,6 +2062,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     renderPriceBadges();
+    renderVeils();
     applyIcmsOnLoad();
   applyExpIndMode(currentIcms);
   document.addEventListener('DOMContentLoaded', () => applyExpIndMode(currentIcms));
