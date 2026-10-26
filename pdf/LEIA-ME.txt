@@ -1,0 +1,4 @@
+Arquivos usados só na hora de gerar o PDF do catálogo completo (pdf-catalogo.js):
+- fontkit.umd.min.js  -> @pdf-lib/fontkit 1.1.1 (MIT), permite embutir as fontes do catálogo no PDF
+- fonts/Fredoka-*.ttf e fonts/Quicksand-*.ttf -> Google Fonts (SIL Open Font License 1.1), subconjunto latino
+Se algum faltar, o PDF sai com Helvetica.

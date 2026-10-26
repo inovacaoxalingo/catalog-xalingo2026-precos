@@ -1040,7 +1040,14 @@
     .ped-grid, .ped-opts { grid-template-columns: 1fr; }
   }
 
-  </style>
+  
+  /* ===== SIDEBAR: busca e "Catálogo completo em PDF" sempre à vista =====
+     a lista de categorias rola por dentro; o rodapé da sidebar fica fixo. */
+  .sidebar .sb-nav { flex: 1 1 0; min-height: 150px; overflow-y: auto; }
+  .sidebar .sb-nav::-webkit-scrollbar { width: 4px; }
+  .sidebar .sb-nav::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }
+  .sidebar .sb-search, .sidebar .btn-print-wrap { flex-shrink: 0; }
+</style>
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HB9RN5N1J2"></script>
 <script>
